@@ -1,0 +1,11 @@
+{
+  "expo": {
+    "name": "react-native-3d",
+    "slug": "react-native-3d",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  },
+  "name": "react-native-3d"
+}
