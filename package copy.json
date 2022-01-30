@@ -9,27 +9,25 @@
     "web": "expo start --web"
   },
   "dependencies": {
-    "@unimodules/core": "^7.1.2",
-    "@unimodules/react-native-adapter": "^6.3.9",
     "base-64": "^1.0.0",
-    "expo": "~44.0.5",
+    "expo": "~44.0.2",
     "expo-asset": "^8.4.6",
     "expo-file-system": "^13.1.2",
-    "expo-gl": "^10.4.2",
+    "expo-gl": "^10.4.1",
     "expo-splash-screen": "~0.14.1",
     "expo-status-bar": "~1.2.0",
     "expo-three": "^6.0.1",
-    "react": "17.0.2",
-    "react-dom": "17.0.2",
-    "react-native": "^0.64.3",
-    "react-native-gesture-handler": "~2.2.0",
-    "react-native-unimodules": "^0.15.0",
-    "react-native-web": "0.17.5",
-    "three": "^0.137.5",
+    "react": "17.0.1",
+    "react-dom": "17.0.1",
+    "react-native": "0.64.3",
+    "react-native-gesture-handler": "~2.1.0",
+    "react-native-unimodules": "^0.14.10",
+    "react-native-web": "0.17.1",
+    "three": "^0.137.0",
     "whatwg-fetch": "^3.6.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.16.12"
+    "@babel/core": "^7.12.9"
   },
   "private": true
 }
