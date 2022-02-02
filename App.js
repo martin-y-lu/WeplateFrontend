@@ -46,6 +46,11 @@ const SidebarNavigable = ()=>{
         <Drawer.Screen
             name = "About Us"
             component = {AboutUs}
+            options = {{
+                title: 'About Us',
+                headerTransparent: true,
+                headerTitleStyle: {opacity: 0}
+            }}
         />
     </Drawer.Navigator>
 }

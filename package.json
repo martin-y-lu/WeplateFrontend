@@ -29,13 +29,16 @@
     "react-native-reanimated": "^2.3.1",
     "react-native-safe-area-context": "^3.3.2",
     "react-native-screens": "^3.10.2",
+    "react-native-svg": "^12.1.1",
     "react-native-unimodules": "^0.15.0",
     "react-native-web": "0.17.5",
     "three": "^0.137.5",
+    "uri-scheme": "^1.0.112",
     "whatwg-fetch": "^3.6.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.16.12"
+    "@babel/core": "^7.16.12",
+    "react-native-svg-transformer": "^1.0.0"
   },
   "private": true
 }
