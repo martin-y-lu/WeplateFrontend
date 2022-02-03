@@ -38,6 +38,10 @@ const SidebarNavigable = ()=>{
         <Drawer.Screen
             name = "Feedback"
             component = {Feedback}
+            options = {{
+                headerTransparent: true,
+                headerTitleStyle: {opacity: 0}
+            }}
         />
         <Drawer.Screen
             name = "Settings"
@@ -47,7 +51,6 @@ const SidebarNavigable = ()=>{
             name = "About Us"
             component = {AboutUs}
             options = {{
-                title: 'About Us',
                 headerTransparent: true,
                 headerTitleStyle: {opacity: 0}
             }}
