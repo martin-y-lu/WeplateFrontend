@@ -6,12 +6,15 @@ import {createDrawerNavigator} from '@react-navigation/drawer'
 // App pages
 
 import Dashboard from "./src/dashboard/Dashboard";
+import DashboardHeader from "./src/dashboard/DashboardHeader";
 import Login from "./src/login/Login";
 import Survey from "./src/survey/Survey";
 import Settings from "./src/settings/Settings"
 import DiningMenu from "./src/dining-menu/DiningMenu";
 import AboutUs from "./src/about-us/AboutUs";
 import Feedback from "./src/feedback/Feedback";
+import { RecoilRoot } from "recoil";
+import BaseHeader from "./src/utils/BaseHeader";
 
 const Stack = createNativeStackNavigator()
 const Drawer = createDrawerNavigator();
@@ -30,6 +33,9 @@ const SidebarNavigable = ()=>{
         <Drawer.Screen
             name = "Dashboard"
             component = {Dashboard}
+            options  = {{
+                header: (props) =>  <DashboardHeader {...props}/>,
+            }}
         />
         <Drawer.Screen
             name = "Dining Menu"
@@ -39,8 +45,9 @@ const SidebarNavigable = ()=>{
             name = "Feedback"
             component = {Feedback}
             options = {{
+                header: (props) =>  <BaseHeader {...props}/>,
                 headerTransparent: true,
-                headerTitleStyle: {opacity: 0}
+                headerTitleStyle: {opacity: 0, color: "white"}
             }}
         />
         <Drawer.Screen
@@ -51,13 +58,14 @@ const SidebarNavigable = ()=>{
             name = "About Us"
             component = {AboutUs}
             options = {{
+                header: (props) =>  <BaseHeader {...props}/>,
                 headerTransparent: true,
                 headerTitleStyle: {opacity: 0}
             }}
         />
     </Drawer.Navigator>
 }
-const App = ()=>{
+const BaseApp = ()=>{
     return <NavigationContainer>
         <Stack.Navigator>
             <Stack.Screen
@@ -80,4 +88,12 @@ const App = ()=>{
     </NavigationContainer>
 }
 
-export default App
+//Setting up recoil based state management
+const RecoilApp = ()=>{
+    return <RecoilRoot>
+        <BaseApp/> 
+    </RecoilRoot> 
+}
+
+
+export default RecoilApp

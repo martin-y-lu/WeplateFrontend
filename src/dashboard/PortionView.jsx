@@ -46,6 +46,7 @@ import {encode,decode} from'base-64'
 //   Raycaster,
 // } = THREE
 import {OBJLoader} from 'three/examples/jsm/loaders/OBJLoader'
+import { degToRad, interp, lerp } from '../utils/math';
 
 console.log(Quaternion)
 if (!global.btoa) {
@@ -56,18 +57,7 @@ if (!global.atob) {
   global.atob = decode;
 }
 
-
-function degToRad(d){
-  return d*Math.PI/180;
-}
-function lerp(a,b,r){
-  return a*(1-r)+b*(r)
-}
-function rmap(a,b,A,B,v){
-  const r = (v-a)/(b-a)
-  return lerp(A,B,r)
-}
-const DEBUG= true;
+const DEBUG= false;
 
 function useTrackedAnimation(init_value,valueListener = (val)=>{}){
   const anim = useRef(new Animated.Value(init_value))
@@ -97,8 +87,10 @@ function useTrackedAnimation(init_value,valueListener = (val)=>{}){
 }
 
 const PortionView = (props)=>{
+  const {style} = props
   //size of graphics window (square)
   const size = Dimensions.get('window').width
+  const aspect = 0.7
 
   //three.js camera
   const perspectiveCamera = useRef(null)
@@ -141,7 +133,7 @@ const PortionView = (props)=>{
 
 
   //Timer to re centralise after a certain period of no interaction
-  const DOES_INACTIVITY_TIMER = false;
+  const DOES_INACTIVITY_TIMER = true;
   const INACTIVITY_TIMER_LENGTH = 800;
   const inactivityTimer = useRef(null)
 
@@ -260,7 +252,7 @@ const PortionView = (props)=>{
       const usePerspective = centralizeValue.current !== 1
       // const usePerspective = true
       const fov1 = 0.2
-      const dist1 = 700
+      const dist1 = 420
 
       const fov2 = 75
       const dist2 = 3
@@ -270,13 +262,13 @@ const PortionView = (props)=>{
         _perspectiveCamera.fov = fov
 
         //interpolate distance of camera in order to have smooth fov change
-        const dist = rmap(fov1,fov2,dist1*Math.tan(degToRad(fov1)/2),dist2*Math.tan(degToRad(fov2)/2),fov)/Math.tan(degToRad(fov)/2)
+        const dist = interp(fov1,fov2,dist1*Math.tan(degToRad(fov1)/2),dist2*Math.tan(degToRad(fov2)/2),fov)/Math.tan(degToRad(fov)/2)
 
         _perspectiveCamera.position.set(0,0,dist)
         _perspectiveCamera.updateProjectionMatrix()
       }else{
-        const MAGIC_NUMBER = 1.09
-        const width = rmap(fov1,fov2,dist1*Math.tan(degToRad(fov1)/2),dist2*Math.tan(degToRad(fov2)/2),0)*MAGIC_NUMBER
+        const MAGIC_NUMBER = 1.75
+        const width = interp(fov1,fov2,dist1*Math.tan(degToRad(fov1)/2),dist2*Math.tan(degToRad(fov2)/2),0)*MAGIC_NUMBER
         // console.log(width)
         const height = width*gl.drawingBufferHeight/gl.drawingBufferWidth
         // new OrthographicCamera(-width/2,height/2,width/2,-height/2,-1000,1000)
@@ -353,7 +345,7 @@ const PortionView = (props)=>{
 
     let {nativeEvent} = event;
     if(viewSize!=null && perspectiveCamera.current!=null){
-      const pos = new Vector2(2*nativeEvent.absoluteX/size -1, -2*nativeEvent.absoluteY/size+1)
+      const pos = new Vector2(2*nativeEvent.absoluteX/size -1, -2*nativeEvent.absoluteY/(size*aspect)+1)
       const raycaster = new Raycaster();
       raycaster.setFromCamera(pos,perspectiveCamera.current)
       const comps = Object.values(components.current);
@@ -373,7 +365,7 @@ const PortionView = (props)=>{
     <GLView
       onContextCreate={onContextCreate}
       // onTouchStart = {onTouchStart}
-      style = {{width:size,height:size}}
+      style = {{width:size,height:size*aspect,...style}}
     />
   </PanGestureHandler>
   if(!DEBUG){
