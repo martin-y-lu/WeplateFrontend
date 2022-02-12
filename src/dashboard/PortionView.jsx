@@ -217,12 +217,12 @@ const PortionView = (props)=>{
     const model_scale = 0.5
     model.scale.set(model_scale,model_scale,model_scale)
     model.position.set(0,-0.2,0)
-    console.log(model.children[0].name)
+    // console.log(model.children[0].name)
     const _components = {}
     model.children.forEach((object)=>{
       _components[object.name] = object
     })
-    console.log(Object.keys(_components))
+    // console.log(Object.keys(_components))
     _components["Right"].material = new MeshLambertMaterial({color: '#FA586E',}); //red
     _components["BottomLeft"].material = new MeshLambertMaterial({color: '#FAE458',}) //yellow
     _components["TopLeft"].material = new MeshLambertMaterial({color: '#FA9358'}) //orange 

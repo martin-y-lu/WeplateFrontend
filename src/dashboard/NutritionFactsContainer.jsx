@@ -5,7 +5,7 @@ import { PanGestureHandler } from 'react-native-gesture-handler'
 import { closest, interp } from "../utils/math"
 import { SHADOW_STYLE } from './Dashboard'
 
-const ARROW_ICON_SVG = '<svg width="30" height="18" viewBox="0 0 30 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M27.2019 15.101L15.101 3.00003L3.00007 15.101" stroke="#C2C2C2" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+export const ARROW_ICON_SVG = '<svg width="30" height="18" viewBox="0 0 30 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M27.2019 15.101L15.101 3.00003L3.00007 15.101" stroke="#C2C2C2" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>'
 
 const NutritionFactsContainer = (props) =>{
     const dim = Dimensions.get('window')
@@ -72,7 +72,8 @@ const NutritionFactsContainer = (props) =>{
         
         <Animated.View style = {{
             width: dim.width,
-            height: dim.height,
+            height: dim.height-TOP_Y,
+            maxHeight: dim.height-TOP_Y,
             ...SHADOW_STYLE,
             alignItems: 'center',
             position: 'absolute',
@@ -124,7 +125,11 @@ const NutritionFactsContainer = (props) =>{
                     </TouchableOpacity>
                 </View>
             </PanGestureHandler>
-            {props.children}
+            <View style = {{
+                alignSelf : "flex-start"
+            }}>
+                {props.children}
+            </View>
         </Animated.View>
     </>
 }

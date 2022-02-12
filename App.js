@@ -89,11 +89,11 @@ const BaseApp = ()=>{
 }
 
 //Setting up recoil based state management
-const RecoilApp = ()=>{
+const App = ()=>{
     return <RecoilRoot>
         <BaseApp/> 
     </RecoilRoot> 
 }
 
 
-export default RecoilApp
+export default App

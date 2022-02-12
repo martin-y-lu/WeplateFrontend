@@ -7,5 +7,12 @@
       "**/*"
     ]
   },
-  "name": "react-native-3d"
+  "name": "react-native-3d",
+  "packagerOpts": {
+    "sourceExts": [
+      "ts",
+      "tsx"
+    ],
+    "transformer": "node_modules/react-native-typescript-transformer/index.js"
+  }
 }
