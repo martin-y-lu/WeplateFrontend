@@ -5,7 +5,7 @@ import { useRecoilState, useRecoilValue } from "recoil"
 import { colorOfCategory, iconOfCategory, NutritionFacts } from "./NutritionFacts"
 import NutritionFactsContainer, { ARROW_ICON_SVG } from "./NutritionFactsContainer"
 import PortionView from './PortionView'
-import { MealState, Dish, mealStateFromTimeInfo, TimeInfo, FOOD_CATEGORY, dashboardState } from "./state"
+import { MealState, Dish, mealStateFromTimeInfo, TimeInfo, FOOD_CATEGORY, dashboardState, dateToString } from "./state"
 
 
 export const SHADOW_STYLE = {
@@ -265,7 +265,9 @@ const ChangeMenuItem = (props : {modalOpen: Portion,setModalOpen?: (Portion) => 
 
 const Dashboard = (props)=>{
     const {route,navigation} = props
-    const [mealState, setMealState] : [MealState,(MealState) => void]= useRecoilState(mealStateFromTimeInfo(route.params.timeInfo as TimeInfo))
+    const {currentDate,currentMeal} = useRecoilValue(dashboardState);
+    const timeInfo : TimeInfo = route?.params?.timeInfo ?? { date: dateToString(currentDate), meal: currentMeal}
+    const [mealState, setMealState] : [MealState,(MealState) => void]= useRecoilState(mealStateFromTimeInfo(timeInfo))
 
     const [modalOpen,setModalOpen] = useState<Portion>(null)
     return <View style={{ flex: 1, alignItems: 'center' ,backgroundColor: 'white'}}>

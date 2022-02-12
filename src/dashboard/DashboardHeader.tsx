@@ -13,8 +13,10 @@ const DashboardHeader = (props) =>{
     const {route,navigation} = props
     
     const {streakLength} = useRecoilValue(dashboardState)
-    const date = stringToDate(route.params.timeInfo.date)
-    const meal = route.params.timeInfo.meal
+    const {currentDate,currentMeal} = useRecoilValue(dashboardState);
+    const timeInfo : TimeInfo = route?.params?.timeInfo ?? { date: dateToString(currentDate), meal: currentMeal}
+    const date = stringToDate(timeInfo.date)
+    const meal = timeInfo.meal
 
     function getPrevTimeInfo(){
         const prevDay = new Date(date)
