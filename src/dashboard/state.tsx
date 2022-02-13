@@ -1,5 +1,7 @@
 import { memo, useMemo } from 'react';
-import {atom, } from 'recoil'
+import {atom, useRecoilState, } from 'recoil'
+import { useUserActions } from '../utils/session/useUserActions';
+import { FOOD_CATEGORY, MEALS, STATION,MealState,Dish,NutritionInfo,NutritionSummaryInfo, convertAPIItemToDish } from './typeUtil';
 export function dateToString(date){
     var UTC = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
     return UTC.toISOString().slice(0, 10)
@@ -7,56 +9,6 @@ export function dateToString(date){
 export function stringToDate(string: String){
     const [year,month,day] = string.split('-')
     return new Date(Date.UTC(parseInt(year),parseInt(month)-1,parseInt(day)+1))
-}
-
-export enum FOOD_CATEGORY{Carbohydrates = "Carbohydrates",Protein = "Protein", Vegetable = "Vegetable"}
-export enum MEALS{Breakfast = "Breakfast", Lunch = "Lunch",Dinner = "Dinner"}
-export enum STATION{A = "A", B = "B", C = "C", D = "D"}
-
-export interface NutritionInfo{
-    sugar ?: number,
-    cholesterol ?: number,
-    dietaryFiber ?: number,
-    sodium ?: number,
-    potassium ?: number,
-    calcium ?: number,
-    iron ?: number,
-    vitaminD ?: number,
-    vitaminC ?: number,
-    vitaminA ?: number,
-}
-export interface NutritionSummaryInfo{
-    calories : number,
-    protein : number,
-    carbohydrates : number,
-    totalFat : number,
-    saturatedFat ?: number,
-    transFat ?: number
-}
-
-export type Ingredients = Array<String>
-
-export interface RecommendationInfo{
-    volume ?: number,
-    fillFraction ?: number,
-}
-
-export interface Dish{
-    name: String,
-    station: STATION,
-    category: FOOD_CATEGORY,
-    nutrition: NutritionInfo,
-    nutritionSummary: NutritionSummaryInfo
-    ingredients: Ingredients,
-    recommendation ?: RecommendationInfo,
-}
-export interface MealState {
-    recommendationA: Array<Dish>,
-    dishA: Dish,
-    recommendationB: Array<Dish>,
-    dishB: Dish,
-    recommendationC: Array<Dish>,
-    dishC: Dish,
 }
 
 export const dashboardState = atom({
@@ -79,6 +31,7 @@ function randomSelect(...items){
 function randomNumber(max){
     return Math.floor(Math.random()*max)
 }
+
 function randomDish(){
     const name = randomSelect("Chopped","Stir fried","Spanish","Deep fried","Seared","Swedish","Japanese","French","Fried","Stewed","Braised","Sliced","Flambéed","Deviled","Baked","Fresh","Boiled","Million dollar") +" "+
                 randomSelect("Chicken","Spagetti","Spinach","Salad","Curry","Rice","Cauliflower","Ravioli","Tuna","Salmon","Eggs","Meatballs","Burger","Cheese","Pizza","Ramen","Potatoes")
@@ -134,12 +87,18 @@ export const mealStateWithDateMeal =  (date: Date,meal: MEALS) => {
     const recB = makeRecommendationList()
     const recC = makeRecommendationList()
     const state : MealState = {
-        recommendationA: recA,
-        dishA: randomSelect(...recA),
-        recommendationB: recB,
-        dishB: randomSelect(...recB),
+        recommendationA: null,
+        dishA: null,
+        recommendationB: null,
+        dishB: null,
         recommendationC: recC,
-        dishC: randomSelect(...recC),
+        dishC: null,
+        // recommendationA: recA,
+        // dishA: randomSelect(...recA),
+        // recommendationB: recB,
+        // dishB: randomSelect(...recB),
+        // recommendationC: recC,
+        // dishC: randomSelect(...recC),
     }
     const mealState =  atom({
         key,

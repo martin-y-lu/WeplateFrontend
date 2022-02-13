@@ -15,6 +15,7 @@ import AboutUs from "./src/about-us/AboutUs";
 import Feedback from "./src/feedback/Feedback";
 import { RecoilRoot } from "recoil";
 import BaseHeader from "./src/utils/BaseHeader";
+import Debug from "./src/debug/Debug";
 
 const Stack = createNativeStackNavigator()
 const Drawer = createDrawerNavigator();
@@ -62,6 +63,10 @@ const SidebarNavigable = ()=>{
                 headerTransparent: true,
                 headerTitleStyle: {opacity: 0}
             }}
+        />
+        <Drawer.Screen
+            name = "--DEBUG--"
+            component = {Debug}
         />
     </Drawer.Navigator>
 }

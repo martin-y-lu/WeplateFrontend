@@ -1,12 +1,12 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { View,Text, StyleSheet,TouchableOpacity, Dimensions,Animated, Modal, FlatList } from "react-native"
 import { ScrollView } from "react-native-gesture-handler"
 import { useRecoilState, useRecoilValue } from "recoil"
 import { colorOfCategory, iconOfCategory, NutritionFacts } from "./NutritionFacts"
 import NutritionFactsContainer, { ARROW_ICON_SVG } from "./NutritionFactsContainer"
 import PortionView from './PortionView'
-import { MealState, Dish, mealStateFromTimeInfo, TimeInfo, FOOD_CATEGORY, dashboardState, dateToString } from "./state"
-
+import {mealStateFromTimeInfo, TimeInfo, dashboardState, dateToString } from "./state"
+import {FOOD_CATEGORY, MEALS, STATION,MealState,Dish,NutritionInfo,NutritionSummaryInfo, convertAPIItemToDish} from './typeUtil'
 
 export const SHADOW_STYLE = {
     backgroundColor:"white",
@@ -18,27 +18,14 @@ export const SHADOW_STYLE = {
 
 const TrayItem = ( props : {isTop ?: boolean, number: number,portion: Portion, dish: Dish, modalOpen}) => {
     const {isTop, number, dish} = props
-    const dishName = dish.name
-    const station = dish.station
-    const calories = dish.nutritionSummary.calories
-    const color = colorOfCategory(dish.category)
-   
-    // const {isTop, number ,color , dishName, station, calories} = props
-    return <View style = {{
-        flex: 1,
-        maxHeight:  60,
-        width: '100%',
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "flex-start",
-        alignSelf: "flex-start",
-        // backgroundColor: "orange", 
-        // marginTop: 20,
-        borderTopWidth: isTop ? 1: 0 ,
-        borderBottomWidth:1,
-        borderColor: "#EDEDED",
+    let body = <></>
+    if(dish!= null){
+        const dishName = dish.name
+        const station = dish.station
+        const calories = dish.nutritionSummary.calories
+        const color = colorOfCategory(dish.category)
 
-    }}>
+        body = <>
         <View style = {{
             marginLeft: 25,
             width: 30,
@@ -87,9 +74,27 @@ const TrayItem = ( props : {isTop ?: boolean, number: number,portion: Portion, d
                 </Text>
             </View>
         </TouchableOpacity>
-        
+        </> 
+    }
+    // const {isTop, number ,color , dishName, station, calories} = props
+    return <View style = {{
+        flex: 1,
+        maxHeight:  60,
+        width: '100%',
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "flex-start",
+        alignSelf: "flex-start",
+        // backgroundColor: "orange", 
+        // marginTop: 20,
+        borderTopWidth: isTop ? 1: 0 ,
+        borderBottomWidth:1,
+        borderColor: "#EDEDED",
 
+    }}>
+        {body}
     </View>
+    
 }
 
 enum Portion{
@@ -148,6 +153,7 @@ function getRecommendationsByPortion(mealState:MealState,portion:Portion){
 }
 
 import { SvgXml } from "react-native-svg"
+import { useUserActions } from "../utils/session/useUserActions"
 const ChangeMenuItem = (props : {modalOpen: Portion,setModalOpen?: (Portion) => void, mealState: MealState, setMealState: (MealState) => void }) =>{
     const {modalOpen, setModalOpen, mealState, setMealState} = props
     const dishes = getRecommendationsByPortion(mealState,modalOpen)
@@ -268,8 +274,31 @@ const Dashboard = (props)=>{
     const {currentDate,currentMeal} = useRecoilValue(dashboardState);
     const timeInfo : TimeInfo = route?.params?.timeInfo ?? { date: dateToString(currentDate), meal: currentMeal}
     const [mealState, setMealState] : [MealState,(MealState) => void]= useRecoilState(mealStateFromTimeInfo(timeInfo))
-
+    
     const [modalOpen,setModalOpen] = useState<Portion>(null)
+    const userActions = useUserActions()
+    useEffect( ()=>{
+        async function fetchMeal(){
+            const data = await userActions.meals()
+            const mealEvent = data[0]
+            // debug purposes
+            const dishes = mealEvent.items.map(convertAPIItemToDish)
+            console.log(dishes)
+            const newState : MealState = {
+                recommendationA: dishes,
+                recommendationB: dishes,
+                recommendationC: dishes,
+                dishA: dishes[0],
+                dishB: dishes[0],
+                dishC: dishes[0],
+            }
+            
+            setMealState(newState)
+        }
+        if(mealState.dishA == null){
+            fetchMeal()
+        }
+    },[])
     return <View style={{ flex: 1, alignItems: 'center' ,backgroundColor: 'white'}}>
         <Modal transparent visible = {!!modalOpen} animationType = "fade" 
         >

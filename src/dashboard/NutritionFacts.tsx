@@ -1,6 +1,7 @@
 import { ScrollView, Text, View } from "react-native"
 import NutritionFactsContainer from "./NutritionFactsContainer"
-import { FOOD_CATEGORY,MealState, Dish } from "./state"
+import {FOOD_CATEGORY, MEALS, STATION,MealState,Dish,NutritionInfo,NutritionSummaryInfo} from './typeUtil'
+
 export function colorOfCategory(category: FOOD_CATEGORY){
     let color = ""
     switch(category){
@@ -32,6 +33,7 @@ export function iconOfCategory(category: FOOD_CATEGORY){
 }
 const NutritionKey = (props) =>{
     const {number,dish} = props
+    if(dish == null) return <></>
     const color = colorOfCategory(dish.category)
     return <View style = {{
         flexDirection: 'row',
@@ -172,16 +174,16 @@ const DataRow = (props :{height?: number,bold?:boolean,color ?: string, name ?: 
     const total = totalBy(selector,mealState)
     return <BaseRow height = {height} els = {[
         <Text style = {{ color , flexWrap:"wrap",fontWeight: bold ? "bold" : "normal"}} ellipsizeMode = "tail" numberOfLines={1}> {name} </Text>,
-        <BaseText color= {color} unit = {unit}> {selector(mealState.dishA)??0}</BaseText>,
-        <BaseText color= {color} unit = {unit}> {selector(mealState.dishB)??0}</BaseText>,
-        <BaseText color = {color } unit = {unit}> {selector(mealState.dishC)??0}</BaseText>,
+        <BaseText color= {color} unit = {unit}> {mealState.dishA ? selector(mealState.dishA)??0 :0}</BaseText>,
+        <BaseText color= {color} unit = {unit}> {mealState.dishB ? selector(mealState.dishB)??0 :0}</BaseText>,
+        <BaseText color = {color } unit = {unit}> {mealState.dishC ? selector(mealState.dishC)??0 :0}</BaseText>,
         <BaseText bold color = {color} unit = {unit}> {total}</BaseText>,
     ]}/>
 }
 
 function totalBy(func: (Dish)=>number,mealState:MealState){
     let total = 0;
-    [mealState.dishA,mealState.dishB,mealState.dishC].forEach((arg)=>{
+    [mealState.dishA,mealState.dishB,mealState.dishC].filter(el => el != null).forEach((arg)=>{
         total += func(arg) ??0
     })
     return total
@@ -206,9 +208,9 @@ export const NutritionFacts = (props) =>{
         }}> 
             <BaseRow borderWidth = {0} els = {[
                 null,
-                <BaseCircle number = {1} color = {colorOfCategory(mealState.dishA.category)}/>,
-                <BaseCircle number = {2} color = {colorOfCategory(mealState.dishB.category)}/>,
-                <BaseCircle number = {3} color = {colorOfCategory(mealState.dishC.category)}/>,
+                mealState.dishA ? <BaseCircle number = {1} color = {colorOfCategory(mealState.dishA.category)}/> :null,
+                mealState.dishB ? <BaseCircle number = {2} color = {colorOfCategory(mealState.dishB.category)}/> :null,
+                mealState.dishC ?<BaseCircle number = {3} color = {colorOfCategory(mealState.dishC.category)}/> :null,
                 <Text style = {{ color: "#747474", flexWrap:"wrap", fontWeight:"bold"}} ellipsizeMode = "tail" numberOfLines={1}> Total </Text>,
                 ]}/>
             <ScrollView style = {{
