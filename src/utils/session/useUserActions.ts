@@ -22,17 +22,17 @@ function useUserActions () {
     }
 
     function login(email:string, password:string) {
-        let formData = new FormData()
-        formData.append("email",email)
-        formData.append("password",password)
-        formData.append("type","student")
+        let data = {
+            username: email,
+            password,
+        }
 
-        return fetchWrapper.post(`${baseUrl}/login/`, formData)
+        return fetchWrapper.post(`${baseUrl}/api/token_auth/`, data)
             .then(user => {
                 console.log(user)
-                if(user.error == false){
-                    setUsers(user)
-                    setAuth(user);
+                setUsers(user)
+                if("token" in user){
+                    setAuth(user.token);
                 }
                 // get return url from location state or default to home page
                 // const { from } = history.location.state || { from: { pathname: '/' } };

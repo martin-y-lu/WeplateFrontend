@@ -87,18 +87,18 @@ export const mealStateWithDateMeal =  (date: Date,meal: MEALS) => {
     const recB = makeRecommendationList()
     const recC = makeRecommendationList()
     const state : MealState = {
-        recommendationA: null,
-        dishA: null,
-        recommendationB: null,
-        dishB: null,
-        recommendationC: recC,
-        dishC: null,
-        // recommendationA: recA,
-        // dishA: randomSelect(...recA),
-        // recommendationB: recB,
-        // dishB: randomSelect(...recB),
+        // recommendationA: null,
+        // dishA: null,
+        // recommendationB: null,
+        // dishB: null,
         // recommendationC: recC,
-        // dishC: randomSelect(...recC),
+        // dishC: null,
+        recommendationA: recA,
+        dishA: randomSelect(...recA),
+        recommendationB: recB,
+        dishB: randomSelect(...recB),
+        recommendationC: recC,
+        dishC: randomSelect(...recC),
     }
     const mealState =  atom({
         key,

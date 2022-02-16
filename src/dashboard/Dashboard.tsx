@@ -1,13 +1,16 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { View,Text, StyleSheet,TouchableOpacity, Dimensions,Animated, Modal, FlatList } from "react-native"
 import { ScrollView } from "react-native-gesture-handler"
 import { useRecoilState, useRecoilValue } from "recoil"
 import { colorOfCategory, iconOfCategory, NutritionFacts } from "./NutritionFacts"
 import NutritionFactsContainer, { ARROW_ICON_SVG } from "./NutritionFactsContainer"
-import PortionView from './PortionView'
+import PortionView, { usePortionViewAnimationState } from './PortionView'
 import {mealStateFromTimeInfo, TimeInfo, dashboardState, dateToString } from "./state"
 import {FOOD_CATEGORY, MEALS, STATION,MealState,Dish,NutritionInfo,NutritionSummaryInfo, convertAPIItemToDish} from './typeUtil'
-
+import {
+    Vector3,
+    Quaternion,
+  } from 'three'
 export const SHADOW_STYLE = {
     backgroundColor:"white",
     shadowColor:"black",
@@ -267,8 +270,7 @@ const ChangeMenuItem = (props : {modalOpen: Portion,setModalOpen?: (Portion) => 
 
         }} data = {dishes} renderItem = {renderDish} />
     </View>
-}
-
+} 
 const Dashboard = (props)=>{
     const {route,navigation} = props
     const {currentDate,currentMeal} = useRecoilValue(dashboardState);
@@ -277,6 +279,8 @@ const Dashboard = (props)=>{
     
     const [modalOpen,setModalOpen] = useState<Portion>(null)
     const userActions = useUserActions()
+    const [viewingPortions,setViewingPortions] = useState(false);
+
     useEffect( ()=>{
         async function fetchMeal(){
             const data = await userActions.meals()
@@ -299,6 +303,50 @@ const Dashboard = (props)=>{
             fetchMeal()
         }
     },[])
+    const portionAnimationState = usePortionViewAnimationState();
+    const {
+        DEFAULT_TRANSFORM,
+        initialRotation,
+        rotation,
+        rightTrackedAnimation,
+        topTrackedAnimation,
+        bottomTrackedAnimation,
+        centralizeTrackedAnimation,
+        resetRotation,
+        doesInactivityTimer,
+        topCategory,
+        setTopCategory,
+        setBottomCategory,
+        setRightCategory,
+    } = portionAnimationState;
+
+    useEffect(()=>{
+        setTopCategory(mealState.dishA.category)
+        setBottomCategory(mealState.dishB.category)
+        setRightCategory(mealState.dishC.category)
+    },[mealState])
+
+    const [animateRightSize,rightSizeValue,rightSizeTarg] = rightTrackedAnimation as any
+    const [animateTopLeftSize,topLeftSizeValue,topLeftSizeTarg] = topTrackedAnimation as any
+    const [animateBottomLeftSize,bottomLeftSizeValue,bottomLeftSizeTarg] = bottomTrackedAnimation as any
+    
+    const [animateCentralize,centralizeValue,centralizeTarg] = centralizeTrackedAnimation as any
+    function onPortionViewPress(){
+        console.log(viewingPortions)
+        if(viewingPortions){
+            animateCentralize(1,{duration:900})
+            portionAnimationState.doesInactivityTimer.current = true
+            setViewingPortions(false);
+        }else{
+            animateCentralize(0,{duration:900})
+            const portionViewRotation = new Quaternion().setFromAxisAngle(new Vector3(1,0,0),Math.PI*0.25);
+
+            portionAnimationState.setRotation(portionViewRotation)
+            portionAnimationState.doesInactivityTimer.current = false
+            setViewingPortions(true);
+        }
+    }
+
     return <View style={{ flex: 1, alignItems: 'center' ,backgroundColor: 'white'}}>
         <Modal transparent visible = {!!modalOpen} animationType = "fade" 
         >
@@ -316,7 +364,7 @@ const Dashboard = (props)=>{
         <TrayItem isTop number = {1} dish = {mealState.dishA} portion = {Portion.A} modalOpen = {setModalOpen}/>
         <TrayItem number = {2}  dish = {mealState.dishB} portion = {Portion.B} modalOpen = {setModalOpen} />
         <TrayItem number = {3}  dish = {mealState.dishC} portion = {Portion.C} modalOpen = {setModalOpen}/>
-        <PortionView style = {{ marginTop:10}}/>
+        <PortionView style = {{ marginTop:10}} animationState = {portionAnimationState}/>
         <TouchableOpacity style = {{
             height: 50,
             width: '85%',
@@ -325,12 +373,14 @@ const Dashboard = (props)=>{
             ...SHADOW_STYLE,
             alignItems:"center",
             justifyContent: "center"
-        }}>
+        }}
+            onPress = { onPortionViewPress}
+        >
             <Text style ={{
                 fontSize: 20,
                 color: "#CE014E",
             }}>
-                View portions
+                {viewingPortions ? "Hide Portions" : "View portions"}
             </Text>
         </TouchableOpacity>
         <NutritionFacts mealState = {mealState}/>

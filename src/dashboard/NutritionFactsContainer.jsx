@@ -13,7 +13,7 @@ const NutritionFactsContainer = (props) =>{
     const SUFFICIENT_HIDE_LEVEL_GOING_UP = 0.1
     const SUFFICIENT_HIDE_LEVEL_GOING_DOWN = 0.8
     const TOP_Y = 100
-    const BOTTOM_Y = dim.height-HIDDEN_HEIGHT -HIDDEN_HEIGHT -30
+    const BOTTOM_Y = dim.height-HIDDEN_HEIGHT -HIDDEN_HEIGHT
     const [userSliding,setUserSliding] = useState(false)
     const [targetYValue,setTargetYValue] = useState(BOTTOM_Y)
     const [yValue,setYValue] = useState(new Animated.Value(BOTTOM_Y))
