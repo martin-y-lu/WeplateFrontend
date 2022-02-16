@@ -157,6 +157,7 @@ function getRecommendationsByPortion(mealState:MealState,portion:Portion){
 
 import { SvgXml } from "react-native-svg"
 import { useUserActions } from "../utils/session/useUserActions"
+import { authAtom } from "../utils/session/useFetchWrapper"
 const ChangeMenuItem = (props : {modalOpen: Portion,setModalOpen?: (Portion) => void, mealState: MealState, setMealState: (MealState) => void }) =>{
     const {modalOpen, setModalOpen, mealState, setMealState} = props
     const dishes = getRecommendationsByPortion(mealState,modalOpen)
@@ -273,8 +274,11 @@ const ChangeMenuItem = (props : {modalOpen: Portion,setModalOpen?: (Portion) => 
 } 
 const Dashboard = (props)=>{
     const {route,navigation} = props
-    const {currentDate,currentMeal} = useRecoilValue(dashboardState);
+    const currentState = useRecoilValue(dashboardState);
+    const {currentDate,currentMeal} = currentState
     const timeInfo : TimeInfo = route?.params?.timeInfo ?? { date: dateToString(currentDate), meal: currentMeal}
+
+    const auth = useRecoilValue(authAtom)
     const [mealState, setMealState] : [MealState,(MealState) => void]= useRecoilState(mealStateFromTimeInfo(timeInfo))
     
     const [modalOpen,setModalOpen] = useState<Portion>(null)
@@ -282,9 +286,12 @@ const Dashboard = (props)=>{
     const [viewingPortions,setViewingPortions] = useState(false);
 
     useEffect( ()=>{
+        console.log("Maybe trying fetch.")
         async function fetchMeal(){
-            const data = await userActions.meals()
-            const mealEvent = data[0]
+            const data = await userActions.mealsByTime(timeInfo)
+            if(data.length == 0 ) throw new Error("No meals on this day")
+            const mealEvent = await userActions.mealById(data[0].id as number);
+            console.log({mealEvent})
             // debug purposes
             const dishes = mealEvent.items.map(convertAPIItemToDish)
             console.log(dishes)
@@ -302,7 +309,7 @@ const Dashboard = (props)=>{
         if(mealState.dishA == null){
             fetchMeal()
         }
-    },[])
+    },[auth,currentState,timeInfo])
     const portionAnimationState = usePortionViewAnimationState();
     const {
         DEFAULT_TRANSFORM,
@@ -320,17 +327,36 @@ const Dashboard = (props)=>{
         setRightCategory,
     } = portionAnimationState;
 
-    useEffect(()=>{
-        setTopCategory(mealState.dishA.category)
-        setBottomCategory(mealState.dishB.category)
-        setRightCategory(mealState.dishC.category)
-    },[mealState])
-
+    
     const [animateRightSize,rightSizeValue,rightSizeTarg] = rightTrackedAnimation as any
     const [animateTopLeftSize,topLeftSizeValue,topLeftSizeTarg] = topTrackedAnimation as any
     const [animateBottomLeftSize,bottomLeftSizeValue,bottomLeftSizeTarg] = bottomTrackedAnimation as any
     
     const [animateCentralize,centralizeValue,centralizeTarg] = centralizeTrackedAnimation as any
+
+    useEffect(()=>{
+        if(mealState?.dishA){
+            setTopCategory(mealState.dishA.category)
+            if(mealState?.dishA?.recommendation?.fillFraction){
+                animateTopLeftSize(mealState.dishA.recommendation.fillFraction,{duration:400})
+            }
+        }
+        if(mealState?.dishB){
+            setBottomCategory(mealState.dishB.category)
+            if(mealState?.dishB?.recommendation?.fillFraction){
+                animateBottomLeftSize(mealState.dishB.recommendation.fillFraction,{duration:400})
+            }
+        }
+        if(mealState?.dishC){
+            setRightCategory(mealState.dishC.category)
+            if(mealState?.dishC?.recommendation?.fillFraction){
+                console.log(mealState?.dishC?.recommendation?.fillFraction)
+                animateRightSize(mealState.dishC.recommendation.fillFraction,{duration:400})
+            }
+        }
+
+    },[mealState])
+
     function onPortionViewPress(){
         console.log(viewingPortions)
         if(viewingPortions){
@@ -338,10 +364,13 @@ const Dashboard = (props)=>{
             portionAnimationState.doesInactivityTimer.current = true
             setViewingPortions(false);
         }else{
+
+           
             animateCentralize(0,{duration:900})
             const portionViewRotation = new Quaternion().setFromAxisAngle(new Vector3(1,0,0),Math.PI*0.25);
-
-            portionAnimationState.setRotation(portionViewRotation)
+            if(centralizeValue.current>0.5){                
+                portionAnimationState.setRotation(portionViewRotation)
+            }
             portionAnimationState.doesInactivityTimer.current = false
             setViewingPortions(true);
         }

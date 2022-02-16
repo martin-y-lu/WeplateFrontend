@@ -15,13 +15,13 @@ export const dashboardState = atom({
     key: "dashboardState",
     
     default: {
-        currentDate: new Date("December 12, 2022 11:13:00"),
-        currentMeal: MEALS.Breakfast,
+        currentDate: stringToDate("2030-02-14"),
+        currentMeal: MEALS.Lunch,
         streakLength: 12
     }
 })
 export interface TimeInfo{
-    date: String,
+    date: string,
     meal: MEALS,
 }
 
@@ -58,6 +58,7 @@ function randomDish(){
         transFat :randomNumber(100),
     }
     return {
+        id: 10,
         name,
         station,
         category,
@@ -87,18 +88,18 @@ export const mealStateWithDateMeal =  (date: Date,meal: MEALS) => {
     const recB = makeRecommendationList()
     const recC = makeRecommendationList()
     const state : MealState = {
-        // recommendationA: null,
-        // dishA: null,
-        // recommendationB: null,
-        // dishB: null,
-        // recommendationC: recC,
-        // dishC: null,
-        recommendationA: recA,
-        dishA: randomSelect(...recA),
-        recommendationB: recB,
-        dishB: randomSelect(...recB),
+        recommendationA: null,
+        dishA: null,
+        recommendationB: null,
+        dishB: null,
         recommendationC: recC,
-        dishC: randomSelect(...recC),
+        dishC: null,
+        // recommendationA: recA,
+        // dishA: randomSelect(...recA),
+        // recommendationB: recB,
+        // dishB: randomSelect(...recB),
+        // recommendationC: recC,
+        // dishC: randomSelect(...recC),
     }
     const mealState =  atom({
         key,

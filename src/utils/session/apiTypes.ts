@@ -1,32 +1,40 @@
-type APIMealPayload = Array<APIMealEvent>
+type APIMealByTimePayload = Array<APIMealByTimeEvent>
 type APIKey = number | string |null
 type APITimestamp = string
 
+interface APIMealByTimeEvent {
+    group: APIMeals,
+    items: Array<APIKey>,
+    name: string,
+    timestamp: APITimestamp,
+    id: APIKey,
+}
 interface APIMealEvent {
     group: APIMeals,
     items: Array<APIItem>,
     name: string,
     timestamp: APITimestamp,
-    pk: APIKey,
+    id: APIKey,
 }
 enum APIMeals {"breakfast","lunch","dinner"}
 interface APIItem{
-    ingredients: Array<APIIngredient>,
+    ingredients: Array<APIKey>,
     name: string,
     nutrition: APINutrition,
-    pk: APIKey,
+    id: APIKey,
     school: APISchool,
     station : string,
 }
 interface APIIngredient{
     name: String,
-    pk: APIKey,
+    id: APIKey,
 }
 interface APINutrition{
     calcium?: number,
     calories ?: number,
     carbohydrate ?: number,
     cholesterol ?: number,
+    fiber ?: number,
     iron ?: number,
     potassium ?: number,
     protein ?: number,
@@ -42,5 +50,5 @@ interface APINutrition{
 
 interface APISchool{
     name: string,
-    pk: APIKey,
+    id: APIKey,
 }

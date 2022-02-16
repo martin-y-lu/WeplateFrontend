@@ -31,6 +31,7 @@ export interface RecommendationInfo{
 }
 
 export interface Dish{
+    id: number,
     name: String,
     station: STATION,
     category: FOOD_CATEGORY,
@@ -52,13 +53,14 @@ function getCategoryOfAPIItem(item:APIItem){
 }
 export function convertAPIItemToDish(item:APIItem){
     return {
+        id: item.id,
         name: item.name,
         station: item.station as STATION,
         category: getCategoryOfAPIItem(item),
         nutrition: {
             sugar: item.nutrition.sugar,
             cholesterol: item.nutrition.cholesterol,
-            dietaryFiber: 0, // Why is this missing
+            dietaryFiber: item.nutrition.fiber, // Why is this missing
             sodium: item.nutrition.sodium,
             potassium: item.nutrition.potassium,
             calcium: item.nutrition.calcium,
@@ -75,9 +77,13 @@ export function convertAPIItemToDish(item:APIItem){
             saturatedFat: item.nutrition.saturated_fat,
             transFat: item.nutrition.trans_fat,
         },
-        ingredients: item.ingredients.map(ingredient => ingredient.name)
+        ingredients: item.ingredients
     } as Dish
 }
 export function parseAPITimestamp(date:APITimestamp){
     return new Date()
+}
+
+export function mealToAPIForm(meal:MEALS){
+    return meal.toLowerCase();
 }

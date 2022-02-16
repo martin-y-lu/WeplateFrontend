@@ -1,4 +1,6 @@
 import { atom, useSetRecoilState } from 'recoil';
+import { TimeInfo } from '../../dashboard/state';
+import { mealToAPIForm } from '../../dashboard/typeUtil';
 import { authAtom, useFetchWrapper } from './useFetchWrapper';
 
 export const usersAtom = atom({
@@ -18,7 +20,8 @@ function useUserActions () {
         login,
         logout,
         getAll,
-        meals
+        mealsByTime,
+        mealById,
     }
 
     function login(email:string, password:string) {
@@ -31,9 +34,7 @@ function useUserActions () {
             .then(user => {
                 console.log(user)
                 setUsers(user)
-                if("token" in user){
-                    setAuth(user.token);
-                }
+                setAuth(user)
                 // get return url from location state or default to home page
                 // const { from } = history.location.state || { from: { pathname: '/' } };
                 // history.push(from);
@@ -41,12 +42,21 @@ function useUserActions () {
                 return user;
             });
     }
-    async function meals(){
-        const resp = await fetchWrapper.get(`${baseUrl}/api/meals/`)
+    async function mealsByTime(timeInfo:TimeInfo){
+        const endpoint = `${baseUrl}/api/meals/?date=${encodeURIComponent(timeInfo.date)}&group=${encodeURIComponent(mealToAPIForm(timeInfo.meal))}`
+        console.log({endpoint})
+        const resp = await fetchWrapper.get(endpoint)
         if(resp.error) throw new Error(resp.message)
-        if(resp == null || resp?.data == null) throw new Error("No data.")
-        return resp.data as APIMealPayload
+        if(resp == null) throw new Error(`No data.`)
+        return resp as APIMealByTimePayload
     }
+    async function mealById(id:number){
+        const endpoint = `${baseUrl}/api/meals/${encodeURIComponent(id)}/`
+        console.log({endpoint})
+        const resp = await fetchWrapper.get(endpoint)
+        return resp as APIMealEvent
+    }
+
     function logout() {
         // remove user from local storage, set auth state to null and redirect to login page
         localStorage.removeItem('user');

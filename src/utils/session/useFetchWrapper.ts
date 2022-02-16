@@ -29,9 +29,6 @@ function useFetchWrapper() {
                 // requestOptions.headers['Content-Type'] = "multipart/form-data;";
                 // requestOptions.body = body;
                 requestOptions.headers['Content-Type'] = "application/json";
-                if(auth!= null){
-                    requestOptions.headers["Authorization"] = `Token ${auth}`
-                }
                 requestOptions.body = JSON.stringify(body);
             }
             return fetch(url, requestOptions).then(handleResponse);
@@ -43,10 +40,10 @@ function useFetchWrapper() {
     function authHeader(url) {
         // return auth header with jwt if user is logged in and request is to the api url
         const token = auth?.token;
+        // console.log({token_auth_header:token})
         const isLoggedIn = !!token;
-        const isApiUrl = url.startsWith(process.env.REACT_APP_API_URL);
-        if (isLoggedIn && isApiUrl) {
-            return { Authorization: `Bearer ${token}` };
+        if (isLoggedIn) {
+            return { Authorization: `Token ${token}` };
         } else {
             return {};
         }
@@ -54,7 +51,7 @@ function useFetchWrapper() {
     
     function handleResponse(response) {
         return response.text().then(text => {
-            console.log({text})
+            // console.log({text})
             const data = text && JSON.parse(text);
             
             if (!response.ok) {
@@ -64,7 +61,7 @@ function useFetchWrapper() {
                 }
     
                 const error = (data && data.message) || response.statusText;
-                console.error({error})
+                console.error({error,response})
                 return Promise.reject(error);
             }
     

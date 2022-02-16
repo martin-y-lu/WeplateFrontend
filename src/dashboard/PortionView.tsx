@@ -95,9 +95,9 @@ export function usePortionViewAnimationState(){
     setRotation(DEFAULT_TRANSFORM)
   }
 
-  const rightTrackedAnimation = useTrackedAnimation(0.1)
-  const topTrackedAnimation = useTrackedAnimation(1)
-  const bottomTrackedAnimation = useTrackedAnimation(1)
+  const rightTrackedAnimation = useTrackedAnimation(0.5)
+  const topTrackedAnimation = useTrackedAnimation(0.6)
+  const bottomTrackedAnimation = useTrackedAnimation(0.4)
 
   //Animates level of centralisation, 0 -> orbit view , 1 -> orthographic view
 
