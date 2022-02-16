@@ -3,7 +3,7 @@ import { View,Text, StyleSheet,TouchableOpacity, Dimensions,Animated, Modal, Fla
 import { ScrollView } from "react-native-gesture-handler"
 import { useRecoilState, useRecoilValue } from "recoil"
 import { colorOfCategory, iconOfCategory, NutritionFacts } from "./NutritionFacts"
-import NutritionFactsContainer, { ARROW_ICON_SVG } from "./NutritionFactsContainer"
+import NutritionFactsContainer, { ARROW_ICON_SVG, NutritionFactsContainerHiddenHeight } from "./NutritionFactsContainer"
 import PortionView, { usePortionViewAnimationState } from './PortionView'
 import {mealStateFromTimeInfo, TimeInfo, dashboardState, dateToString } from "./state"
 import {FOOD_CATEGORY, MEALS, STATION,MealState,Dish,NutritionInfo,NutritionSummaryInfo, convertAPIItemToDish} from './typeUtil'
@@ -284,30 +284,37 @@ const Dashboard = (props)=>{
     const [modalOpen,setModalOpen] = useState<Portion>(null)
     const userActions = useUserActions()
     const [viewingPortions,setViewingPortions] = useState(false);
-
+    const [noMeal,setNoMeal] = useState<{message: string}>(null);
     useEffect( ()=>{
-        console.log("Maybe trying fetch.")
+        setNoMeal(null);
         async function fetchMeal(){
             const data = await userActions.mealsByTime(timeInfo)
-            if(data.length == 0 ) throw new Error("No meals on this day")
-            const mealEvent = await userActions.mealById(data[0].id as number);
-            console.log({mealEvent})
-            // debug purposes
-            const dishes = mealEvent.items.map(convertAPIItemToDish)
-            console.log(dishes)
-            const newState : MealState = {
-                recommendationA: dishes,
-                recommendationB: dishes,
-                recommendationC: dishes,
-                dishA: dishes[0],
-                dishB: dishes[0],
-                dishC: dishes[0],
+            if(data.length == 0 ){
+                setNoMeal({message:"No meals at this time!"})
+            }else{
+                const mealEvent = await userActions.mealById(data[0].id as number);
+                console.log({mealEvent})
+                // debug purposes
+                const dishes = mealEvent.items.map(convertAPIItemToDish)
+                console.log(dishes)
+                const newState : MealState = {
+                    recommendationA: dishes,
+                    recommendationB: dishes,
+                    recommendationC: dishes,
+                    dishA: dishes[0],
+                    dishB: dishes[0],
+                    dishC: dishes[0],
+                }
+                
+                setMealState(newState)
             }
-            
-            setMealState(newState)
         }
         if(mealState.dishA == null){
-            fetchMeal()
+            try{
+                fetchMeal()
+            }catch(e){
+                console.error(e)
+            }
         }
     },[auth,currentState,timeInfo])
     const portionAnimationState = usePortionViewAnimationState();
@@ -337,15 +344,20 @@ const Dashboard = (props)=>{
     useEffect(()=>{
         if(mealState?.dishA){
             setTopCategory(mealState.dishA.category)
+            console.log("Top Category:",mealState.dishA.category)
             if(mealState?.dishA?.recommendation?.fillFraction){
                 animateTopLeftSize(mealState.dishA.recommendation.fillFraction,{duration:400})
             }
+        }else{
+            animateTopLeftSize(0,{duration:100})
         }
         if(mealState?.dishB){
             setBottomCategory(mealState.dishB.category)
             if(mealState?.dishB?.recommendation?.fillFraction){
                 animateBottomLeftSize(mealState.dishB.recommendation.fillFraction,{duration:400})
             }
+        }else{
+            animateBottomLeftSize(0,{duration: 100})
         }
         if(mealState?.dishC){
             setRightCategory(mealState.dishC.category)
@@ -353,6 +365,8 @@ const Dashboard = (props)=>{
                 console.log(mealState?.dishC?.recommendation?.fillFraction)
                 animateRightSize(mealState.dishC.recommendation.fillFraction,{duration:400})
             }
+        }else{
+            animateRightSize(0,{duration:100})
         }
 
     },[mealState])
@@ -375,12 +389,31 @@ const Dashboard = (props)=>{
             setViewingPortions(true);
         }
     }
+    let content = <></>
+    if(noMeal){
+        content = <View style = {{
+            height: 300,
+            alignItems:"center",
+            justifyContent:"center",
+        }}>
+            <Text>
+                {noMeal.message}    
+            </Text> 
+         </View>
+    }else{
+        content = <>
+            <View style = {{height: 20}}/>
+            <TrayItem isTop number = {1} dish = {mealState.dishA} portion = {Portion.A} modalOpen = {setModalOpen}/>
+            <TrayItem number = {2}  dish = {mealState.dishB} portion = {Portion.B} modalOpen = {setModalOpen} />
+            <TrayItem number = {3}  dish = {mealState.dishC} portion = {Portion.C} modalOpen = {setModalOpen}/>
+        </>
+    }
 
     return <View style={{ flex: 1, alignItems: 'center' ,backgroundColor: 'white'}}>
         <Modal transparent visible = {!!modalOpen} animationType = "fade" 
         >
             <View style = {{
-                flex:1,
+                flex: 1,
                 backgroundColor: "rgba(0,0,0,0.3)",
                 alignItems: 'stretch',
                 // justifyContent: 'center'
@@ -388,31 +421,34 @@ const Dashboard = (props)=>{
                 <ChangeMenuItem modalOpen = {modalOpen} setModalOpen = {setModalOpen} mealState = {mealState} setMealState = {setMealState} />
             </View>
         </Modal>
-
-        <View style = {{height: 20}}/>
-        <TrayItem isTop number = {1} dish = {mealState.dishA} portion = {Portion.A} modalOpen = {setModalOpen}/>
-        <TrayItem number = {2}  dish = {mealState.dishB} portion = {Portion.B} modalOpen = {setModalOpen} />
-        <TrayItem number = {3}  dish = {mealState.dishC} portion = {Portion.C} modalOpen = {setModalOpen}/>
+        {content}
+        { !! noMeal && <View style = {{height: 800}}/> //  weird hack to put the portion view offscreen
+        }
         <PortionView style = {{ marginTop:10}} animationState = {portionAnimationState}/>
-        <TouchableOpacity style = {{
-            height: 50,
-            width: '85%',
-            borderRadius: 10,
-            backgroundColor:"white",
-            ...SHADOW_STYLE,
-            alignItems:"center",
-            justifyContent: "center"
-        }}
-            onPress = { onPortionViewPress}
-        >
-            <Text style ={{
-                fontSize: 20,
-                color: "#CE014E",
-            }}>
-                {viewingPortions ? "Hide Portions" : "View portions"}
-            </Text>
-        </TouchableOpacity>
-        <NutritionFacts mealState = {mealState}/>
+        { !! noMeal  || <>
+            <TouchableOpacity style = {{
+                height: 50,
+                width: '85%',
+                borderRadius: 10,
+                backgroundColor:"white",
+                ...SHADOW_STYLE,
+                alignItems:"center",
+                justifyContent: "center"
+            }}
+                onPress = { onPortionViewPress}
+            >
+                <Text style ={{
+                    fontSize: 20,
+                    color: "#CE014E",
+                }}>
+                    {viewingPortions ? "Hide Portions" : "View portions"}
+                </Text>
+            </TouchableOpacity>
+            <View style = {{height: NutritionFactsContainerHiddenHeight + 20}}/>
+        </>
+        }   
+        
+        <NutritionFacts disabled = {!!noMeal} mealState = {mealState}/>
     </View>
 }
 export default Dashboard

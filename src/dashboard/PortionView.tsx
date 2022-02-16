@@ -95,9 +95,9 @@ export function usePortionViewAnimationState(){
     setRotation(DEFAULT_TRANSFORM)
   }
 
-  const rightTrackedAnimation = useTrackedAnimation(0.5)
-  const topTrackedAnimation = useTrackedAnimation(0.6)
-  const bottomTrackedAnimation = useTrackedAnimation(0.4)
+  const rightTrackedAnimation = useTrackedAnimation(0)
+  const topTrackedAnimation = useTrackedAnimation(0)
+  const bottomTrackedAnimation = useTrackedAnimation(0)
 
   //Animates level of centralisation, 0 -> orbit view , 1 -> orthographic view
 
@@ -189,6 +189,7 @@ const PortionView = (props)=>{
     } 
   }
   useEffect(()=>{
+    console.log("Top category updated!")
     if(topSquare.current){
       topSquare.current.material = materialOfCategory(topCategory)
     }
@@ -396,18 +397,23 @@ const PortionView = (props)=>{
       //lerp opacity of box
       components.current["PlateBody"].material.opacity = lerp(0.5,0,centralizeValue.current)
 
-      components.current["Right"].material.opacity = lerp(0.9,1,centralizeValue.current)
-      components.current["TopLeft"].material.opacity = lerp(0.9,1,centralizeValue.current)
-      components.current["BottomLeft"].material.opacity = lerp(0.9,1,centralizeValue.current)
+      components.current["Right"].material.opacity= rightSizeTarg.current == 0 ? 0 : lerp(0.9,1,centralizeValue.current)
+      components.current["TopLeft"].material.opacity = topLeftSizeTarg.current == 0 ? 0:  lerp(0.9,1,centralizeValue.current)
+      components.current["BottomLeft"].material.opacity = bottomLeftSizeTarg.current == 0 ? 0 : lerp(0.9,1,centralizeValue.current)
 
       //set sizes of components
-      const rightScale = lerp(rightSizeValue.current,1,centralizeValue.current)
+      let rightScale = lerp(rightSizeValue.current,1,centralizeValue.current)
+      if(rightScale == 0) rightScale = 0.01 // prevent z fight
       components.current["Right"].scale.set(1,rightScale,1)
       _rightSquare.position.set(0.6,0.4*rightScale - 0.2 +0.01,0)
-      const topScale = lerp(topLeftSizeValue.current,1,centralizeValue.current)
+
+      let topScale = lerp(topLeftSizeValue.current,1,centralizeValue.current)
+      if(topScale == 0) topScale = 0.01
       components.current["TopLeft"].scale.set(1,topScale,1)
       _topSquare.position.set(-0.6,0.4*topScale - 0.2 +0.01,-0.4)
-      const bottomScale = lerp(bottomLeftSizeValue.current,1,centralizeValue.current);
+
+      let bottomScale = lerp(bottomLeftSizeValue.current,1,centralizeValue.current);
+      if(bottomScale == 0 ) bottomScale = 0.01
       components.current["BottomLeft"].scale.set(1,bottomScale,1)
       _bottomSquare.position.set(-0.6,0.4*bottomScale - 0.2 +0.01,0.4)
 
@@ -483,40 +489,6 @@ const PortionView = (props)=>{
       style = {{width:size,height:size*aspect,...style}}
     />
   </PanGestureHandler>
-  if(!DEBUG){
-    return baseView
-  }else return <View>
-    {/* <PanGestureHandler minDist={25} onGestureEvent = {onGestureEvent} onFailed = {onPanFail} onEnded = {onPanEnded}>
-     <GLView
-        onContextCreate={onContextCreate}
-        // onTouchStart = {onTouchStart}
-        style = {{width:size,height:size}}
-     />
-    </PanGestureHandler> */}
-    {baseView}
-    {/* <Button title='Test shift anim' onPress={()=>{
-        Animated.timing(shift.current,{
-          useNativeDriver:false,
-          toValue:1,
-          duration: 50
-        }).start()
-    }}/> */}
-    <Button title='Test centralize anim' onPress={()=>{
-       animateCentralize(1)
-    }}/>
-    <Button title='Test component sizes' onPress={()=>{
-        // console.log(bottomLeftSizeTarg)
-        if(bottomLeftSizeTarg.current === 1){
-          animateBottomLeftSize(0.2)
-          animateTopLeftSize(0.8)
-          animateRightSize(0.5)
-        }else{
-          animateBottomLeftSize(1)
-          animateTopLeftSize(1)
-          animateRightSize(1)
-        }
-
-    }}/>
-  </View>
+  return baseView
 }
 export default PortionView

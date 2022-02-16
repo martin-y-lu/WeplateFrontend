@@ -6,10 +6,12 @@ import { closest, interp } from "../utils/math"
 import { SHADOW_STYLE } from './Dashboard'
 
 export const ARROW_ICON_SVG = '<svg width="30" height="18" viewBox="0 0 30 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M27.2019 15.101L15.101 3.00003L3.00007 15.101" stroke="#C2C2C2" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>'
-
+export const NutritionFactsContainerHiddenHeight = 85
 const NutritionFactsContainer = (props) =>{
+    const ALLOW_OPEN = !(props?.disabled ?? false);
+
     const dim = Dimensions.get('window')
-    const HIDDEN_HEIGHT = 85
+    const HIDDEN_HEIGHT = NutritionFactsContainerHiddenHeight
     const SUFFICIENT_HIDE_LEVEL_GOING_UP = 0.1
     const SUFFICIENT_HIDE_LEVEL_GOING_DOWN = 0.8
     const TOP_Y = 100
@@ -18,6 +20,12 @@ const NutritionFactsContainer = (props) =>{
     const [targetYValue,setTargetYValue] = useState(BOTTOM_Y)
     const [yValue,setYValue] = useState(new Animated.Value(BOTTOM_Y))
     // const [hideLevel,setHideLevel] = useState(new Animated.Value(0))
+    useEffect(()=>{
+        if(!ALLOW_OPEN){
+            animateBottom()
+        }
+    },[ALLOW_OPEN])
+
     const hideLevel = yValue.interpolate({
         inputRange: [TOP_Y,BOTTOM_Y],
         outputRange: [1,0], 
@@ -33,9 +41,20 @@ const NutritionFactsContainer = (props) =>{
     const onGestureEvent = (event)=>{
         let {nativeEvent} = event
         // console.log(nativeEvent)
-        yValue.stopAnimation()
-        yValue.setValue(nativeEvent.absoluteY-60)
-        setUserSliding(true)
+        if(ALLOW_OPEN){
+            yValue.stopAnimation()
+            yValue.setValue(nativeEvent.absoluteY-60)
+            setUserSliding(true)
+        }
+    }
+
+    function animateBottom(){
+        setTargetYValue(BOTTOM_Y)
+            Animated.timing(yValue,{
+                toValue:BOTTOM_Y,
+                duration: 200,
+                useNativeDriver: false,
+            }).start()
     }
     const onEnded = () =>{
         setUserSliding(false)
@@ -53,12 +72,7 @@ const NutritionFactsContainer = (props) =>{
                 useNativeDriver:false,
             }).start()
         }else{
-            setTargetYValue(BOTTOM_Y)
-            Animated.timing(yValue,{
-                toValue:BOTTOM_Y,
-                duration: 200,
-                useNativeDriver: false,
-            }).start()
+            animateBottom()
         }
     }
     return <>
@@ -95,20 +109,22 @@ const NutritionFactsContainer = (props) =>{
                         alignItems:'center'
                     }}
                     onPress = {(event)=>{
-                        if(closest(targetYValue,[TOP_Y,BOTTOM_Y])== BOTTOM_Y){
-                            setTargetYValue(TOP_Y)
-                            Animated.timing(yValue,{
-                                toValue:TOP_Y,
-                                duration: 400,
-                                useNativeDriver:false,
-                            }).start()
-                        }else{
-                            setTargetYValue(BOTTOM_Y)
-                            Animated.timing(yValue,{
-                                toValue:BOTTOM_Y,
-                                duration: 400,
-                                useNativeDriver: false,
-                            }).start()
+                        if(ALLOW_OPEN){
+                            if(closest(targetYValue,[TOP_Y,BOTTOM_Y])== BOTTOM_Y){
+                                setTargetYValue(TOP_Y)
+                                Animated.timing(yValue,{
+                                    toValue:TOP_Y,
+                                    duration: 400,
+                                    useNativeDriver:false,
+                                }).start()
+                            }else{
+                                setTargetYValue(BOTTOM_Y)
+                                Animated.timing(yValue,{
+                                    toValue:BOTTOM_Y,
+                                    duration: 400,
+                                    useNativeDriver: false,
+                                }).start()
+                            }
                         }
                     }}>
                         <Animated.View style = {{

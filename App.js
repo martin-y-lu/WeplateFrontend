@@ -3,6 +3,10 @@ import {NavigationContainer} from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import {createDrawerNavigator} from '@react-navigation/drawer'
 
+import {setCustomText} from 'react-native-global-props'
+setCustomText({style:{
+    fontFamily:"Avenir-Heavy",
+}})
 // App pages
 
 import Dashboard from "./src/dashboard/Dashboard";

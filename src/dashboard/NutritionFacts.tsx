@@ -190,7 +190,7 @@ function totalBy(func: (Dish)=>number,mealState:MealState){
 }
 export const NutritionFacts = (props) =>{
     const {mealState} : {mealState: MealState} = props
-    return <NutritionFactsContainer> 
+    return <NutritionFactsContainer disabled = {props?.disabled ?? false}> 
     <View style = {{
         width : "100%",
         flexDirection: "column",

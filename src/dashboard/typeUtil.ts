@@ -77,7 +77,10 @@ export function convertAPIItemToDish(item:APIItem){
             saturatedFat: item.nutrition.saturated_fat,
             transFat: item.nutrition.trans_fat,
         },
-        ingredients: item.ingredients
+        ingredients: item.ingredients,
+        recommendation:{
+            fillFraction:0.6,
+        }
     } as Dish
 }
 export function parseAPITimestamp(date:APITimestamp){
