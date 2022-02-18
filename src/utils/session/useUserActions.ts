@@ -44,7 +44,7 @@ function useUserActions () {
     }
     async function mealsByTime(timeInfo:TimeInfo){
         const endpoint = `${baseUrl}/api/meals/?date=${encodeURIComponent(timeInfo.date)}&group=${encodeURIComponent(mealToAPIForm(timeInfo.meal))}`
-        console.log({endpoint})
+        // console.log({endpoint})
         const resp = await fetchWrapper.get(endpoint)
         if(resp.error) throw new Error(resp.message)
         if(resp == null) throw new Error(`No data.`)
@@ -52,7 +52,7 @@ function useUserActions () {
     }
     async function mealById(id:number){
         const endpoint = `${baseUrl}/api/meals/${encodeURIComponent(id)}/`
-        console.log({endpoint})
+        // console.log({endpoint})
         const resp = await fetchWrapper.get(endpoint)
         return resp as APIMealEvent
     }

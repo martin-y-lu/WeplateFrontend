@@ -60,14 +60,14 @@ export function convertAPIItemToDish(item:APIItem){
         nutrition: {
             sugar: item.nutrition.sugar,
             cholesterol: item.nutrition.cholesterol,
-            dietaryFiber: item.nutrition.fiber, // Why is this missing
+            dietaryFiber: item.nutrition.fiber,
             sodium: item.nutrition.sodium,
             potassium: item.nutrition.potassium,
             calcium: item.nutrition.calcium,
             iron: item.nutrition.calcium,
             vitaminD: item.nutrition.vitamin_d,
             vitaminC: item.nutrition.vitamin_c,
-            vitaminA: item.nutrition.vitamin_a
+            vitaminA: item.nutrition.vitamin_a,
         },
         nutritionSummary:{
             calories: item.nutrition.calories,
@@ -89,4 +89,60 @@ export function parseAPITimestamp(date:APITimestamp){
 
 export function mealToAPIForm(meal:MEALS){
     return meal.toLowerCase();
+}
+
+export enum Portion{
+    A = "A",
+    B = "B",
+    C = "C"
+}
+
+export function getDishByPortion(mealState:MealState,portion:Portion){
+    switch(portion){
+        case(Portion.A):
+            return mealState.dishA;
+            break;
+        case(Portion.B):
+            return mealState.dishB;
+            break;
+        case(Portion.C):
+            return mealState.dishC;
+            break;
+    }
+}
+export function setDishByPortion(mealState:MealState,portion:Portion, toSet : Dish){
+    switch(portion){
+        case(Portion.A):
+            return {
+                ...mealState,
+                dishA: toSet
+            }    
+            break;
+        case(Portion.B):
+            return {
+                ...mealState,
+                dishB: toSet
+            }    
+            break;
+        case(Portion.C):
+            return {
+                ...mealState,
+                dishC: toSet
+            }    
+            break;
+    }
+}
+
+export function getRecommendationsByPortion(mealState:MealState,portion:Portion){
+    switch(portion){
+        case(Portion.A):
+            return mealState.recommendationA;
+            break;
+        case(Portion.B):
+            return mealState.recommendationB
+            break;
+        case(Portion.C):
+            return mealState.recommendationC
+            break;
+    }
 }

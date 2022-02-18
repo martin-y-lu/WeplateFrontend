@@ -1,16 +1,25 @@
-import { useEffect, useRef, useState } from "react"
-import { View,Text, StyleSheet,TouchableOpacity, Dimensions,Animated, Modal, FlatList } from "react-native"
-import { ScrollView } from "react-native-gesture-handler"
+import { useEffect, useState } from "react";
+import { View, Text, TouchableOpacity, Modal } from "react-native";
 import { useRecoilState, useRecoilValue } from "recoil"
-import { colorOfCategory, iconOfCategory, NutritionFacts } from "./NutritionFacts"
-import NutritionFactsContainer, { ARROW_ICON_SVG, NutritionFactsContainerHiddenHeight } from "./NutritionFactsContainer"
+import { NutritionFacts } from "./NutritionFacts";
+import { NutritionFactsContainerHiddenHeight } from "./NutritionFactsContainer";
 import PortionView, { usePortionViewAnimationState } from './PortionView'
 import {mealStateFromTimeInfo, TimeInfo, dashboardState, dateToString } from "./state"
-import {FOOD_CATEGORY, MEALS, STATION,MealState,Dish,NutritionInfo,NutritionSummaryInfo, convertAPIItemToDish} from './typeUtil'
+import { MealState, convertAPIItemToDish, Portion } from './typeUtil';
+import { copilot,walkthroughable,CopilotStep } from "react-native-copilot"
+import TrayItem from "./TrayItem"
+
 import {
-    Vector3,
-    Quaternion,
-  } from 'three'
+Vector3,
+Quaternion,
+} from 'three'
+
+
+import { useUserActions } from "../utils/session/useUserActions"
+import { authAtom } from "../utils/session/useFetchWrapper"
+import ChangeMenuItem from "./ChangeMenuItem"
+import Tooltip from "./tooltip/components/Tooltip";
+
 export const SHADOW_STYLE = {
     backgroundColor:"white",
     shadowColor:"black",
@@ -19,260 +28,10 @@ export const SHADOW_STYLE = {
     shadowOffset:{width:0,height:0},
 }
 
-const TrayItem = ( props : {isTop ?: boolean, number: number,portion: Portion, dish: Dish, modalOpen}) => {
-    const {isTop, number, dish} = props
-    let body = <></>
-    if(dish!= null){
-        const dishName = dish.name
-        const station = dish.station
-        const calories = dish.nutritionSummary.calories
-        const color = colorOfCategory(dish.category)
-
-        body = <>
-        <View style = {{
-            marginLeft: 25,
-            width: 30,
-            height: 30,
-            borderStyle: 'solid',
-            borderRadius: 15,
-            backgroundColor: color,
-            justifyContent: "center",
-            alignItems: "center",
-        }}>
-            <Text style = {{color: "white"}}>
-                {number}
-            </Text>
-        </View>
-        <TouchableOpacity style = {{
-            marginLeft: 10,
-            flexDirection: 'column',
-        }} onPress = {()=>{
-            props.modalOpen(props.portion)
-        }}>
-            <Text style = {{
-                fontSize: 20,
-                color: color,
-            }}>
-                {dishName}
-            </Text>
-            <View style = {{
-                flexDirection: 'row'
-            }}>
-                <View style = {{
-                    borderRightWidth: 2,
-                    borderColor: color,
-                }}>
-                    <Text style = {{
-                        color : "#A4A4A4",
-                        marginRight: 5,
-                    }}>
-                        Station {station}
-                    </Text>
-                </View>
-                <Text style = {{
-                    color : "#A4A4A4",
-                    marginLeft: 5, 
-                }}>
-                    {calories} calories
-                </Text>
-            </View>
-        </TouchableOpacity>
-        </> 
-    }
-    // const {isTop, number ,color , dishName, station, calories} = props
-    return <View style = {{
-        flex: 1,
-        maxHeight:  60,
-        width: '100%',
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "flex-start",
-        alignSelf: "flex-start",
-        // backgroundColor: "orange", 
-        // marginTop: 20,
-        borderTopWidth: isTop ? 1: 0 ,
-        borderBottomWidth:1,
-        borderColor: "#EDEDED",
-
-    }}>
-        {body}
-    </View>
-    
-}
-
-enum Portion{
-    A = "A",
-    B = "B",
-    C = "C"
-}
-function getDishByPortion(mealState:MealState,portion:Portion){
-    switch(portion){
-        case(Portion.A):
-            return mealState.dishA;
-            break;
-        case(Portion.B):
-            return mealState.dishB;
-            break;
-        case(Portion.C):
-            return mealState.dishC;
-            break;
-    }
-}
-function setDishByPortion(mealState:MealState,portion:Portion, toSet : Dish){
-    switch(portion){
-        case(Portion.A):
-            return {
-                ...mealState,
-                dishA: toSet
-            }    
-            break;
-        case(Portion.B):
-            return {
-                ...mealState,
-                dishB: toSet
-            }    
-            break;
-        case(Portion.C):
-            return {
-                ...mealState,
-                dishC: toSet
-            }    
-            break;
-    }
-}
-
-function getRecommendationsByPortion(mealState:MealState,portion:Portion){
-    switch(portion){
-        case(Portion.A):
-            return mealState.recommendationA;
-            break;
-        case(Portion.B):
-            return mealState.recommendationB
-            break;
-        case(Portion.C):
-            return mealState.recommendationC
-            break;
-    }
-}
-
-import { SvgXml } from "react-native-svg"
-import { useUserActions } from "../utils/session/useUserActions"
-import { authAtom } from "../utils/session/useFetchWrapper"
-const ChangeMenuItem = (props : {modalOpen: Portion,setModalOpen?: (Portion) => void, mealState: MealState, setMealState: (MealState) => void }) =>{
-    const {modalOpen, setModalOpen, mealState, setMealState} = props
-    const dishes = getRecommendationsByPortion(mealState,modalOpen)
-    const currentDish = getDishByPortion(mealState,modalOpen)
-    function renderDish({item , index}:{item:Dish, index : number}){
-        const color = item == currentDish ? colorOfCategory(item.category): null
-        const icon = iconOfCategory(item.category)
-        return <TouchableOpacity style = {{
-            flex:1,
-            flexGrow:1,
-            alignSelf: "stretch",
-            height: 70,
-            borderRadius:15,
-            flexDirection: "row",
-
-            backgroundColor: color ?? "white",
-            shadowColor:"black",
-            shadowRadius:5,
-            shadowOpacity:0.25,
-            shadowOffset:{width:0,height:0},
-
-            marginLeft:20,
-            marginRight:20,
-            marginTop: 5,
-            marginBottom: 5,
-
-            padding:10,
-        }} onPress = {()=>{
-            setMealState(setDishByPortion(mealState,modalOpen,item))
-            setModalOpen(null)// close modal
-        }}>
-            <View style = {{
-                flexDirection:"column",
-                justifyContent: "center",
-            }}>
-                <View style = {{
-                    marginBottom: 4,
-                }}>
-
-                    <Text style ={{
-                        fontSize: 17,
-                        fontWeight:"bold",
-                        color: color? "white": "#555555"
-                    }}>
-                        {item.name}
-                    </Text>
-                </View>
-                <View style = {{
-                    flexDirection: "row"
-                }}>
-                    <View style = {{
-                        borderRightWidth: 2,
-                        paddingRight: 5,
-                        marginRight: 5,
-                        borderColor: color ? "white" : "#555555"
-                    }}>
-                        <Text style = {{
-                            color: color ? "white" : "#C0C0C0"
-                        }}>
-                            Station {item.station}
-                        </Text>
-                    </View>
-                    <Text style = {{
-                        color: color ? "white" : "#C0C0C0" 
-                    }}>
-                        {item.nutritionSummary.calories} Calories
-                    </Text>
-                </View>
-            </View>
-            <View style = {{
-                marginLeft: "auto",
-                justifyContent:"center",
-                alignContent:"center",
-            }}>
-                <SvgXml stroke = {color ? "white" : "#D3D3D3"} xml = {icon}/>
-            </View>
-        </TouchableOpacity>
-    }
-
-    return <View style = {{
-        flex:1,
-        flexGrow:1,
-        marginTop:85,
-        marginLeft: 20,
-        marginRight: 20,
-        marginBottom:50,
-        backgroundColor: "white",
-        borderRadius: 30,
-
-        alignItems: 'center'
-        
-    }}>
-        <TouchableOpacity style = {{
-            marginTop: 20,
-        }}>
-            <Text style ={{
-                color : "#8E8E8E", 
-                // fontWeight :"bold",
-                fontSize : 20,
-            }}
-            onPress = {()=>{
-                setModalOpen(null)
-            }}
-            >
-                Change Menu Item
-            </Text>
-        </TouchableOpacity>
-        <FlatList style = {{
-            width: "100%",
-            paddingTop: 10
-
-        }} data = {dishes} renderItem = {renderDish} />
-    </View>
-} 
+const WalkableView = walkthroughable(View)
 const Dashboard = (props)=>{
+    const {start} = props // Copilot: Start onboarding
+
     const {route,navigation} = props
     const currentState = useRecoilValue(dashboardState);
     const {currentDate,currentMeal} = currentState
@@ -285,6 +44,8 @@ const Dashboard = (props)=>{
     const userActions = useUserActions()
     const [viewingPortions,setViewingPortions] = useState(false);
     const [noMeal,setNoMeal] = useState<{message: string}>(null);
+
+    //Fetch meals 
     useEffect( ()=>{
         setNoMeal(null);
         async function fetchMeal(){
@@ -293,10 +54,10 @@ const Dashboard = (props)=>{
                 setNoMeal({message:"No meals at this time!"})
             }else{
                 const mealEvent = await userActions.mealById(data[0].id as number);
-                console.log({mealEvent})
+                // console.log({mealEvent})
                 // debug purposes
                 const dishes = mealEvent.items.map(convertAPIItemToDish)
-                console.log(dishes)
+                // console.log(dishes)
                 const newState : MealState = {
                     recommendationA: dishes,
                     recommendationB: dishes,
@@ -305,8 +66,10 @@ const Dashboard = (props)=>{
                     dishB: dishes[0],
                     dishC: dishes[0],
                 }
-                
                 setMealState(newState)
+                
+                //start onboarding
+                start()
             }
         }
         if(mealState.dishA == null){
@@ -334,17 +97,16 @@ const Dashboard = (props)=>{
         setRightCategory,
     } = portionAnimationState;
 
-    
     const [animateRightSize,rightSizeValue,rightSizeTarg] = rightTrackedAnimation as any
     const [animateTopLeftSize,topLeftSizeValue,topLeftSizeTarg] = topTrackedAnimation as any
     const [animateBottomLeftSize,bottomLeftSizeValue,bottomLeftSizeTarg] = bottomTrackedAnimation as any
-    
     const [animateCentralize,centralizeValue,centralizeTarg] = centralizeTrackedAnimation as any
 
+    //Update portionview state
     useEffect(()=>{
         if(mealState?.dishA){
             setTopCategory(mealState.dishA.category)
-            console.log("Top Category:",mealState.dishA.category)
+            console.log("Top Category:",mealState.dishA.category,)
             if(mealState?.dishA?.recommendation?.fillFraction){
                 animateTopLeftSize(mealState.dishA.recommendation.fillFraction,{duration:400})
             }
@@ -368,7 +130,6 @@ const Dashboard = (props)=>{
         }else{
             animateRightSize(0,{duration:100})
         }
-
     },[mealState])
 
     function onPortionViewPress(){
@@ -378,8 +139,6 @@ const Dashboard = (props)=>{
             portionAnimationState.doesInactivityTimer.current = true
             setViewingPortions(false);
         }else{
-
-           
             animateCentralize(0,{duration:900})
             const portionViewRotation = new Quaternion().setFromAxisAngle(new Vector3(1,0,0),Math.PI*0.25);
             if(centralizeValue.current>0.5){                
@@ -389,6 +148,7 @@ const Dashboard = (props)=>{
             setViewingPortions(true);
         }
     }
+
     let content = <></>
     if(noMeal){
         content = <View style = {{
@@ -401,17 +161,24 @@ const Dashboard = (props)=>{
             </Text> 
          </View>
     }else{
-        content = <>
+        content = <> 
             <View style = {{height: 20}}/>
+            <CopilotStep text = "The FitnessGram™ Pacer Test is a multistage aerobic capacity test that progressively gets more difficult as it continues. The 20 meter pacer test will begin in 30 seconds. Line up at the start. The running speed starts slowly, but gets faster each minute after you hear this signal. [beep] A single lap should be completed each time you hear this sound. [ding] Remember to run in a straight line, and run as long as possible. The second time you fail to complete a lap before the sound, your test is over. The test will begin on the word start. On your mark, get ready, start." 
+                order = {2} name = "test:2">
+                <WalkableView style = {{width:"100%"}}/>
+            </CopilotStep>
             <TrayItem isTop number = {1} dish = {mealState.dishA} portion = {Portion.A} modalOpen = {setModalOpen}/>
             <TrayItem number = {2}  dish = {mealState.dishB} portion = {Portion.B} modalOpen = {setModalOpen} />
             <TrayItem number = {3}  dish = {mealState.dishC} portion = {Portion.C} modalOpen = {setModalOpen}/>
-        </>
+            <CopilotStep text = "Alex is cringe." 
+                order = {0} name = "test:1">
+                <WalkableView style = {{width:"100%"}}/>
+            </CopilotStep>
+        </> 
     }
 
     return <View style={{ flex: 1, alignItems: 'center' ,backgroundColor: 'white'}}>
-        <Modal transparent visible = {!!modalOpen} animationType = "fade" 
-        >
+        <Modal transparent visible = {!!modalOpen} animationType = "fade" >
             <View style = {{
                 flex: 1,
                 backgroundColor: "rgba(0,0,0,0.3)",
@@ -420,12 +187,12 @@ const Dashboard = (props)=>{
             }}>
                 <ChangeMenuItem modalOpen = {modalOpen} setModalOpen = {setModalOpen} mealState = {mealState} setMealState = {setMealState} />
             </View>
-        </Modal>
+        </Modal> 
         {content}
         { !! noMeal && <View style = {{height: 800}}/> //  weird hack to put the portion view offscreen
         }
         <PortionView style = {{ marginTop:10}} animationState = {portionAnimationState}/>
-        { !! noMeal  || <>
+        { !! noMeal || <>
             <TouchableOpacity style = {{
                 height: 50,
                 width: '85%',
@@ -447,8 +214,15 @@ const Dashboard = (props)=>{
             <View style = {{height: NutritionFactsContainerHiddenHeight + 20}}/>
         </>
         }   
-        
         <NutritionFacts disabled = {!!noMeal} mealState = {mealState}/>
     </View>
 }
-export default Dashboard
+
+const stepNumberComponent = (props)=> <></>
+export default copilot({
+    animated:true,
+    overlay:"svg",
+    tooltipComponent: Tooltip,
+    stepNumberComponent
+
+})(Dashboard)

@@ -49,9 +49,7 @@ if (!global.atob) {
   global.atob = decode;
 }
 
-const DEBUG= false;
-
-function useTrackedAnimation(init_value,valueListener = (val)=>{}){
+export function useTrackedAnimation(init_value,valueListener = (val)=>{}){
   const anim = useRef(new Animated.Value(init_value))
   const value = useRef(init_value)
   const targ = useRef(init_value)
@@ -78,6 +76,34 @@ function useTrackedAnimation(init_value,valueListener = (val)=>{}){
     }
   }
   return [animate,value,targ]
+}
+export function useTrackedStateAnimation(init_value,valueListener = (val)=>{}){
+  const anim = useRef(new Animated.Value(init_value))
+  const [value,setValue]= useState(init_value)
+  const [targ,setTarg] = useState(init_value)
+  useEffect(()=>{
+    const listener = (_value)=>{
+      setValue(_value.value)
+      valueListener(_value.value)
+    }
+    anim.current.addListener(listener)
+    return () => {
+      anim.current.removeListener(listener)  
+    };
+  },[])
+  function animate(target,props){
+    if(targ != target){
+      setTarg(target)
+      Animated.timing(anim.current,{
+        useNativeDriver:false,
+        toValue:target,
+        duration: 1000,
+        ...props
+        
+      }).start()
+    }
+  }
+  return [animate,value,targ,anim]
 }
 
 export function usePortionViewAnimationState(){
@@ -107,11 +133,13 @@ export function usePortionViewAnimationState(){
     }
   })
 
-  const [topCategory,setTopCategory] = useState(FOOD_CATEGORY.Vegetable)
-  const [bottomCategory,setBottomCategory] = useState(FOOD_CATEGORY.Vegetable)
-  const [rightCategory,setRightCategory] = useState(FOOD_CATEGORY.Vegetable)
+  const [topCategory,setTopCategory] = useState(null)
+  const [bottomCategory,setBottomCategory] = useState(null)
+  const [rightCategory,setRightCategory] = useState(null)
 
   const doesInactivityTimer = useRef(true);
+  const [loaded,setLoaded] = useState(false)
+
   return {
     DEFAULT_TRANSFORM,
     initialRotation,
@@ -127,6 +155,7 @@ export function usePortionViewAnimationState(){
     setTopCategory,
     bottomCategory,setBottomCategory,
     rightCategory,setRightCategory,
+    loaded,setLoaded,
   }
 
 }
@@ -163,14 +192,16 @@ const PortionView = (props)=>{
     doesInactivityTimer,
     topCategory,
     bottomCategory,
-    rightCategory
+    rightCategory,
+    loaded,
+    setLoaded,
   } = props?.animationState ?? usePortionViewAnimationState()
   const [animateRightSize,rightSizeValue,rightSizeTarg] = rightTrackedAnimation
   const [animateTopLeftSize,topLeftSizeValue,topLeftSizeTarg] = topTrackedAnimation
   const [animateBottomLeftSize,bottomLeftSizeValue,bottomLeftSizeTarg] = bottomTrackedAnimation
   
   const [animateCentralize,centralizeValue,centralizeTarg] = centralizeTrackedAnimation
-
+  const emptyMaterial = useRef(null)
   const grainsIconMaterial = useRef(null)
   const proteinIconMaterial = useRef(null)
   const vegIconMaterial = useRef(null)
@@ -187,43 +218,42 @@ const PortionView = (props)=>{
       console.log("veg")
       return vegIconMaterial.current
     } 
+    return emptyMaterial;
   }
+  // // console.log({topCategory})
   useEffect(()=>{
-    console.log("Top category updated!")
+    console.log("Top category updated!",topCategory)
     if(topSquare.current){
       topSquare.current.material = materialOfCategory(topCategory)
     }
     if(components.current){
       const color = colorOfCategory(topCategory)
-      console.log({color})
       components.current["TopLeft"].material.color.setStyle(color)
     }
-  },[topCategory])
+  },[topCategory,components,loaded])
   useEffect(()=>{
     if(bottomSquare.current){
       bottomSquare.current.material = materialOfCategory(bottomCategory)
     }
     if(components.current){
       const color = colorOfCategory(bottomCategory)
-      console.log({color})
       components.current["BottomLeft"].material.color.setStyle(color)
     }
-  },[bottomCategory])
+  },[bottomCategory,components,loaded])
   useEffect(()=>{
     if(rightSquare.current){
       rightSquare.current.material = materialOfCategory(rightCategory)
     }
     if(components.current){
       const color = colorOfCategory(rightCategory)
-      console.log({color})
       components.current["Right"].material.color.setStyle(color)
     }
-  },[rightCategory])
+  },[rightCategory,components,loaded])
 
 
   //Timer to re centralise after a certain period of no interaction
   const INACTIVITY_TIMER_LENGTH = 400;
-  const inactivityTimer = useRef(null)
+  const inactivityTimer = useRef(null) 
 
   function startInactivityTimer(){
     inactivityTimer.current = setInterval(()=>{
@@ -310,6 +340,8 @@ const PortionView = (props)=>{
     const proteinIconTexture = textureLoader.load(proteinIconImage)
     const _proteinIconMaterial = new MeshLambertMaterial({map: proteinIconTexture,transparent:true,opacity:1})
     proteinIconMaterial.current = _proteinIconMaterial
+
+    emptyMaterial.current = new MeshLambertMaterial({transparent: true, opacity: 0})
  
     const squareGeometry = new PlaneGeometry(0.6,0.6)
     const _topSquare = new Mesh(squareGeometry,materialOfCategory(topCategory))
@@ -347,6 +379,9 @@ const PortionView = (props)=>{
     const pointLight = new PointLight( 0x404040,0 ,100);
     pointLight.position.set(0,0,10) // soft white light
     scene.add( pointLight );
+
+    // Done loading
+    setLoaded(true);
 
     //requestanimationframe
     const render = ()=>{
@@ -474,7 +509,6 @@ const PortionView = (props)=>{
         // console.log(comps)
         const intersects = raycaster.intersectObjects( comps,false)
         console.log(intersects.length)
-
       }
       // if(intersects.length>0){
       //   tapToggle.current = !tapToggle.current
