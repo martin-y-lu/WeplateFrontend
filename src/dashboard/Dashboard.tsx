@@ -57,15 +57,15 @@ const Dashboard = (props)=>{
         }
     }
 
-    if(isPresent){
-        console.log("IS PRESENT")
-    }
-    if(isPast){
-        console.log("IS PAST")
-    }
-    if(isFuture){
-        console.log("IS Future")
-    }
+    // if(isPresent){
+    //     console.log("IS PRESENT")
+    // }
+    // if(isPast){
+    //     console.log("IS PAST")
+    // }
+    // if(isFuture){
+    //     console.log("IS Future")
+    // }
 
     const auth = useRecoilValue(authAtom)
     const [mealState, setMealState] : [MealState,(MealState) => void]= useRecoilState(mealStateFromTimeInfo(timeInfo))
@@ -116,24 +116,35 @@ const Dashboard = (props)=>{
     async function fetchMeal(){
         const data = await userActions.mealsByTime(timeInfo)
         if(data.length == 0 ){
+            console.log("Nomeal")
             setNoMeal({message:"No meals at this time!"})
         }else{
             const mealID = data[0].id as number;
 
-            //TODO make fetches concurrent
-            const mealEvent = await userActions.mealById(mealID);
-            const suggestion = await userActions.suggestionByMealId(mealID);
+            //TODONE make fetches concurrent
+            // const mealEvent = await userActions.mealById(mealID);
+            // const suggestion = await userActions.suggestionByMealId(mealID);
+            // const prevChoices = await userActions.getAnalyticsMealChoices(mealID);
+
+            const [mealEvent,suggestion,prevChoices] = await Promise.all([userActions.mealById(mealID),userActions.suggestionByMealId(mealID),userActions.getAnalyticsMealChoices(mealID)])
+            console.log({suggestion})
             // console.log({mealEvent,suggestion})
             // console.log({mealEvent})
             // debug purposes
             const dishes = mealEvent.items.map(convertAPIItemToDish)
-            function getDishById(id:number){
-                const dish = dishes.filter(dish=> dish.id === id)
+            function getDishByIdFromList(list:Dish[],id:number){
+                const dish = list.filter(dish=> dish.id === id)
                 if(dish.length === 1){
                     return dish[0]
                 }else{
                     return null;
                 }
+            }
+            function getDishById(id:number) {
+                return getDishByIdFromList(dishes,id)
+            }
+            function idsOfList(list:Dish[]){
+                return list.map(dish=> dish.id)
             }
             function makeRecommendationList(items:Array<number>,category:FOOD_CATEGORY){
                 // console.log({category})
@@ -161,17 +172,43 @@ const Dashboard = (props)=>{
 
             if (recommendationA.length == 0 || recommendationB.length == 0 || recommendationC.length == 0 ) throw new Error("Issue with suggestions!")
 
-            let dishA = recommendationA[0]
-            let dishB = recommendationB[0]
-            let dishC = recommendationC[0]
-            console.log("DISHA :",dishA.category)
-            console.log("DISHB :",dishB.category)
-            console.log("DISHC :",dishC.category)
+            // get lateset
+            let dishA = null;
+            let dishB = null;
+            let dishC = null;
 
-            const portions = await userActions.portionSuggestionByItemID(dishA.id,dishB.id,dishC.id);
-            dishA.portion = getPortionInfoFromAPIPortionInfo(portions.small1,Portion.A);
-            dishB.portion = getPortionInfoFromAPIPortionInfo(portions.small2,Portion.B);
-            dishC.portion = getPortionInfoFromAPIPortionInfo(portions.large,Portion.C);
+            if(prevChoices.length == 0){
+                // if no choice has been made yet, default to first
+                dishA = recommendationA[0]
+                dishB = recommendationB[0]
+                dishC = recommendationC[0]
+            }else{
+                const recentEntry = prevChoices[0]
+                console.log({recentEntry, idsA: idsOfList(recommendationA),idsB: idsOfList(recommendationB), idsC: idsOfList(recommendationC)})
+                dishA = getDishByIdFromList(recommendationA,recentEntry.small1)
+                // recBIds = 
+                dishB = getDishByIdFromList(recommendationB,recentEntry.small2)
+                dishC = getDishByIdFromList(recommendationC,recentEntry.large)
+            }
+            console.log("DISHA :",dishA)
+            console.log("DISHB :",dishB)
+            console.log("DISHC :",dishC)
+
+            if(dishA === null || dishB === null || dishC == null){
+                console.log("issue with prevEntries, failing gracefully")
+                dishA = recommendationA[0]
+                dishB = recommendationB[0]
+                dishC = recommendationC[0] 
+            }
+
+           
+
+            if(dishA?.portion === null || dishB?.portion === null || dishC?.portion === null){
+                const portions = await userActions.portionSuggestionByItemID(dishA.id,dishB.id,dishC.id);
+                dishA.portion = getPortionInfoFromAPIPortionInfo(portions.small1,Portion.A);
+                dishB.portion = getPortionInfoFromAPIPortionInfo(portions.small2,Portion.B);
+                dishC.portion = getPortionInfoFromAPIPortionInfo(portions.large,Portion.C);
+            }
             
             // console.log(dishes)
             const newState : MealState = {
@@ -262,9 +299,9 @@ const Dashboard = (props)=>{
         }else{
             animateCentralize(0,{duration:900})
             const portionViewRotation = new Quaternion().setFromAxisAngle(new Vector3(1,0,0),Math.PI*0.25);
-            if(centralizeValue.current>0.5){                
+            // if(centralizeValue.current>0.5){                
                 portionAnimationState.setRotation(portionViewRotation)
-            }
+            // }
             portionAnimationState.doesInactivityTimer.current = false
             setViewingPortions(true);
         }

@@ -27,6 +27,7 @@ function useUserActions () {
         portionSuggestionByItemID,
         postAnalyticsMealChoices,
         getAnalyticsMealChoices,
+        postAnalyticsMealItemVote,
     }
 
     function login(email:string, password:string) {
@@ -86,8 +87,17 @@ function useUserActions () {
     }
     async function getAnalyticsMealChoices(mealId:number){
         const endpoint = `${baseUrl}/api/analytics/meal_choice/?meal=${encodeURIComponent(mealId)}`
-        const resp = await fetchWrapper.post(endpoint)
+        const resp = await fetchWrapper.get(endpoint)
         return resp as Array<APIAnalyticsMealChoiceEntry>
+    }
+
+    async function postAnalyticsMealItemVote(mealItemId: number,liked: boolean){
+        const endpoint = `${baseUrl}/api/analytics/meal_item_vote/`
+        const resp = await fetchWrapper.post(endpoint,{
+            meal_item: mealItemId,
+            liked
+        })
+        return resp as {detail: string}
     }
 
     function logout() {
