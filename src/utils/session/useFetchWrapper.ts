@@ -62,7 +62,8 @@ function useFetchWrapper() {
     
                 const error = (data && data.message) || response.statusText;
                 console.error({error,response})
-                return Promise.reject(error);
+                throw new Error(JSON.stringify({error,response}))
+                // return Promise.reject(error);
             }
     
             return data;

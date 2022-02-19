@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, Modal } from "react-native";
 import { useRecoilState, useRecoilValue } from "recoil"
 import { NutritionFacts } from "./NutritionFacts";
 import { NutritionFactsContainerHiddenHeight } from "./NutritionFactsContainer";
 import PortionView, { usePortionViewAnimationState } from './PortionView'
-import {mealStateFromTimeInfo, TimeInfo, dashboardState, dateToString } from "./state"
-import { MealState, convertAPIItemToDish, Portion } from './typeUtil';
+import { mealStateFromTimeInfo, TimeInfo, dashboardState, dateToString, stringToDate } from './state';
+import { MealState, convertAPIItemToDish, Portion, getPortionInfoFromAPIPortionInfo, Dish, FOOD_CATEGORY, FoodCategoryFromAPIFoodCategory, getMealsIndex, getDishByPortion } from './typeUtil';
 import { copilot,walkthroughable,CopilotStep } from "react-native-copilot"
 import TrayItem from "./TrayItem"
 
@@ -19,6 +19,7 @@ import { useUserActions } from "../utils/session/useUserActions"
 import { authAtom } from "../utils/session/useFetchWrapper"
 import ChangeMenuItem from "./ChangeMenuItem"
 import Tooltip from "./tooltip/components/Tooltip";
+import { APIMealSuggest, APIMealSuggestEntry } from '../utils/session/apiTypes';
 
 export const SHADOW_STYLE = {
     backgroundColor:"white",
@@ -36,6 +37,35 @@ const Dashboard = (props)=>{
     const currentState = useRecoilValue(dashboardState);
     const {currentDate,currentMeal} = currentState
     const timeInfo : TimeInfo = route?.params?.timeInfo ?? { date: dateToString(currentDate), meal: currentMeal}
+    
+    let isPresent = false
+    let isPast = false
+    let isFuture = false
+    
+    if(currentDate > stringToDate(timeInfo.date)){
+        isPast = true;
+    }else if(currentDate < stringToDate(timeInfo.date)){
+        isFuture = true;
+    }else if(dateToString(currentDate) === timeInfo.date){
+        const difference = getMealsIndex(currentMeal) - getMealsIndex(timeInfo.meal)
+        if(difference>0){
+            isPast = true;
+        }else if(difference< 0 ){
+            isFuture = true;
+        }else if(difference == 0){
+            isPresent = true;
+        }
+    }
+
+    if(isPresent){
+        console.log("IS PRESENT")
+    }
+    if(isPast){
+        console.log("IS PAST")
+    }
+    if(isFuture){
+        console.log("IS Future")
+    }
 
     const auth = useRecoilValue(authAtom)
     const [mealState, setMealState] : [MealState,(MealState) => void]= useRecoilState(mealStateFromTimeInfo(timeInfo))
@@ -45,33 +75,123 @@ const Dashboard = (props)=>{
     const [viewingPortions,setViewingPortions] = useState(false);
     const [noMeal,setNoMeal] = useState<{message: string}>(null);
 
+
+    const onLoad = ()=>{
+        // start()
+    }
     //Fetch meals 
+    const setMealDishes = useCallback(
+        async (newDishA:Dish,newDishB:Dish,newDishC:Dish)=>{
+            if(mealState.dishA.id == newDishA.id && mealState.dishB.id === newDishB.id && mealState.dishC.id === newDishC.id){
+                return;
+            }else{
+                const portions = await userActions.portionSuggestionByItemID(newDishA.id,newDishB.id,newDishC.id);
+                // console.log({portions})
+                const dishAPortion = getPortionInfoFromAPIPortionInfo(portions.small1,Portion.A);
+                const dishA= {...newDishA ,portion: dishAPortion}
+                const dishBPortion = getPortionInfoFromAPIPortionInfo(portions.small2,Portion.B);
+                const dishB= {...newDishB ,portion: dishBPortion}
+                const dishCPortion = getPortionInfoFromAPIPortionInfo(portions.large,Portion.C);
+                const dishC = {...newDishC,portion: dishCPortion}
+                
+                const newMealState :MealState = {
+                    ... mealState,
+                    dishA,
+                    dishB,
+                    dishC,
+                }
+                setMealState(newMealState)
+
+                try{
+                    const postResp = await userActions.postAnalyticsMealChoices(newMealState)
+                    console.log({postResp})
+                }catch(e){
+                    console.log(e)
+                }
+            }   
+        },
+        [mealState],
+    )
+     
+    async function fetchMeal(){
+        const data = await userActions.mealsByTime(timeInfo)
+        if(data.length == 0 ){
+            setNoMeal({message:"No meals at this time!"})
+        }else{
+            const mealID = data[0].id as number;
+
+            //TODO make fetches concurrent
+            const mealEvent = await userActions.mealById(mealID);
+            const suggestion = await userActions.suggestionByMealId(mealID);
+            // console.log({mealEvent,suggestion})
+            // console.log({mealEvent})
+            // debug purposes
+            const dishes = mealEvent.items.map(convertAPIItemToDish)
+            function getDishById(id:number){
+                const dish = dishes.filter(dish=> dish.id === id)
+                if(dish.length === 1){
+                    return dish[0]
+                }else{
+                    return null;
+                }
+            }
+            function makeRecommendationList(items:Array<number>,category:FOOD_CATEGORY){
+                // console.log({category})
+                const list = items.map(getDishById).filter(dish=> dish !== null)
+                let ids = []
+                let norepList = [] as Array<Dish>
+                list.forEach((_dish:Dish)=>{
+                    const dish = JSON.parse(JSON.stringify(_dish))
+                    if(!ids.includes(dish.id)){
+                        dish.category = category
+                        norepList.push(dish)
+                        ids.push(dish.id)
+                    }
+                })
+                // console.log({norepList})
+                return norepList
+            }
+            function makeRecommendation(entry: APIMealSuggestEntry){
+                // console.log({entryCategory: entry.category})
+                return makeRecommendationList(entry.items as Array<number>,FoodCategoryFromAPIFoodCategory(entry.category))
+            }
+            const recommendationA = makeRecommendation(suggestion.small1)
+            const recommendationB = makeRecommendation(suggestion.small2)
+            const recommendationC = makeRecommendation(suggestion.large)
+
+            if (recommendationA.length == 0 || recommendationB.length == 0 || recommendationC.length == 0 ) throw new Error("Issue with suggestions!")
+
+            let dishA = recommendationA[0]
+            let dishB = recommendationB[0]
+            let dishC = recommendationC[0]
+            console.log("DISHA :",dishA.category)
+            console.log("DISHB :",dishB.category)
+            console.log("DISHC :",dishC.category)
+
+            const portions = await userActions.portionSuggestionByItemID(dishA.id,dishB.id,dishC.id);
+            dishA.portion = getPortionInfoFromAPIPortionInfo(portions.small1,Portion.A);
+            dishB.portion = getPortionInfoFromAPIPortionInfo(portions.small2,Portion.B);
+            dishC.portion = getPortionInfoFromAPIPortionInfo(portions.large,Portion.C);
+            
+            // console.log(dishes)
+            const newState : MealState = {
+                mealID: mealEvent.id,
+                recommendationA,
+                recommendationB,
+                recommendationC,
+                dishA,
+                dishB,
+                dishC,
+            }
+            // console.log({newState})
+            setMealState(newState)
+            
+            //start onboarding
+            onLoad()
+        }
+    }
     useEffect( ()=>{
         setNoMeal(null);
-        async function fetchMeal(){
-            const data = await userActions.mealsByTime(timeInfo)
-            if(data.length == 0 ){
-                setNoMeal({message:"No meals at this time!"})
-            }else{
-                const mealEvent = await userActions.mealById(data[0].id as number);
-                // console.log({mealEvent})
-                // debug purposes
-                const dishes = mealEvent.items.map(convertAPIItemToDish)
-                // console.log(dishes)
-                const newState : MealState = {
-                    recommendationA: dishes,
-                    recommendationB: dishes,
-                    recommendationC: dishes,
-                    dishA: dishes[0],
-                    dishB: dishes[0],
-                    dishC: dishes[0],
-                }
-                setMealState(newState)
-                
-                //start onboarding
-                start()
-            }
-        }
         if(mealState.dishA == null){
             try{
                 fetchMeal()
@@ -79,7 +199,7 @@ const Dashboard = (props)=>{
                 console.error(e)
             }
         }
-    },[auth,currentState,timeInfo])
+    },[auth,currentState])
     const portionAnimationState = usePortionViewAnimationState();
     const {
         DEFAULT_TRANSFORM,
@@ -106,26 +226,27 @@ const Dashboard = (props)=>{
     useEffect(()=>{
         if(mealState?.dishA){
             setTopCategory(mealState.dishA.category)
-            console.log("Top Category:",mealState.dishA.category,)
-            if(mealState?.dishA?.recommendation?.fillFraction){
-                animateTopLeftSize(mealState.dishA.recommendation.fillFraction,{duration:400})
+            // console.log("Top Category:",mealState.dishA)
+            if(mealState?.dishA?.portion?.fillFraction){
+                animateTopLeftSize(mealState.dishA.portion.fillFraction,{duration:400})
             }
         }else{
             animateTopLeftSize(0,{duration:100})
         }
         if(mealState?.dishB){
+            // console.log("Bottom Category:",mealState.dishB.category,)
             setBottomCategory(mealState.dishB.category)
-            if(mealState?.dishB?.recommendation?.fillFraction){
-                animateBottomLeftSize(mealState.dishB.recommendation.fillFraction,{duration:400})
+            if(mealState?.dishB?.portion?.fillFraction){
+                animateBottomLeftSize(mealState.dishB.portion.fillFraction,{duration:400})
             }
         }else{
             animateBottomLeftSize(0,{duration: 100})
         }
         if(mealState?.dishC){
+            // console.log("Right Category:",mealState.dishC.category,)
             setRightCategory(mealState.dishC.category)
-            if(mealState?.dishC?.recommendation?.fillFraction){
-                console.log(mealState?.dishC?.recommendation?.fillFraction)
-                animateRightSize(mealState.dishC.recommendation.fillFraction,{duration:400})
+            if(mealState?.dishC?.portion?.fillFraction){
+                animateRightSize(mealState.dishC.portion.fillFraction,{duration:400})
             }
         }else{
             animateRightSize(0,{duration:100})
@@ -167,9 +288,9 @@ const Dashboard = (props)=>{
                 order = {2} name = "test:2">
                 <WalkableView style = {{width:"100%"}}/>
             </CopilotStep>
-            <TrayItem isTop number = {1} dish = {mealState.dishA} portion = {Portion.A} modalOpen = {setModalOpen}/>
-            <TrayItem number = {2}  dish = {mealState.dishB} portion = {Portion.B} modalOpen = {setModalOpen} />
-            <TrayItem number = {3}  dish = {mealState.dishC} portion = {Portion.C} modalOpen = {setModalOpen}/>
+                <TrayItem isTop number = {1} dish = {mealState.dishA} portion = {Portion.A} modalOpen = {setModalOpen}/>
+                <TrayItem number = {2}  dish = {mealState.dishB} portion = {Portion.B} modalOpen = {setModalOpen} />
+                <TrayItem number = {3}  dish = {mealState.dishC} portion = {Portion.C} modalOpen = {setModalOpen}/>
             <CopilotStep text = "Alex is cringe." 
                 order = {0} name = "test:1">
                 <WalkableView style = {{width:"100%"}}/>
@@ -185,7 +306,7 @@ const Dashboard = (props)=>{
                 alignItems: 'stretch',
                 // justifyContent: 'center'
             }}>
-                <ChangeMenuItem modalOpen = {modalOpen} setModalOpen = {setModalOpen} mealState = {mealState} setMealState = {setMealState} />
+                <ChangeMenuItem modalOpen = {modalOpen} setModalOpen = {setModalOpen} mealState = {mealState} setMealState = {setMealState} setMealDishes = {setMealDishes}/>
             </View>
         </Modal> 
         {content}

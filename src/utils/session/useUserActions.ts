@@ -1,7 +1,8 @@
 import { atom, useSetRecoilState } from 'recoil';
 import { TimeInfo } from '../../dashboard/state';
-import { mealToAPIForm } from '../../dashboard/typeUtil';
+import { mealToAPIForm, MealState } from '../../dashboard/typeUtil';
 import { authAtom, useFetchWrapper } from './useFetchWrapper';
+import { APIMealSuggest, APIPortionInfo, APIPortionSuggest, APIMealEvent, APIMealByTimePayload, APIAnalyticsMealChoiceEntry } from './apiTypes';
 
 export const usersAtom = atom({
     key: "usersAtom",
@@ -22,6 +23,10 @@ function useUserActions () {
         getAll,
         mealsByTime,
         mealById,
+        suggestionByMealId,
+        portionSuggestionByItemID,
+        postAnalyticsMealChoices,
+        getAnalyticsMealChoices,
     }
 
     function login(email:string, password:string) {
@@ -55,6 +60,34 @@ function useUserActions () {
         // console.log({endpoint})
         const resp = await fetchWrapper.get(endpoint)
         return resp as APIMealEvent
+    }
+    async function suggestionByMealId(id:number){
+        const endpoint =  `${baseUrl}/api/suggest/${encodeURIComponent(id)}/items/`
+        const resp = await fetchWrapper.get(endpoint)
+        return resp as APIMealSuggest;
+    }
+    async function portionSuggestionByItemID(small1: number, small2: number, large: number){
+        const endpoint = `${baseUrl}/api/suggest/portions/?small1=${encodeURIComponent(small1)}&small2=${encodeURIComponent(small2)}&large=${large}`
+        const resp = await fetchWrapper.get(endpoint)
+        return resp as APIPortionSuggest;
+    }
+    async function postAnalyticsMealChoices(mealState : MealState){
+        const endpoint =  `${baseUrl}/api/analytics/meal_choice/`
+        const resp = await fetchWrapper.post(endpoint,{
+            meal: mealState.mealID,
+            small1: mealState.dishA.id,
+            small2: mealState.dishB.id,
+            large: mealState.dishC.id,
+            small1_portion: mealState.dishA.portion.fillFraction,
+            small2_portion: mealState.dishB.portion.fillFraction,
+            large_portion: mealState.dishC.portion.fillFraction,
+        })
+        return resp as {detail:string}
+    }
+    async function getAnalyticsMealChoices(mealId:number){
+        const endpoint = `${baseUrl}/api/analytics/meal_choice/?meal=${encodeURIComponent(mealId)}`
+        const resp = await fetchWrapper.post(endpoint)
+        return resp as Array<APIAnalyticsMealChoiceEntry>
     }
 
     function logout() {

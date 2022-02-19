@@ -9,10 +9,10 @@ export function colorOfCategory(category: FOOD_CATEGORY){
             color = "#FDB812"
             break
         case(FOOD_CATEGORY.Protein):
-            color = "#CE014E"
+            color = "#FF605B"
             break
         case(FOOD_CATEGORY.Vegetable):
-            color = "#FF605B"
+            color = "#CE014E"
             break
     }
     return color 

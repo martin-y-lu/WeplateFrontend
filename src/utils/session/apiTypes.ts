@@ -1,23 +1,55 @@
-type APIMealByTimePayload = Array<APIMealByTimeEvent>
-type APIKey = number | string |null
-type APITimestamp = string
+import { FOOD_CATEGORY } from '../../dashboard/typeUtil';
 
-interface APIMealByTimeEvent {
+export type APIMealByTimePayload = Array<APIMealByTimeEvent>
+export type APIKey = number
+export type APITimestamp = string
+
+export interface APIMealByTimeEvent {
     group: APIMeals,
     items: Array<APIKey>,
     name: string,
     timestamp: APITimestamp,
     id: APIKey,
 }
-interface APIMealEvent {
+export interface APIMealEvent {
     group: APIMeals,
     items: Array<APIItem>,
     name: string,
     timestamp: APITimestamp,
     id: APIKey,
 }
-enum APIMeals {"breakfast","lunch","dinner"}
-interface APIItem{
+export enum APIFoodCategory {carbohydrate = "carbohydrate",protein = "protein",vegetable="vegetable"}
+export interface APIMealSuggestEntry {
+    category: APIFoodCategory,
+    items: Array<APIKey>,
+}
+export interface APIMealSuggest{
+    large:APIMealSuggestEntry,
+    small1:APIMealSuggestEntry,
+    small2:APIMealSuggestEntry,
+}
+
+export interface APIPortionInfo{
+    volume: number,
+    weight: number,
+}
+export interface APIPortionSuggest{
+    large: APIPortionInfo,
+    small1: APIPortionInfo,
+    small2: APIPortionInfo,
+}
+export interface APIAnalyticsMealChoiceEntry{
+    id: APIKey,
+    timestamp: string,
+    small1: APIKey,
+    small2: APIKey,
+    large: APIKey,
+    small1_portion: number,
+    small2_portion: number,
+    large_portion: number,
+}
+export enum APIMeals {"breakfast","lunch","dinner"}
+export interface APIItem{
     ingredients: Array<APIKey>,
     name: string,
     nutrition: APINutrition,
@@ -25,11 +57,11 @@ interface APIItem{
     school: APISchool,
     station : string,
 }
-interface APIIngredient{
+export interface APIIngredient{
     name: String,
     id: APIKey,
 }
-interface APINutrition{
+export interface APINutrition{
     calcium?: number,
     calories ?: number,
     carbohydrate ?: number,
@@ -48,7 +80,7 @@ interface APINutrition{
     vitamin_d ?: number,
 }
 
-interface APISchool{
+export interface APISchool{
     name: string,
     id: APIKey,
 }

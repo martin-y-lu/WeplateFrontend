@@ -88,6 +88,7 @@ export const mealStateWithDateMeal =  (date: Date,meal: MEALS) => {
     const recB = makeRecommendationList()
     const recC = makeRecommendationList()
     const state : MealState = {
+        mealID: null,
         recommendationA: null,
         dishA: null,
         recommendationB: null,

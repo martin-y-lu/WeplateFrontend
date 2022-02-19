@@ -19,12 +19,13 @@ export const SHADOW_STYLE = {
 
 import { SvgXml } from "react-native-svg"
 
-const ChangeMenuItem = (props : {modalOpen: Portion,setModalOpen?: (Portion) => void, mealState: MealState, setMealState: (MealState) => void }) =>{
-    const {modalOpen, setModalOpen, mealState, setMealState} = props
-    const dishes = getRecommendationsByPortion(mealState,modalOpen)
-    const currentDish = getDishByPortion(mealState,modalOpen)
+const ChangeMenuItem = (props : {modalOpen: Portion,setModalOpen?: (Portion) => void, mealState: MealState, setMealState: (MealState) => void ,setMealDishes : (newDishA: Dish, newDishB: Dish, newDishC: Dish) => Promise<void>}) =>{
+    const {modalOpen, setModalOpen, mealState, setMealState,setMealDishes} = props
+    const portion = modalOpen
+    const dishes = getRecommendationsByPortion(mealState,portion)
+    const currentDish = getDishByPortion(mealState,portion)
     function renderDish({item , index}:{item:Dish, index : number}){
-        const color = item == currentDish ? colorOfCategory(item.category): null
+        const color = item.id === currentDish.id ? colorOfCategory(item.category): null
         const icon = iconOfCategory(item.category)
         return <TouchableOpacity style = {{
             flex:1,
@@ -47,7 +48,10 @@ const ChangeMenuItem = (props : {modalOpen: Portion,setModalOpen?: (Portion) => 
 
             padding:10,
         }} onPress = {()=>{
-            setMealState(setDishByPortion(mealState,modalOpen,item))
+            const tempMealState = setDishByPortion(mealState,modalOpen,item);
+            // setMealState()
+            setMealDishes(tempMealState.dishA,tempMealState.dishB,tempMealState.dishC)
+            
             setModalOpen(null)// close modal
         }}>
             <View style = {{

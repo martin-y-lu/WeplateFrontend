@@ -1,7 +1,15 @@
+import { APIFoodCategory, APIPortionInfo, APIItem, APITimestamp } from '../utils/session/apiTypes';
 export enum FOOD_CATEGORY{Carbohydrates = "Carbohydrates",Protein = "Protein", Vegetable = "Vegetable"}
 export enum MEALS{Breakfast = "Breakfast", Lunch = "Lunch",Dinner = "Dinner"}
 export enum STATION{A = "A", B = "B", C = "C", D = "D"}
 
+export function getMealsIndex(meal:MEALS){
+    switch(meal){
+        case(MEALS.Breakfast): return 0 
+        case(MEALS.Lunch): return 1 
+        case(MEALS.Dinner): return 2 
+    }
+}
 export interface NutritionInfo{
     sugar ?: number,
     cholesterol ?: number,
@@ -23,11 +31,12 @@ export interface NutritionSummaryInfo{
     transFat ?: number
 }
 
-export type Ingredients = Array<String>
+export type Ingredients = Array<number>
 
-export interface RecommendationInfo{
+export interface PortionInfo{
     volume ?: number,
     fillFraction ?: number,
+    weight ?: number,
 }
 
 export interface Dish{
@@ -38,9 +47,10 @@ export interface Dish{
     nutrition: NutritionInfo,
     nutritionSummary: NutritionSummaryInfo
     ingredients: Ingredients,
-    recommendation ?: RecommendationInfo,
+    portion?: PortionInfo,
 }
 export interface MealState {
+    mealID: number,
     recommendationA: Array<Dish>,
     dishA: Dish,
     recommendationB: Array<Dish>,
@@ -50,6 +60,11 @@ export interface MealState {
 }
 function getCategoryOfAPIItem(item:APIItem){
     return FOOD_CATEGORY.Carbohydrates
+}
+
+function toNum(num){
+    if(isNaN(num)) return 0
+    return num ?? 0 
 }
 export function convertAPIItemToDish(item:APIItem){
     return {
@@ -73,12 +88,12 @@ export function convertAPIItemToDish(item:APIItem){
             calories: item.nutrition.calories,
             protein: item.nutrition.protein,
             carbohydrates: item.nutrition.carbohydrate,
-            totalFat: item.nutrition.saturated_fat + item.nutrition.trans_fat + item.nutrition.unsaturated_fat,
-            saturatedFat: item.nutrition.saturated_fat,
+            totalFat: toNum(item.nutrition.saturated_fat) + toNum(item.nutrition.trans_fat) + toNum(item.nutrition.unsaturated_fat),
+            saturatedFat: item.nutrition.saturated_fat ??0,
             transFat: item.nutrition.trans_fat,
         },
         ingredients: item.ingredients,
-        recommendation:{
+        portion:{
             fillFraction:0.6,
         }
     } as Dish
@@ -145,4 +160,34 @@ export function getRecommendationsByPortion(mealState:MealState,portion:Portion)
             return mealState.recommendationC
             break;
     }
+}
+export function fullVolumeByPortion(portion: Portion){
+    switch(portion){
+        case Portion.A:
+            return 270
+        case Portion.B:
+            return 270
+        case Portion.C:
+            return 610
+    }
+}
+
+export function getPortionInfoFromAPIPortionInfo(info:APIPortionInfo,portion: Portion){
+    return {
+        fillFraction: info.volume/fullVolumeByPortion(portion),
+        volume: info.volume,
+        weight: info.weight,
+    } as PortionInfo
+}
+
+export function FoodCategoryFromAPIFoodCategory(cat:APIFoodCategory){
+    switch(cat){
+        case APIFoodCategory.carbohydrate: 
+            return FOOD_CATEGORY.Carbohydrates
+        case APIFoodCategory.protein:
+            return FOOD_CATEGORY.Protein
+        case APIFoodCategory.vegetable:
+            return FOOD_CATEGORY.Vegetable
+    }
+    console.log("Nomatch?", APIFoodCategory.carbohydrate)
 }

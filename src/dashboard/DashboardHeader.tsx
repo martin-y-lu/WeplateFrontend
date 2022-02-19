@@ -90,18 +90,22 @@ const DashboardHeader = (props) =>{
                 }}>
                     <SvgXml xml = {ARROW_ICON_SVG}/>
                 </TouchableOpacity>
-                <View style= {{
+                <TouchableOpacity style= {{
                     flexDirection:'column',
                     alignItems:"center",
                     justifyContent:"center"
-                }}>
+                }}
+                onPress = {()=>{
+                    navigation.navigate("SidebarNavigable",{screen: "Dashboard"})
+                }}
+                >
                     <Text style = {{fontSize: 25,color:"#606060"}}>
                         {date ? <>{MONTH_ABBREV[date.getMonth()]} {date.getDate()}</> : "loading" }
                     </Text>
                     <Text style = {{fontSize: 15,color:"#606060"}}>
                         {meal}
                     </Text>
-                </View>
+                </TouchableOpacity>
                 <TouchableOpacity style= {{
                     paddingBottom: 10,
                     paddingLeft:10,
