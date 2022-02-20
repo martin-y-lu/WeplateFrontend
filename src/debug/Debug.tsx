@@ -4,6 +4,13 @@ import { useRecoilValue } from "recoil"
 import { usersAtom, useUserActions } from "../utils/session/useUserActions"
 
 const RCTNetworking = require('react-native/Libraries/Network/RCTNetworking')
+
+export function useLogin(){
+    const userActions = useUserActions()
+    useEffect(()=>{
+        userActions.login("2021090@appleby.on.ca","goodpassword123") 
+    },[])
+}
 const Debug = ({navigation})=>{
     const userActions = useUserActions()
     const user = useRecoilValue(usersAtom)

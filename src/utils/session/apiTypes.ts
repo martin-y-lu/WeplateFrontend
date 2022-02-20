@@ -84,3 +84,65 @@ export interface APISchool{
     name: string,
     id: APIKey,
 }
+
+interface APIUserItemPref{
+
+}
+
+export const healthGoals = ["improve_health" , "lose_weight" , "build_muscle" , "athletic_performance" , "improve_body_tone" ]
+export type APIHealthGoal = "improve_health" | "lose_weight" | "build_muscle" | "athletic_performance" | "improve_body_tone"
+export function getAPIHealthGoalName(goal:APIHealthGoal){
+    return {
+        "improve_health": "Improve Health" ,
+        "lose_weight": "Lose Weight" ,
+        "build_muscle": "Build Muscle" ,
+        "athletic_performance": "Athletic Performance" ,
+        "improve_body_tone": "Improve Body Tone", 
+    } [goal]
+}
+
+export const activityLevels = [ "mild" , "moderate" , "heavy" , "extreme"]
+export type APIActivityLevel = "mild" | "moderate" | "heavy" | "extreme"
+export function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
+export function getAPIActivityLevelName(level: APIActivityLevel){
+    return capitalizeFirstLetter(level)
+}
+export function getAPIActivityLevelDescription(level : APIActivityLevel){
+    return {
+        "mild": "20-30 minutes exercise \n 1-2 days a week" ,
+        "moderate": "30-60 minutes exercise \n 2-4 days a week" ,
+        "heavy": "60+ minutes exercise \n 5-6 days a week" ,
+        "extreme": "120+ minutes exercise \n 7 days a week",
+    }[level]
+}
+
+export type APIBaseAllergen = "peanuts" | "tree_nuts" | "eggs" | "soy" | "wheat" | "fish" | "shellfish" | "corn" | "gelatin" 
+export const baseAllergens = ["peanuts" , "tree_nuts" , "eggs" , "soy" , "wheat" , "fish" , "shellfish" , "corn" , "gelatin" ]
+export function getAPIBaseAllergenName(allergen: string){
+    return {"peanuts":"Peanuts" , "tree_nuts":"Tree Nuts" , "eggs": "Eggs" , "soy":"Soy" , "wheat":"Wheat" , "fish":"Fish" , "shellfish":"Shellfish" , "corn":"Corn" , "gelatin": "Gelatin" }[allergen] ?? capitalizeFirstLetter(allergen)
+}
+export type APIDietaryRestriction = "vegetarian" | "vegan" | "lactose_intolerant" | "kosher" | "halal" | "gluten_free"
+export const dietaryRestrictions =  ["vegetarian" , "vegan" , "lactose_intolerant" , "kosher" , "halal" , "gluten_free"]
+export function getAPIDietaryRestictionName(restriction: APIDietaryRestriction){
+    return {"vegetarian":"Vegetarian" , "vegan":"Vegan" , "lactose_intolerant":"Lactose Intolerant" , "kosher":"Kosher" , "halal":"Halal" , "gluten_free":"Gluten Free"}[restriction]
+}
+export interface APIUserSettings{
+    id: APIKey,
+    ban: APIUserItemPref[],
+    favor: APIUserItemPref[],
+    dietary_restrictions: APIDietaryRestriction[]
+    allergies: {id: APIKey, name: string}[]
+    name: string,
+    height: number,
+    weight: number,
+    birthdate: APITimestamp,
+    meals : string[],
+    meal_length: number,
+    sex: "male" | "female" | "other",
+    health_goal: APIHealthGoal,
+    activity_level: APIActivityLevel,
+    grad_year: number,
+    school : APIKey
+}

@@ -1,7 +1,7 @@
 import * as React from "react"
 import {NavigationContainer} from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import {createDrawerNavigator} from '@react-navigation/drawer'
+import {createDrawerNavigator, DrawerContent} from '@react-navigation/drawer'
 
 import {setCustomText} from 'react-native-global-props'
 setCustomText({style:{
@@ -20,6 +20,7 @@ import Feedback from "./src/feedback/Feedback";
 import { RecoilRoot } from "recoil";
 import BaseHeader from "./src/utils/BaseHeader";
 import Debug from "./src/debug/Debug";
+import { CustomDrawerContent } from "./src/utils/DrawerContent";
 
 const Stack = createNativeStackNavigator()
 const Drawer = createDrawerNavigator();
@@ -29,6 +30,7 @@ const Drawer = createDrawerNavigator();
 const SHOW_NAV_HEADER = true
 const SidebarNavigable = ()=>{
     return  <Drawer.Navigator
+        drawerContent={ (props)=> <CustomDrawerContent {...props}/>}
         screenOptions={{
             headerShown: SHOW_NAV_HEADER
         }}
@@ -45,6 +47,9 @@ const SidebarNavigable = ()=>{
         <Drawer.Screen
             name = "Dining Menu"
             component = {DiningMenu}
+            options = {{
+                header: (props) =>  <BaseHeader {...props}/>,
+            }}
         />
         <Drawer.Screen
             name = "Feedback"
@@ -58,6 +63,9 @@ const SidebarNavigable = ()=>{
         <Drawer.Screen
             name = "Settings"
             component = {Settings}
+            options = {{
+                header: (props) =>  <BaseHeader {...props}/>,
+            }}
         />
         <Drawer.Screen
             name = "About Us"

@@ -1,7 +1,21 @@
 import { APIFoodCategory, APIPortionInfo, APIItem, APITimestamp } from '../utils/session/apiTypes';
 export enum FOOD_CATEGORY{Carbohydrates = "Carbohydrates",Protein = "Protein", Vegetable = "Vegetable"}
 export enum MEALS{Breakfast = "Breakfast", Lunch = "Lunch",Dinner = "Dinner"}
-export enum STATION{A = "A", B = "B", C = "C", D = "D"}
+
+export enum STATION{A = "A", B = "B", C = "C", D = "D", E = "E", F = "F", G = "G", H = "H", I = "I"}
+
+export function getNameOfStation( station: STATION){
+    return {A: "Homestyle",
+            B: "Fresh 52",
+            C: "Rooted",
+            D: "FYUL",
+            E: "FLAME",
+            F:   "500 Degrees",
+            G:    "Cucina",
+            H: "Carved and crafted",
+            I:    "Soup",
+            }[station]
+}
 
 export function getMealsIndex(meal:MEALS){
     switch(meal){

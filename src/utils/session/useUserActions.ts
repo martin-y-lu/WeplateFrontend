@@ -2,11 +2,11 @@ import { atom, useSetRecoilState } from 'recoil';
 import { TimeInfo } from '../../dashboard/state';
 import { mealToAPIForm, MealState } from '../../dashboard/typeUtil';
 import { authAtom, useFetchWrapper } from './useFetchWrapper';
-import { APIMealSuggest, APIPortionInfo, APIPortionSuggest, APIMealEvent, APIMealByTimePayload, APIAnalyticsMealChoiceEntry } from './apiTypes';
+import { APIMealSuggest, APIPortionInfo, APIPortionSuggest, APIMealEvent, APIMealByTimePayload, APIAnalyticsMealChoiceEntry, APIUserSettings } from './apiTypes';
 
 export const usersAtom = atom({
     key: "usersAtom",
-    default: null,
+    default: null as APIUserSettings,
 })
 
 export { useUserActions };
@@ -28,25 +28,29 @@ function useUserActions () {
         postAnalyticsMealChoices,
         getAnalyticsMealChoices,
         postAnalyticsMealItemVote,
+        postUserSettings
     }
 
-    function login(email:string, password:string) {
+    async function login(email:string, password:string) {
         let data = {
             username: email,
             password,
         }
 
-        return fetchWrapper.post(`${baseUrl}/api/token_auth/`, data)
-            .then(user => {
-                console.log(user)
-                setUsers(user)
-                setAuth(user)
-                // get return url from location state or default to home page
-                // const { from } = history.location.state || { from: { pathname: '/' } };
-                // history.push(from);
+        // if(auth.token !== null) return
 
-                return user;
-            });
+        const auth = await fetchWrapper.post(`${baseUrl}/api/token_auth/`, data)
+        
+        setAuth(auth)
+
+        const userInfo = await fetchWrapper.get(`${baseUrl}/api/settings/`,null,auth)
+        setUsers(userInfo as APIUserSettings)
+        console.log({userInfo})
+        // get return url from location state or default to home page
+        // const { from } = history.location.state || { from: { pathname: '/' } };
+        // history.push(from);
+
+        return auth;
     }
     async function mealsByTime(timeInfo:TimeInfo){
         const endpoint = `${baseUrl}/api/meals/?date=${encodeURIComponent(timeInfo.date)}&group=${encodeURIComponent(mealToAPIForm(timeInfo.meal))}`
@@ -98,6 +102,16 @@ function useUserActions () {
             liked
         })
         return resp as {detail: string}
+    }
+    async function postUserSettings(newUser: APIUserSettings){
+        const endpoint = `${baseUrl}/api/settings/update/`
+        const resp = await fetchWrapper.post(endpoint,{
+            ... newUser,
+            ban: [],
+            favour: [],
+            allergies: [],
+        })
+        return resp
     }
 
     function logout() {

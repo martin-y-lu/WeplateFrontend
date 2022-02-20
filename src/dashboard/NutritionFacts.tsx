@@ -18,6 +18,7 @@ export function colorOfCategory(category: FOOD_CATEGORY){
     return color 
 }
 import {leaf_xml,bread_xml,meat_xml} from '../dining-menu/DiningMenu'
+import React from "react"
 export function iconOfCategory(category: FOOD_CATEGORY){
     switch(category){
         case(FOOD_CATEGORY.Carbohydrates):
@@ -232,3 +233,8 @@ export const NutritionFacts = (props) =>{
     
 </NutritionFactsContainer>
 }
+// export class NutritionFacts extends React.Component{
+//     render(){
+//         return <NutritionFactsFunctional {...this.props}/>
+//     }
+// }

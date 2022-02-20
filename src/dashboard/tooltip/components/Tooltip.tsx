@@ -48,7 +48,7 @@ const Tooltip = ({
   },[currentStep]) 
   return <View>
     <View style={styles.tooltipContainer}>
-      <Text testID="stepDescription" style={styles.tooltipText }>{displayText.substring(0,Math.floor((displayText.length-1)*fillValue))}</Text>
+      <Text testID="stepDescription" style={styles.tooltipText }>{displayText.substring(0,Math.floor((displayText.length)*fillValue))}</Text>
     </View>
     <View style={[styles.bottomBar]}>
       {

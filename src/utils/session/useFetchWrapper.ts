@@ -19,10 +19,10 @@ function useFetchWrapper() {
     };
 
     function request(method) {
-        return (url: string, body ?:any) => {
+        return (url: string, body ?:any, _auth ?: any) => {
             const requestOptions = {
                 method,
-                headers: authHeader(url),
+                headers: authHeader(url,_auth),
                 body: null
             };
             if (body) {
@@ -37,9 +37,9 @@ function useFetchWrapper() {
     
     // helper functions
     
-    function authHeader(url) {
+    function authHeader(url,_auth) {
         // return auth header with jwt if user is logged in and request is to the api url
-        const token = auth?.token;
+        const token = _auth?.token ?? auth?.token;
         // console.log({token_auth_header:token})
         const isLoggedIn = !!token;
         if (isLoggedIn) {

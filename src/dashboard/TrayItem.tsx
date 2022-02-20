@@ -1,6 +1,6 @@
 import { View,Text, StyleSheet,TouchableOpacity, Dimensions,Animated, Modal, FlatList } from "react-native"
 import { colorOfCategory, iconOfCategory, NutritionFacts } from "./NutritionFacts"
-import { Dish, Portion } from "./typeUtil"
+import { Dish, Portion, getNameOfStation } from './typeUtil';
 import { Swipeable } from "react-native-gesture-handler"
 import { SvgXml } from "react-native-svg"
 import { useRef } from "react"
@@ -16,9 +16,9 @@ const thumbs_up_xml = `<svg width="27" height="28" viewBox="0 0 27 28" fill="non
 <path d="M17.343 27.1521C13.1245 27.1521 9.85346 26.2563 7.21805 25.8083L7.21805 15.058L7.81197 15.058C9.12199 15.058 10.4008 12.5988 10.8096 11.8126L10.812 11.808C11.2182 11.0268 11.9682 9.12054 12.2182 8.71429C12.4682 8.30804 13.1245 7.99554 13.6557 7.55804C14.187 7.12054 14.7495 6.43304 15.312 4.96429C15.8745 3.49554 15.6245 1.65179 15.7808 1.40179C15.937 1.15179 16.1245 0.933038 16.437 0.933038C16.7495 0.933038 17.3431 0.964288 18.187 1.40179C19.0309 1.83929 19.6245 3.52679 19.6245 4.58929C19.6245 5.65179 19.5307 7.49554 18.3745 8.71429C17.4495 9.68929 17.5099 10.8705 17.6557 11.3393C19.1245 11.3914 22.1622 11.3393 23.562 11.3393C25.3118 11.3393 26.0932 12.558 26.3118 12.808C26.5304 13.058 26.9057 13.5268 26.9057 14.1518C26.9057 14.7768 25.9995 15.3076 25.937 15.7764C25.8745 16.2451 26.8744 17.3705 26.9057 17.808C26.9369 18.2455 25.6871 19.1514 25.6558 19.5576C25.6246 19.9639 26.4368 21.0268 26.3118 21.6205C26.1868 22.2143 24.8433 23.1826 24.687 23.4951C24.5308 23.8076 25.2805 24.4026 23.8118 25.9641C22.3426 27.5262 19.5618 27.1521 17.343 27.1521Z" fill="white"/>
 </svg>
 `
-const TrayItem = ( props : {isTop ?: boolean, number: number,portion: Portion, dish: Dish, modalOpen}) => {
+const TrayItem = ( props : {isTop ?: boolean, number: number,portion: Portion, dish: Dish, modalOpen, disabled:boolean, ref?}) => {
     const userActions = useUserActions()
-    const {isTop, number, dish} = props
+    const {isTop, number, dish, disabled} = props
     let body = <></>
 
     const swipeableRef = useRef(null)
@@ -84,7 +84,7 @@ const TrayItem = ( props : {isTop ?: boolean, number: number,portion: Portion, d
                     {number}
                 </Text>
             </View> 
-            <TouchableOpacity style = {{
+            <TouchableOpacity disabled = {disabled} style = {{
                 marginLeft: 10,
                 flexDirection: 'column',
             }} onPress = {()=>{
@@ -107,7 +107,7 @@ const TrayItem = ( props : {isTop ?: boolean, number: number,portion: Portion, d
                             color : "#A4A4A4",
                             marginRight: 5,
                         }}>
-                            Station {station}
+                            Station {getNameOfStation(station)}
                         </Text>
                     </View>
                     <Text style = {{
@@ -125,8 +125,8 @@ const TrayItem = ( props : {isTop ?: boolean, number: number,portion: Portion, d
     
     // const {isTop, number ,color , dishName, station, calories} = props
     return  <View style = {{
-                        flex: 1,
-                        maxHeight:  60,
+                        // flex: 1,
+                        height:  60,
                         width: '100%',
                         flexDirection: "row",
                         // alignItems: "center",
