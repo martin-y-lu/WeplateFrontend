@@ -45,6 +45,7 @@ function useUserActions () {
         postAnalyticsMealChoices,
         getAnalyticsMealChoices,
         postAnalyticsMealItemVote,
+        postAnalyticsTextFeedback,
         postUserSettings,
         getIngredients,
         registerUser,
@@ -115,6 +116,14 @@ function useUserActions () {
             large_portion: mealState.dishC.portion.fillFraction,
         })
         return resp as {detail:string}
+    }
+    async function postAnalyticsTextFeedback(text:string){
+        console.log("Posting")
+        const endpoint = `${baseUrl}/api/analytics/text_feedback/`
+        const resp = await fetchWrapper.post(endpoint,{
+            feedback: text
+        })
+        console.log(resp)
     }
     async function getAnalyticsMealChoices(mealId:number){
         const endpoint = `${baseUrl}/api/analytics/meal_choice/?meal=${encodeURIComponent(mealId)}`

@@ -1,6 +1,9 @@
 import {useState} from 'react';
 import { View,Text,Button, StyleSheet, Image, TouchableOpacity, TextInput, ScrollView, TouchableWithoutFeedback, Keyboard} from "react-native"
+import { useRecoilValue } from 'recoil';
 import { setTextRange } from 'typescript';
+import { authAtom } from '../utils/session/useFetchWrapper';
+import { useUserActions } from '../utils/session/useUserActions';
 // import { RadioButton } from 'react-native-paper';
 
 // const bg = { uri: "https://reactjs.org/logo-og.png" };
@@ -8,6 +11,8 @@ import { setTextRange } from 'typescript';
 // const onPress2 = (str) => alert(str);
 
 const Feedback = ({navigation})=>{
+    const auth = useRecoilValue(authAtom)
+    const userActions = useUserActions()
     const [text, setText] = useState("");
     const [done, setDone] = useState(false);
 
@@ -42,7 +47,14 @@ const Feedback = ({navigation})=>{
                 text.length > 0 && !done &&
                 <TouchableOpacity 
                     style={styles.continueContainer}
-                    onPress={() => setDone(true)}
+                    onPress={() =>{
+                        async function post(){
+                            const resp = await userActions.postAnalyticsTextFeedback(text)
+                            console.log({resp})
+                            setDone(true)
+                        }
+                        post()
+                    } }
                 >
                     <Text style={styles.continue}>
                         Continue
