@@ -7,6 +7,7 @@ export function dateToString(date){
     return UTC.toISOString().slice(0, 10)
 }
 export function stringToDate(string: String){
+    if(string === null) return null
     const [year,month,day] = string.split('-')
     return new Date(Date.UTC(parseInt(year),parseInt(month)-1,parseInt(day)+1))
 }

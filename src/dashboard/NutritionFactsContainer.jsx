@@ -145,7 +145,7 @@ const NutritionFactsContainer = (props) =>{
             <View style = {{
                 alignSelf : "flex-start"
             }}>
-                {props.children}
+                { (closest(targetYValue,[TOP_Y,BOTTOM_Y])== TOP_Y) && props.children}
             </View>
         </Animated.View>
     </>

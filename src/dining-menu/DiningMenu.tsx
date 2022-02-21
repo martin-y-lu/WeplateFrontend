@@ -129,7 +129,7 @@ const renderFood = ({item}) => {
 const STATIONS = Object.keys(STATION)
 const DiningMenu = ({navigation})=> {
     const auth = useRecoilValue(authAtom)
-    useLogin()
+    useLogin(navigation)
 
     const [currentStation,setCurrentStation] = useState(STATION.A);
     const [diningState,setDiningState] = useRecoilState(diningMenuState)

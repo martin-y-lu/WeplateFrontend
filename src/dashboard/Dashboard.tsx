@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useMemo } from 'react';
 import { View, Text, TouchableOpacity, Modal } from "react-native";
 import { useRecoilState, useRecoilValue } from "recoil"
 import { NutritionFactsContainerHiddenHeight } from "./NutritionFactsContainer";
@@ -20,7 +20,7 @@ import Tooltip from "./tooltip/components/Tooltip";
 import { APIMealByTimePayload, APIMealSuggest, APIMealSuggestEntry } from '../utils/session/apiTypes';
 import { NutritionFacts } from "./NutritionFacts";
 import { SvgXml } from "react-native-svg";
-import { userState } from "../utils/state/userState";
+import { persistentAtom, usePersistentAtom } from "../utils/state/userState";
 import { useLogin } from '../debug/Debug';
 
 const drag_icon_svg = `<svg width="59" height="55" viewBox="0 0 59 55" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -63,18 +63,22 @@ const WalkableView = walkthroughable(View)
 const WalkableTrayItem = walkthroughable(TrayItem)
 const WalkableNutritionFacts = walkthroughable(NutritionFacts)
 const Dashboard = (props)=>{
+    const {route,navigation,copilotEvents} = props
     const auth = useRecoilValue(authAtom)
-    useLogin()
+    useLogin(navigation)
 
     const {start} = props // Copilot: Start onboarding
 
-    const {route,navigation,copilotEvents} = props
     const currentState = useRecoilValue(dashboardState);
     const {currentDate,currentMeal} = currentState
-    const timeInfo : TimeInfo = route?.params?.timeInfo ?? { date: dateToString(currentDate), meal: currentMeal}
-    const userInfo = useRecoilValue(userState);
+    const timeInfo : TimeInfo = useMemo(()=>{
+        const {currentDate,currentMeal} = currentState
+        return route?.params?.timeInfo ?? { date: dateToString(currentDate), meal: currentMeal}
+    },[currentState,route])
+    
+    const [persistentState,setPersistentState,fetchPersistentState] = usePersistentAtom() as any
 
-    const doOnboarding :boolean = route?.params?.doOnboarding ?? userInfo.doOnboarding
+    const doOnboarding :boolean = route?.params?.doOnboarding ?? persistentState.doOnboarding ?? false
 
     let isPresent = false
     let isPast = false
@@ -136,20 +140,24 @@ const Dashboard = (props)=>{
 
                 try{
                     const postResp = await userActions.postAnalyticsMealChoices(newMealState)
-                    console.log({postResp})
+                    // console.log({postResp})
                 }catch(e){
-                    console.log(e)
+                    // console.log(e)
                 }
             }   
         },
         [mealState],
     )
-     
+    const [fetching,setFetching] = useState(false)
     async function fetchMeal(){
+        console.log("try fetching.")
+        if(persistentState.loaded == false) return
         if(auth === null) return
+        console.log("Fetching meal!")
+        setFetching(true)
         const data :APIMealByTimePayload = await userActions.mealsByTime(timeInfo)
         if(data.length == 0 ){
-            console.log("Nomeal")
+            // console.log("Nomeal")
             let message = "No meals at this time!";
             if(isFuture){
                 message = "Menu coming soon..."
@@ -164,7 +172,7 @@ const Dashboard = (props)=>{
             // const prevChoices = await userActions.getAnalyticsMealChoices(mealID);
 
             const [mealEvent,suggestion,prevChoices] = await Promise.all([userActions.mealById(mealID),userActions.suggestionByMealId(mealID),userActions.getAnalyticsMealChoices(mealID)])
-            console.log({suggestion})
+            // console.log({suggestion})
             // console.log({mealEvent,suggestion})
             // console.log({mealEvent})
             // debug purposes
@@ -221,18 +229,18 @@ const Dashboard = (props)=>{
                 dishC = recommendationC[0]
             }else{
                 const recentEntry = prevChoices[0]
-                console.log({recentEntry, idsA: idsOfList(recommendationA),idsB: idsOfList(recommendationB), idsC: idsOfList(recommendationC)})
+                // console.log({recentEntry, idsA: idsOfList(recommendationA),idsB: idsOfList(recommendationB), idsC: idsOfList(recommendationC)})
                 dishA = getDishByIdFromList(recommendationA,recentEntry.small1)
                 // recBIds = 
                 dishB = getDishByIdFromList(recommendationB,recentEntry.small2)
                 dishC = getDishByIdFromList(recommendationC,recentEntry.large)
             }
-            console.log("DISHA :",dishA)
-            console.log("DISHB :",dishB)
-            console.log("DISHC :",dishC)
+            // console.log("DISHA :",dishA)
+            // console.log("DISHB :",dishB)
+            // console.log("DISHC :",dishC)
 
             if(dishA === null || dishB === null || dishC == null){
-                console.log("issue with prevEntries, failing gracefully")
+                // console.log("issue with prevEntries, failing gracefully")
                 dishA = recommendationA[0]
                 dishB = recommendationB[0]
                 dishC = recommendationC[0] 
@@ -264,16 +272,21 @@ const Dashboard = (props)=>{
             onLoad()
         }
     }
+
+    useEffect(()=>{
+        console.log("TimeInfo Now",timeInfo)
+        setFetching(false)
+    },[timeInfo])
     useEffect( ()=>{
         setNoMeal(null);
-        if(mealState.dishA == null){
+        if(mealState.dishA == null && !fetching){
             try{
                 fetchMeal()
             }catch(e){
                 console.error(e)
             }
         }
-    },[auth,timeInfo])
+    },[auth,timeInfo,fetching])
 
     // copilot events
     const [currentStepName,setCurrentStepName] = useState(null);

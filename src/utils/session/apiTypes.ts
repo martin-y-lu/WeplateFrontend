@@ -128,6 +128,12 @@ export const dietaryRestrictions =  ["vegetarian" , "vegan" , "lactose_intoleran
 export function getAPIDietaryRestictionName(restriction: APIDietaryRestriction){
     return {"vegetarian":"Vegetarian" , "vegan":"Vegan" , "lactose_intolerant":"Lactose Intolerant" , "kosher":"Kosher" , "halal":"Halal" , "gluten_free":"Gluten Free"}[restriction]
 }
+export type APIEveryMeal = "breakfast" | "morning_snack" | "lunch" | "afternoon_snack" | "dinner" | "evening_snack";
+export const everyMeals =[ "breakfast" , "morning_snack" , "lunch" , "afternoon_snack" , "dinner" , "evening_snack"]
+export function getAPIEveryMealName(meal: APIEveryMeal){
+   return {"breakfast":"Breakfast" , "morning_snack":"Morning Snack" , "lunch":"Lunch" , "afternoon_snack":"Afternoon Snack" , "dinner":"Dinner" , "evening_snack":"Evening Snack"} [meal]
+}
+
 export interface APIUserSettings{
     id: APIKey,
     ban: APIUserItemPref[],
@@ -138,11 +144,30 @@ export interface APIUserSettings{
     height: number,
     weight: number,
     birthdate: APITimestamp,
-    meals : string[],
+    meals : APIEveryMeal[],
     meal_length: number,
     sex: "male" | "female" | "other",
     health_goal: APIHealthGoal,
     activity_level: APIActivityLevel,
     grad_year: number,
     school : APIKey
+}
+export interface APIRegisterSettings{
+    ban: APIUserItemPref[],
+    favor: APIUserItemPref[],
+    dietary_restrictions: APIDietaryRestriction[]
+    allergies: {id: APIKey, name: string}[]
+    name: string,
+    height: number,
+    weight: number,
+    birthdate: APITimestamp,
+    meals : APIEveryMeal[],
+    meal_length: number,
+    sex: "male" | "female" | "other",
+    health_goal: APIHealthGoal,
+    activity_level: APIActivityLevel,
+    grad_year: number,
+    school : APIKey
+    username :string,
+    password : string, 
 }

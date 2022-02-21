@@ -78,7 +78,7 @@ export const CustomDrawerContent = (props) => {
     const route = useRoute()
     const screenName = (route?.params as any)?.screen;
 
-    console.log("NAVSTATE",route)
+    // console.log("NAVSTATE",route)
     return <DrawerContentScrollView {...props} style = {{
         width,
         overflow:"hidden",
@@ -100,13 +100,15 @@ export const CustomDrawerContent = (props) => {
             <DrawerButton icon = {settings_icon_svg} width = {width} navigation = {navigation} name = "Settings" screen = "Settings" screenName = {screenName}/>
             <DrawerButton icon = {about_us_icon_svg} width = {width} navigation = {navigation} name = "About Us" screen = "About Us" screenName = {screenName}/>
 
-            <View style = {{
+            <TouchableOpacity style = {{
                 marginTop: 'auto',
                 alignSelf: "center",
                 marginBottom: 20,
+            }} onPress = {()=>{
+                navigation.navigate("SidebarNavigable",{screen:"--DEBUG--"})
             }}>
                 <SvgXml xml = {weplate_full_logo_svg}/>
-            </View>
+            </TouchableOpacity>
         </View>
     </DrawerContentScrollView>
     

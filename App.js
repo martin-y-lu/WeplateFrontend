@@ -21,6 +21,7 @@ import { RecoilRoot } from "recoil";
 import BaseHeader from "./src/utils/BaseHeader";
 import Debug from "./src/debug/Debug";
 import { CustomDrawerContent } from "./src/utils/DrawerContent";
+import { Welcome1, Welcome10, Welcome2, Welcome3, Welcome4, Welcome5, Welcome6, Welcome7, Welcome8, Welcome9 } from "./src/welcome/Welcome";
 
 const Stack = createNativeStackNavigator()
 const Drawer = createDrawerNavigator();
@@ -92,6 +93,46 @@ const BaseApp = ()=>{
             <Stack.Screen
                 name = "Survey"
                 component={Survey}
+            />
+            <Stack.Screen
+                name = "Welcome1"
+                component={Welcome1}
+            />
+            <Stack.Screen
+                name = "Welcome2"
+                component={Welcome2}
+            />
+            <Stack.Screen
+                name = "Welcome3"
+                component={Welcome3}
+            />
+            <Stack.Screen
+                name = "Welcome4"
+                component={Welcome4}
+            />
+            <Stack.Screen
+                name = "Welcome5"
+                component={Welcome5}
+            />
+            <Stack.Screen
+                name = "Welcome6"
+                component={Welcome6}
+            />
+            <Stack.Screen
+                name = "Welcome7"
+                component={Welcome7}
+            />
+            <Stack.Screen
+                name = "Welcome8"
+                component={Welcome8}
+            />
+            <Stack.Screen
+                name = "Welcome9"
+                component={Welcome9}
+            />
+            <Stack.Screen
+                name = "Welcome10"
+                component={Welcome10}
             />
             <Stack.Screen
                 name = "SidebarNavigable"

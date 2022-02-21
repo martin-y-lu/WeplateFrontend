@@ -1,21 +1,38 @@
-import { atom, useSetRecoilState } from 'recoil';
+import { atom, useSetRecoilState, useRecoilState } from 'recoil';
 import { TimeInfo } from '../../dashboard/state';
 import { mealToAPIForm, MealState } from '../../dashboard/typeUtil';
 import { authAtom, useFetchWrapper } from './useFetchWrapper';
-import { APIMealSuggest, APIPortionInfo, APIPortionSuggest, APIMealEvent, APIMealByTimePayload, APIAnalyticsMealChoiceEntry, APIUserSettings } from './apiTypes';
+import { APIMealSuggest, APIPortionInfo, APIPortionSuggest, APIMealEvent, APIMealByTimePayload, APIAnalyticsMealChoiceEntry, APIUserSettings, APIKey, APIRegisterSettings } from './apiTypes';
+import { usePersistentAtom } from '../state/userState';
+import {useEffect} from 'react';
 
 export const usersAtom = atom({
     key: "usersAtom",
     default: null as APIUserSettings,
 })
 
+export const ingredientsAtom = atom({
+    key: "ingredientsAtom",
+    default: null as {
+        id: APIKey,
+        name: string,
+        school: APIKey,
+    }[]
+})
+
 export { useUserActions };
 
 function useUserActions () {
-    const baseUrl = "https://mosesxu.ca/weplate";
+    const baseUrl = "https://weplate-backend.nn.r.appspot.com";
+    // const baseUrl = "https://mosesxu.ca/weplate";
     const fetchWrapper = useFetchWrapper();
-    const setAuth = useSetRecoilState(authAtom);
-    const setUsers = useSetRecoilState(usersAtom);
+    const [auth,setAuth] = useRecoilState(authAtom);
+    const [users, setUsers] = useRecoilState(usersAtom);
+    const [ingredients,setIngredients] = useRecoilState(ingredientsAtom)
+    const [persistentState,setPersistentState,fetchPersistentState] = usePersistentAtom() as any
+    useEffect( ()=>{
+        fetchPersistentState()
+    },[])
 
     return {
         login,
@@ -28,7 +45,10 @@ function useUserActions () {
         postAnalyticsMealChoices,
         getAnalyticsMealChoices,
         postAnalyticsMealItemVote,
-        postUserSettings
+        postUserSettings,
+        getIngredients,
+        registerUser,
+        checkEmail,
     }
 
     async function login(email:string, password:string) {
@@ -36,21 +56,27 @@ function useUserActions () {
             username: email,
             password,
         }
+        console.log("LOGIN!",data)
 
-        // if(auth.token !== null) return
-
-        const auth = await fetchWrapper.post(`${baseUrl}/api/token_auth/`, data)
+        // if(auth?.token !== null) return
+        try{
+            const auth = await fetchWrapper.post(`${baseUrl}/api/token_auth/`, data)
         
-        setAuth(auth)
+            if(!("token" in auth)) throw new Error("Invalid auth")
+            
+            setAuth(auth)
 
-        const userInfo = await fetchWrapper.get(`${baseUrl}/api/settings/`,null,auth)
-        setUsers(userInfo as APIUserSettings)
-        console.log({userInfo})
-        // get return url from location state or default to home page
-        // const { from } = history.location.state || { from: { pathname: '/' } };
-        // history.push(from);
+            const userInfo = await fetchWrapper.get(`${baseUrl}/api/settings/`,null,auth)
+            setUsers(userInfo as APIUserSettings)
+            // console.log({userInfo})
+            // get return url from location state or default to home page
+            // const { from } = history.location.state || { from: { pathname: '/' } };
+            // history.push(from);
 
-        return auth;
+            return auth;
+        }catch(e){
+            throw "Invalid auth";
+        }
     }
     async function mealsByTime(timeInfo:TimeInfo){
         const endpoint = `${baseUrl}/api/meals/?date=${encodeURIComponent(timeInfo.date)}&group=${encodeURIComponent(mealToAPIForm(timeInfo.meal))}`
@@ -77,6 +103,7 @@ function useUserActions () {
         return resp as APIPortionSuggest;
     }
     async function postAnalyticsMealChoices(mealState : MealState){
+        console.log("Posting")
         const endpoint =  `${baseUrl}/api/analytics/meal_choice/`
         const resp = await fetchWrapper.post(endpoint,{
             meal: mealState.mealID,
@@ -96,6 +123,7 @@ function useUserActions () {
     }
 
     async function postAnalyticsMealItemVote(mealItemId: number,liked: boolean){
+        console.log("Posting")
         const endpoint = `${baseUrl}/api/analytics/meal_item_vote/`
         const resp = await fetchWrapper.post(endpoint,{
             meal_item: mealItemId,
@@ -104,15 +132,45 @@ function useUserActions () {
         return resp as {detail: string}
     }
     async function postUserSettings(newUser: APIUserSettings){
+        console.log("Posting")
         const endpoint = `${baseUrl}/api/settings/update/`
         const resp = await fetchWrapper.post(endpoint,{
             ... newUser,
             ban: [],
             favour: [],
-            allergies: [],
+            allergies: newUser.allergies.map(el=> el.id),
         })
         return resp
     }
+    async function registerUser(newUser: APIRegisterSettings){
+        const endpoint = `${baseUrl}/api/register/`
+        const resp = await fetchWrapper.post(endpoint,{
+            ...newUser,
+            ban: [],
+            favour: [],
+            allergies: newUser.allergies.map(el=> el.id),
+        })
+        return resp
+    }
+    async function getIngredients(){
+        if(users?.school === null) return null
+        if(ingredients != null) return ingredients
+
+        const endpoint = `${baseUrl}/api/ingredients/${encodeURIComponent(users?.school)}/`
+        const resp = await fetchWrapper.get(endpoint)
+        setIngredients(resp)
+        return resp as {
+            id: APIKey,
+            name: string,
+            school: APIKey,
+        }[]
+    }
+    async function checkEmail(email:string){
+        const endpoint = `${baseUrl}/api/register/check_email/${encodeURIComponent(email)}/`
+        const resp = await fetchWrapper.get(endpoint)
+        return resp
+    }
+
 
     function logout() {
         // remove user from local storage, set auth state to null and redirect to login page

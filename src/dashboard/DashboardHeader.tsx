@@ -53,18 +53,22 @@ const DashboardHeader = (props) =>{
         }
         return {date: dateToString(nextDay), meal: nextMeal } as TimeInfo
     }
-    return  <SafeAreaView style = {{ backgroundColor:"white",shadowColor:"black",shadowRadius:5,shadowOpacity:55}}>
-        <View style = {{flexDirection: 'row', alignItems: 'center', justifyContent: 'center',height:64}}>
+    const height = 64;
+    return  <SafeAreaView style = {{ backgroundColor:"white",height}}>
+        <View style = {{flexDirection: 'row', alignItems: 'center', justifyContent: 'center',height}}>
             <TouchableOpacity
                 style={{
-                    // position: "absolute",
-                    // left: 0,
-                    // top: 0,
+                    position: "absolute",
+                    left: 0,
+                    top: 0,
                     flex:0,
                     width: STREAK_ELEMENT_WIDTH,
+                    height: 60,
+                    // backgroundColor:"orange",
                     // justifyContent: "flex-start",
                     paddingLeft:12,
-                    // paddingTop: 14
+                    paddingTop: 14,
+                    zIndex:1,
                 }}
                 onPress={() => navigation.toggleDrawer()}
                 >
@@ -121,7 +125,7 @@ const DashboardHeader = (props) =>{
                     <SvgXml xml = {ARROW_ICON_SVG}/>
                 </TouchableOpacity>
             </View>
-            <TouchableOpacity style = {{
+            {/* <TouchableOpacity style = {{
                     width: STREAK_ELEMENT_WIDTH,
                     flexDirection:"row",
                     justifyContent: 'flex-end'
@@ -145,7 +149,7 @@ const DashboardHeader = (props) =>{
                         {streakLength}
                     </Text>
                 </View>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           
         </View>
 

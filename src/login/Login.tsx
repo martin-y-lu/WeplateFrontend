@@ -2,6 +2,10 @@ import { View,Text,Pressable,Modal,Button, StyleSheet, Image, Dimensions, ImageB
 import React, {useState} from 'react';
 import { SvgXml } from 'react-native-svg'
 import {Picker} from '@react-native-picker/picker';
+import { usePersistentAtom } from "../utils/state/userState";
+import { useRecoilState } from 'recoil';
+import { usersAtom, useUserActions } from "../utils/session/useUserActions";
+import { APIUserSettings } from '../utils/session/apiTypes';
 const logo_xml = `<svg width="182" height="86" viewBox="0 0 182 86" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M4 46.0001L11.5 64.0001L19 46.0001L26.5 64.0001L34 46.0001" stroke="#FF3939" stroke-width="6.33166" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M40 55.0001C40 59.9706 44.0294 64.0001 49 64.0001H55M40 55.0001C40 50.0295 44.0294 46.0001 49 46.0001C53.9706 46.0001 58 50.0295 58 55.0001H40Z" stroke="#FF3939" stroke-width="6.33166" stroke-linecap="round" stroke-linejoin="round"/>
@@ -30,23 +34,136 @@ const Login = ({navigation})=>{
   //0 means to show start view (option to log in or get started)
   //1 shows the get started view
   //2 shows the log in view
+  const userActions = useUserActions()
+  const [persistentState,setPersistentState,fetchPersistentState] = usePersistentAtom() as any
+
   const [state, setState] = useState(0);
 
-  const [name, onNameChangeText] = useState();
+  const [name, onNameChangeText] = useState("Hugh Jazz");
+  // const [name, onNameChangeText] = useState();
   const [nameColor, changeNameColor] = useState(unfocused_textbox_background_color);
 
-  const [email, onEmailChangeText] = useState();
+  // const [email, onEmailChangeText] = useState("2021090@appleby.on.ca");
+  const [email, onEmailChangeText] = useState("test@test.com");
   const [emailColor, changeEmailColor] = useState(unfocused_textbox_background_color);
 
-  const [password, onPasswordChangeText] = useState();
+  const [password, onPasswordChangeText] = useState("goodpassword123");
   const [passwordColor, changePasswordColor] = useState(unfocused_textbox_background_color);
 
-  const [confirm_password, onConfirm_PasswordChangeText] = useState();
+  const [confirm_password, onConfirm_PasswordChangeText] = useState("goodpassword123");
+  // const [confirm_password, onConfirm_PasswordChangeText] = useState();
   const [confirm_passwordColor, changeConfirm_PasswordColor] = useState(unfocused_textbox_background_color);
 
   const [select_schoolColor, changeSelect_schoolColor] = useState(unfocused_textbox_background_color);
-  const [school, setSchool] = useState();
+  const [school, setSchool] = useState(1);
+  // const [school, setSchool] = useState();
   const [modalVisible, setModalVisible] = useState(false);
+
+  const [message,setMessage] = useState("");
+
+  const validateEmail = (email) => {
+    return email.match(
+      /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+    );
+  };
+  const onLoginPress = ()=>{
+    console.log({
+      email,
+      password,
+    })
+    if(email == "" || email == null){
+      setMessage("Missing email.")
+      return;
+    }
+    if(!validateEmail(email)){
+      setMessage("Invalid email.")
+      return;
+    }
+    if(password == "" || password == null){
+      setMessage("Missing password.")
+      return
+    }
+
+    setMessage("")
+    setPersistentState({
+      email,
+      password,
+    })
+
+
+    navigation.navigate("SidebarNavigable",{screen:"Settings"})
+    // navigation.navigate("SidebarNavigable",{screen:"--DEBUG--"})
+  }
+  const [user,_setUser] = useRecoilState(usersAtom)
+  const onRegisterPress = async ()=>{
+    console.log({
+      email,
+      password,
+    })
+    if(name == "" || name == null){
+      setMessage("Missing name.")
+      return
+    }
+
+    if(email == "" || email == null){
+      setMessage("Missing email.")
+      return;
+    }
+    if(!validateEmail(email)){
+      setMessage("Invalid email.")
+      return;
+    }
+    if(password == "" || password == null){
+      setMessage("Missing password.")
+      return
+    }
+    if(password.length<5){
+      setMessage("Password too short.")
+      return
+    }
+    if(password !== confirm_password){
+      setMessage("Passwords do not match.")
+      return
+    }
+    if(school == null){
+      setMessage("Missing school.")
+      return
+    }
+
+    const res = await userActions.checkEmail(email);
+    console.log({res})
+    if(res.detail == "Email already taken"){
+      setMessage("Email already taken.")
+      return
+    }
+
+    setMessage("")
+    setPersistentState({
+      email,
+      password,
+    })
+
+    _setUser({
+      school,
+      name,
+      ban: [],
+      favor: [],
+      dietary_restrictions: [],
+      allergies: [],
+      height: null,
+      weight: null,
+      birthdate: null,
+      meals : [],
+      meal_length: null,
+      sex: null,
+      health_goal: null,
+      activity_level: null,
+      grad_year: null,
+      id: null,
+    } as APIUserSettings)
+
+    navigation.navigate("Welcome1")
+  }
 
   const openPicker = () =>{
     Keyboard.dismiss
@@ -87,8 +204,8 @@ const Login = ({navigation})=>{
               onValueChange={(itemValue, itemIndex) =>
               setSchool(itemValue)
             }>
-              <Picker.Item itemStyle ={{color:'red'}} label="-- Select School --" value="no value" />
-              <Picker.Item label="Babson College" value="Babson College" />
+              <Picker.Item itemStyle ={{color:'red'}} label="-- Select School --" value={null} />
+              <Picker.Item label="Babson College" value={1}/>
             </Picker>
           </View>
         </View>
@@ -134,33 +251,20 @@ const Login = ({navigation})=>{
                 <TouchableWithoutFeedback onPress = {Keyboard.dismiss}>
                   <KeyboardAvoidingView behavior = 'position' style ={{height: '60%',borderTopRightRadius: 30, borderTopLeftRadius: 30,backgroundColor:'white'}}>
                     <TouchableWithoutFeedback onPress = {Keyboard.dismiss}>
-                      <View style={styles.register}>
+                      <View>
                         {/* Register header */}
                         <Text style = {styles.headerText}>Register</Text>
-                        {/* Render textboxes */}
-                        {/* Name textbox */}
-                        <TextInput
-                          style={{
-                            height: 50,
-                            marginLeft: 20,
-                            marginRight: 20,
-                            marginBottom: 20,
-                            borderWidth: 1,
-                            padding: 10,
-                            backgroundColor: nameColor,
-                            borderRadius: 5,
-                          }}
-                          onChangeText={onNameChangeText}
-                          value={name}
-                          placeholder="Name"
-                          placeholderTextColor = '#B1B1B1'
-                          importantForAutofill = 'yes' 
-                          borderColor = '#E8E8E8'
-                          onFocus={ () => changeNameColor(focused_textbox_background_color) }
-                          onBlur={ () => changeNameColor(unfocused_textbox_background_color) }
-                        />
-                        {/* Email Textbox */}
-                        <TextInput
+                        <Text style = {{
+                           color: '#9c9c9c', 
+                           alignSelf:'flex-start',
+                           fontSize: 16,
+                           marginLeft: 50,
+                           marginBottom: 20,
+                        }}>{message}</Text>
+                        <ScrollView style={styles.register}>
+                          {/* Render textboxes */}
+                          {/* Name textbox */}
+                          <TextInput
                             style={{
                               height: 50,
                               marginLeft: 20,
@@ -168,98 +272,128 @@ const Login = ({navigation})=>{
                               marginBottom: 20,
                               borderWidth: 1,
                               padding: 10,
-                              backgroundColor: emailColor,
+                              backgroundColor: nameColor,
                               borderRadius: 5,
                             }}
-                            onChangeText={onEmailChangeText}
-                            value={email}
-                            placeholder="Email"
+                            onChangeText={onNameChangeText}
+                            value={name}
+                            placeholder="Name"
                             placeholderTextColor = '#B1B1B1'
                             importantForAutofill = 'yes' 
+                          importantForAutofill = 'yes' 
+                            importantForAutofill = 'yes' 
                             borderColor = '#E8E8E8'
-                            onFocus={ () => changeEmailColor(focused_textbox_background_color) }
-                            onBlur={ () => changeEmailColor(unfocused_textbox_background_color) }
-                        />
-                        {/* password textbox */}
-                        <TextInput
-                          style={{
-                            height: 50,
-                            marginLeft: 20,
-                            marginRight: 20,
-                            marginBottom: 20,
-                            borderWidth: 1,
-                            padding: 10,
-                            backgroundColor: passwordColor,
-                            borderRadius: 5,
-                          }}
-                          onChangeText={onPasswordChangeText}
-                          value={password}
-                          importantForAutofill = 'yes' 
-                          placeholder="Password"
-                          placeholderTextColor = '#B1B1B1'
-                          borderColor = '#E8E8E8'
-                          onFocus={ () => changePasswordColor(focused_textbox_background_color) }
-                          onBlur={ () => changePasswordColor(unfocused_textbox_background_color) }
-                          secureTextEntry = {true}
-                        />
-                        {/* Confirm Password Textbox */}
-                        <TextInput
-                          style={{
-                            height: 50,
-                            marginLeft: 20,
-                            marginRight: 20,
-                            marginBottom: 20,
-                            borderWidth: 1,
-                            padding: 10,
-                            backgroundColor: confirm_passwordColor,
-                            borderRadius: 5,
-                          }}
-                          onChangeText={onConfirm_PasswordChangeText}
-                          value={confirm_password}
-                          importantForAutofill = 'yes' 
-                          placeholder="Confirm Password"
-                          placeholderTextColor = '#B1B1B1'
-                          borderColor = '#E8E8E8'
-                          onFocus={ () => changeConfirm_PasswordColor(focused_textbox_background_color) }
-                          onBlur={ () => changeConfirm_PasswordColor(unfocused_textbox_background_color) }
-                          secureTextEntry = {true}
-                        />
-                        {/* Render select schools picker */}
-                        <View style = {{flexDirection: 'row'}}>
+                            onFocus={ () => changeNameColor(focused_textbox_background_color) }
+                            onBlur={ () => changeNameColor(unfocused_textbox_background_color) }
+                          />
+                          {/* Email Textbox */}
                           <TextInput
-                            style = {{  
-                              flex: 3,                          
+                              style={{
+                                height: 50,
+                                marginLeft: 20,
+                                marginRight: 20,
+                                marginBottom: 20,
+                                borderWidth: 1,
+                                padding: 10,
+                                backgroundColor: emailColor,
+                                borderRadius: 5,
+                              }}
+                              onChangeText={onEmailChangeText}
+                              value={email}
+                              placeholder="Email"
+                              placeholderTextColor = '#B1B1B1'
+                              importantForAutofill = 'yes' 
+                            importantForAutofill = 'yes' 
+                              importantForAutofill = 'yes' 
+                              borderColor = '#E8E8E8'
+                              onFocus={ () => changeEmailColor(focused_textbox_background_color) }
+                              onBlur={ () => changeEmailColor(unfocused_textbox_background_color) }
+                          />
+                          {/* password textbox */}
+                          <TextInput
+                            style={{
                               height: 50,
                               marginLeft: 20,
-                              marginRight: 2,
+                              marginRight: 20,
                               marginBottom: 20,
                               borderWidth: 1,
                               padding: 10,
-                              backgroundColor: unfocused_textbox_background_color,
-                              borderRadius: 5,}}
-                            value={school}
-                            placeholder="Select School"
+                              backgroundColor: passwordColor,
+                              borderRadius: 5,
+                            }}
+                            onChangeText={onPasswordChangeText}
+                            value={password}
+                            importantForAutofill = 'yes' 
+                          importantForAutofill = 'yes' 
+                            importantForAutofill = 'yes' 
+                            placeholder="Password"
                             placeholderTextColor = '#B1B1B1'
                             borderColor = '#E8E8E8'
-                            onPressIn={ () => openPicker()}
-                            editable = {false}
+                            onFocus={ () => changePasswordColor(focused_textbox_background_color) }
+                            onBlur={ () => changePasswordColor(unfocused_textbox_background_color) }
+                            secureTextEntry = {true}
                           />
-                          <TouchableOpacity style = {{flex:1}} onPress = { () => openPicker() }>
-                          <View style = {{ flex: 1, marginLeft:2, marginRight:20,marginBottom:20, backgroundColor: unfocused_textbox_background_color, borderRadius:5, justifyContent: 'center', alignItems:'center'}}>
-                            <View style ={styles.TriangleView}/>
+                          {/* Confirm Password Textbox */}
+                          <TextInput
+                            style={{
+                              height: 50,
+                              marginLeft: 20,
+                              marginRight: 20,
+                              marginBottom: 20,
+                              borderWidth: 1,
+                              padding: 10,
+                              backgroundColor: confirm_passwordColor,
+                              borderRadius: 5,
+                            }}
+                            onChangeText={onConfirm_PasswordChangeText}
+                            value={confirm_password}
+                            importantForAutofill = 'yes' 
+                          importantForAutofill = 'yes' 
+                            importantForAutofill = 'yes' 
+                            placeholder="Confirm Password"
+                            placeholderTextColor = '#B1B1B1'
+                            borderColor = '#E8E8E8'
+                            onFocus={ () => changeConfirm_PasswordColor(focused_textbox_background_color) }
+                            onBlur={ () => changeConfirm_PasswordColor(unfocused_textbox_background_color) }
+                            secureTextEntry = {true}
+                          />
+                          {/* Render select schools picker */}
+                          <View style = {{flexDirection: 'row'}}>
+                            <TextInput
+                              style = {{   
+                                flex: 3,                          
+                                height: 50,
+                                marginLeft: 20,
+                                marginRight: 2,
+                                marginBottom: 20,
+                                borderWidth: 1,
+                                padding: 10,
+                                backgroundColor: unfocused_textbox_background_color,
+                                borderRadius: 5,}}
+                              value={school}
+                              placeholder="Select School"
+                              placeholderTextColor = '#B1B1B1'
+                              borderColor = '#E8E8E8'
+                              onPressIn={ () => openPicker()}
+                              editable = {false}
+                            />
+                            <TouchableOpacity style = {{flex:1}} onPress = { () => openPicker() }>
+                            <View style = {{ flex: 1, marginLeft:2, marginRight:20,marginBottom:20, backgroundColor: unfocused_textbox_background_color, borderRadius:5, justifyContent: 'center', alignItems:'center'}}>
+                              <View style ={styles.TriangleView}/>
+                            </View>
+                            </TouchableOpacity>
                           </View>
-                          </TouchableOpacity>
-                        </View>
+                        </ScrollView>
                       </View>
                     </TouchableWithoutFeedback>
                   </KeyboardAvoidingView>
                 </TouchableWithoutFeedback>
-                <View style={{backgroundColor:'white', height:'20%'}}>
-                  <View flexDirection = 'row' style = {{height: '30%'}}> 
+                <View style={{ backgroundColor:"white", height:60,marginTop:"auto"}}>
+                  <View flexDirection = 'row' style = {{height: "100%",alignItems:"center"}}> 
                     <TouchableOpacity style= {{marginBottom:10}} onPress={ () => setState(2)}>
                       <Text style = {{color:'#B1B1B1', paddingVertical:10, marginHorizontal:20, fontSize: 15}}>I already have an account</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style = {styles.continue_button}>
+                    <TouchableOpacity style = {styles.continue_button} onPress = {onRegisterPress}>
                       <View style = {{backgroundColor:'#FF3939', borderRadius: 5}}>
                         <Text style = {styles.buttonText}>Continue</Text>
                       </View>
@@ -277,6 +411,14 @@ const Login = ({navigation})=>{
             <TouchableWithoutFeedback onPress = {Keyboard.dismiss}>
               <View style ={styles.login}>
               <Text style = {styles.headerText}>Log In</Text>
+              <Text style = {{
+                   color: '#9c9c9c', 
+                   alignSelf:'flex-start',
+                   fontSize: 16,
+                   marginLeft: 50,
+                   marginBottom: 20,
+
+              }}> {message} </Text>
                 <TextInput
                   style={{
                     height: 50,
@@ -326,7 +468,7 @@ const Login = ({navigation})=>{
                   <TouchableOpacity style= {{marginBottom:10}} onPress={ () => setState(1) }>
                     <Text style = {{color:'#B1B1B1', paddingVertical:10, marginHorizontal:20, fontSize: 15}}>Create a new account</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style = {styles.continue_button}  onPress = {()=>{navigation.navigate("SidebarNavigable",{screen : "Settings"})}}>
+                  <TouchableOpacity style = {styles.continue_button}  onPress = {onLoginPress}>
                     <View style = {{backgroundColor:'#FF3939', borderRadius: 5}}>
                       <Text style = {styles.buttonText}>Log In</Text>
                     </View>
@@ -375,7 +517,7 @@ const styles = StyleSheet.create({
   },
   headerText:{
     color: '#434343', 
-    paddingTop: 50, 
+    paddingTop: 10, 
     //paddingLeft: 10,
     paddingBottom: 20,
     marginLeft: 20,
@@ -477,6 +619,7 @@ const styles = StyleSheet.create({
         flex: 1,
         //justifyContent: "center",
         flexDirection: 'column',
+        height: "100%"
         //justifyContent:'flex-end'
     },
   });

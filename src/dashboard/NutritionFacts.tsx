@@ -175,10 +175,10 @@ const DataRow = (props :{height?: number,bold?:boolean,color ?: string, name ?: 
     const total = totalBy(selector,mealState)
     return <BaseRow height = {height} els = {[
         <Text style = {{ color , flexWrap:"wrap",fontWeight: bold ? "bold" : "normal"}} ellipsizeMode = "tail" numberOfLines={1}> {name} </Text>,
-        <BaseText color= {color} unit = {unit}> {mealState.dishA ? selector(mealState.dishA)??0 :0}</BaseText>,
-        <BaseText color= {color} unit = {unit}> {mealState.dishB ? selector(mealState.dishB)??0 :0}</BaseText>,
-        <BaseText color = {color } unit = {unit}> {mealState.dishC ? selector(mealState.dishC)??0 :0}</BaseText>,
-        <BaseText bold color = {color} unit = {unit}> {total}</BaseText>,
+        <BaseText color= {color} unit = {unit}> {Math.floor(mealState.dishA ? selector(mealState.dishA)??0 :0)}</BaseText>,
+        <BaseText color= {color} unit = {unit}> {Math.floor(mealState.dishB ? selector(mealState.dishB)??0 :0)}</BaseText>,
+        <BaseText color = {color } unit = {unit}> {Math.floor(mealState.dishC ? selector(mealState.dishC)??0 :0)}</BaseText>,
+        <BaseText bold color = {color} unit = {unit}> {Math.floor(total)}</BaseText>,
     ]}/>
 }
 
@@ -217,7 +217,7 @@ export const NutritionFacts = (props) =>{
             <ScrollView style = {{
                 maxHeight:500,
             }}>
-                <DataRow height = {30} name = "Calories" mealState = {mealState} selector = {(dish:Dish)=> dish.nutritionSummary.calories}  />
+                <DataRow height = {30} name = "Calories" mealState = {mealState} selector = {(dish:Dish)=> (dish.nutritionSummary.calories *(dish?.portion?.fillFraction ?? 1) )}  />
                 <DataRow height = {30} name = "Total Fat" unit = "g" mealState = {mealState} selector = {(dish:Dish)=> dish.nutritionSummary.totalFat}  />
                 <DataRow height = {30} name = "    Saturated Fat" bold = {false}unit = "g" color = "#A6A6A6" mealState = {mealState} selector = {(dish:Dish)=> dish.nutritionSummary.saturatedFat}  />
                 <DataRow height = {30} name = "    Trans Fat" bold = {false}unit = "g" color = "#A6A6A6" mealState = {mealState} selector = {(dish:Dish)=> dish.nutritionSummary.transFat}  />
