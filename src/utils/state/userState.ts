@@ -16,7 +16,7 @@ export function usePersistentAtom(){
     async function fetchPersistentAtom(){
         const resstring = await AsyncStorage.getItem("persist")
         // console.log({resstring})
-        if(resstring&& false){
+        if(resstring){
             const res = JSON.parse(resstring)
             const newPers = {
                 ...res,

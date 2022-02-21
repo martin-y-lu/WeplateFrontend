@@ -6,6 +6,7 @@ import { usePersistentAtom } from "../utils/state/userState";
 import { useRecoilState } from 'recoil';
 import { usersAtom, useUserActions } from "../utils/session/useUserActions";
 import { APIUserSettings } from '../utils/session/apiTypes';
+import { useEffect } from "react";
 const logo_xml = `<svg width="182" height="86" viewBox="0 0 182 86" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M4 46.0001L11.5 64.0001L19 46.0001L26.5 64.0001L34 46.0001" stroke="#FF3939" stroke-width="6.33166" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M40 55.0001C40 59.9706 44.0294 64.0001 49 64.0001H55M40 55.0001C40 50.0295 44.0294 46.0001 49 46.0001C53.9706 46.0001 58 50.0295 58 55.0001H40Z" stroke="#FF3939" stroke-width="6.33166" stroke-linecap="round" stroke-linejoin="round"/>
@@ -36,27 +37,33 @@ const Login = ({navigation})=>{
   //2 shows the log in view
   const userActions = useUserActions()
   const [persistentState,setPersistentState,fetchPersistentState] = usePersistentAtom() as any
+  useEffect(()=>{
+    if(persistentState.password !== null && persistentState.email !== null){
+      navigation.navigate("SidebarNavigable",{screen:"Dashboard"})
+    }
+  },[persistentState])
 
   const [state, setState] = useState(0);
 
-  const [name, onNameChangeText] = useState("Hugh Jazz");
-  // const [name, onNameChangeText] = useState();
+  // const [name, onNameChangeText] = useState("Hugh Jazz");
+  const [name, onNameChangeText] = useState();
   const [nameColor, changeNameColor] = useState(unfocused_textbox_background_color);
 
   // const [email, onEmailChangeText] = useState("2021090@appleby.on.ca");
-  const [email, onEmailChangeText] = useState("test@test.com");
+  const [email, onEmailChangeText] = useState();
   const [emailColor, changeEmailColor] = useState(unfocused_textbox_background_color);
 
-  const [password, onPasswordChangeText] = useState("goodpassword123");
+  // const [password, onPasswordChangeText] = useState("goodpassword123");
+  const [password, onPasswordChangeText] = useState("");
   const [passwordColor, changePasswordColor] = useState(unfocused_textbox_background_color);
 
-  const [confirm_password, onConfirm_PasswordChangeText] = useState("goodpassword123");
+  const [confirm_password, onConfirm_PasswordChangeText] = useState();
   // const [confirm_password, onConfirm_PasswordChangeText] = useState();
   const [confirm_passwordColor, changeConfirm_PasswordColor] = useState(unfocused_textbox_background_color);
 
   const [select_schoolColor, changeSelect_schoolColor] = useState(unfocused_textbox_background_color);
-  const [school, setSchool] = useState(1);
-  // const [school, setSchool] = useState();
+  // const [school, setSchool] = useState(1);
+  const [school, setSchool] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
 
   const [message,setMessage] = useState("");
@@ -66,7 +73,7 @@ const Login = ({navigation})=>{
       /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
     );
   };
-  const onLoginPress = ()=>{
+  const onLoginPress = async ()=>{
     console.log({
       email,
       password,
@@ -85,7 +92,7 @@ const Login = ({navigation})=>{
     }
 
     setMessage("")
-    setPersistentState({
+    await setPersistentState({
       email,
       password,
     })
@@ -138,7 +145,7 @@ const Login = ({navigation})=>{
     }
 
     setMessage("")
-    setPersistentState({
+    await setPersistentState({
       email,
       password,
     })

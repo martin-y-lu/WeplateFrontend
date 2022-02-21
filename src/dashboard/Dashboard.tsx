@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, Modal } from "react-native";
 import { useRecoilState, useRecoilValue } from "recoil"
 import { NutritionFactsContainerHiddenHeight } from "./NutritionFactsContainer";
 import PortionView, { usePortionViewAnimationState } from './PortionView'
-import { mealStateFromTimeInfo, TimeInfo, dashboardState, dateToString, stringToDate } from './state';
+import { mealStateFromTimeInfo, TimeInfo, dashboardState, dateToString, stringToDate, getTimeInfoOfNow } from './state';
 import { MealState, convertAPIItemToDish, Portion, getPortionInfoFromAPIPortionInfo, Dish, FOOD_CATEGORY, FoodCategoryFromAPIFoodCategory, getMealsIndex, getDishByPortion } from './typeUtil';
 import { copilot,walkthroughable,CopilotStep } from "react-native-copilot"
 import TrayItem from "./TrayItem"
@@ -69,12 +69,24 @@ const Dashboard = (props)=>{
 
     const {start} = props // Copilot: Start onboarding
 
-    const currentState = useRecoilValue(dashboardState);
+    const [currentState,setCurrentState] = useRecoilState(dashboardState);
+    useEffect(()=>{
+        if(currentState.currentDate == null || currentState.currentMeal == null){
+            const timeInfoNow = getTimeInfoOfNow()
+            // console.log({timeInfoNow})
+            setCurrentState({
+                ...currentState,
+                currentDate: stringToDate(timeInfoNow.date),
+                currentMeal: timeInfoNow.meal,
+            })
+        }
+    },[currentState])
     const {currentDate,currentMeal} = currentState
-    const timeInfo : TimeInfo = useMemo(()=>{
+    const timeInfo = useMemo(()=>{
         const {currentDate,currentMeal} = currentState
         return route?.params?.timeInfo ?? { date: dateToString(currentDate), meal: currentMeal}
-    },[currentState,route])
+    },[route?.params,currentState])
+
     
     const [persistentState,setPersistentState,fetchPersistentState] = usePersistentAtom() as any
 
@@ -110,9 +122,7 @@ const Dashboard = (props)=>{
 
     const onLoad = ()=>{
         if(doOnboarding){
-            setTimeout(()=>{
-                start()
-            },500) 
+            start()
         }
     }
     //Fetch meals 
@@ -152,8 +162,9 @@ const Dashboard = (props)=>{
     async function fetchMeal(){
         console.log("try fetching.")
         if(persistentState.loaded == false) return
+        if(timeInfo?.date == null || timeInfo?.meal == null) return
         if(auth === null) return
-        console.log("Fetching meal!")
+        // console.log("Fetching meal!")
         setFetching(true)
         const data :APIMealByTimePayload = await userActions.mealsByTime(timeInfo)
         if(data.length == 0 ){
@@ -274,7 +285,6 @@ const Dashboard = (props)=>{
     }
 
     useEffect(()=>{
-        console.log("TimeInfo Now",timeInfo)
         setFetching(false)
     },[timeInfo])
     useEffect( ()=>{
@@ -289,16 +299,19 @@ const Dashboard = (props)=>{
     },[auth,timeInfo,fetching])
 
     // copilot events
-    const [currentStepName,setCurrentStepName] = useState(null);
-    copilotEvents.on("stepChange",(arg)=>{
-        const name = arg?.name
-        if(name){
-            if(name != currentStepName) setCurrentStepName(name)
-        }
+    // const [currentStepName,setCurrentStepName] = useState(null);
+    // copilotEvents.on("stepChange",(arg)=>{
+    //     const name = arg?.name
+    //     if(name){
+    //         if(name != currentStepName) setCurrentStepName(name)
+    //     }
+    // })
+    copilotEvents.on("stop",()=>{
+        setPersistentState({
+            ...persistentState,
+            doOnboarding: false,
+        })
     })
-
-    useEffect(()=>{
-    },[currentStepName])
 
     //portion view animate
     const portionAnimationState = usePortionViewAnimationState();

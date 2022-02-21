@@ -1,15 +1,39 @@
 import { memo, useMemo } from 'react';
 import {atom, useRecoilState, } from 'recoil'
+import { lerp } from '../utils/math';
 import { useUserActions } from '../utils/session/useUserActions';
-import { FOOD_CATEGORY, MEALS, STATION,MealState,Dish,NutritionInfo,NutritionSummaryInfo, convertAPIItemToDish } from './typeUtil';
+import { FOOD_CATEGORY, MEALS, STATION, MealState, Dish, NutritionInfo, NutritionSummaryInfo, convertAPIItemToDish } from './typeUtil';
 export function dateToString(date){
-    var UTC = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-    return UTC.toISOString().slice(0, 10)
+    if(date == null) return null
+    try{
+        var UTC = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+        return UTC.toISOString().slice(0, 10)
+    }catch(e){
+        return null
+    }
 }
 export function stringToDate(string: String){
     if(string === null) return null
     const [year,month,day] = string.split('-')
     return new Date(Date.UTC(parseInt(year),parseInt(month)-1,parseInt(day)+1))
+}
+
+export function getTimeInfoOfNow(){
+    const date = new Date()
+    console.log(dateToString(date))
+    const date_string = dateToString(date)
+    const hour = date.getHours();
+    let currentMeal = MEALS.Lunch
+    if(hour < 11){
+        currentMeal = MEALS.Breakfast
+    }
+    if(hour > 12+4){
+        currentMeal = MEALS.Dinner
+    }
+    return {
+        date: date_string,
+        meal: currentMeal
+    } as TimeInfo
 }
 
 export const dashboardState = atom({
@@ -30,14 +54,22 @@ function randomSelect(...items){
     return items[Math.floor(Math.random()*items.length)];
 }
 function randomNumber(max){
-    return Math.floor(Math.random()*max)
+    return Math.floor(Math.random()*max/2)+max/2
 }
 
 function randomDish(){
-    const name = randomSelect("Chopped","Stir fried","Spanish","Deep fried","Seared","Swedish","Japanese","French","Fried","Stewed","Braised","Sliced","Flambéed","Deviled","Baked","Fresh","Boiled","Million dollar") +" "+
-                randomSelect("Chicken","Spagetti","Spinach","Salad","Curry","Rice","Cauliflower","Ravioli","Tuna","Salmon","Eggs","Meatballs","Burger","Cheese","Pizza","Ramen","Potatoes")
-    const station : STATION= randomSelect(STATION.A,STATION.B,STATION.C,STATION.D)
+    const name_modifier = randomSelect("","","","","","","","Chopped","Stir fried","Spanish","Seared","Swedish","Japanese","French","Fried","Stewed","Braised","Sliced","Flambéed","Deviled","Baked","Fresh","Boiled","Million Dollar") 
+    let name_item = "Rice"
     const category : FOOD_CATEGORY= randomSelect(FOOD_CATEGORY.Carbohydrates,FOOD_CATEGORY.Protein,FOOD_CATEGORY.Vegetable) 
+    if(category === FOOD_CATEGORY.Carbohydrates){
+        name_item = randomSelect("Curry","Rice","Ravioli","Pizza","Potatoes","Ramen","Spaghetti","Lasagna")
+    }if(category === FOOD_CATEGORY.Protein){
+        name_item = randomSelect( "Chicken","Tuna","Salmon","Eggs","Meatballs","Burger","Cheese")
+    }if(category === FOOD_CATEGORY.Vegetable){
+        name_item = randomSelect("Cauliflower","Spinach","Salad","Tomato","Broccoli","Brussels Sprouts")
+    }
+    const name = name_modifier.length > 0 ? name_modifier +" "+name_item : name_item
+    const station : STATION= randomSelect(STATION.A,STATION.B,STATION.C,STATION.D)
     const nutrition:NutritionInfo = {
         sugar: randomNumber(100),
         cholesterol :randomNumber(50),
@@ -66,8 +98,10 @@ function randomDish(){
         nutrition,
         nutritionSummary: summary,
         ingredients: [],
-        recommendation: {
-            fillFraction: Math.random()   
+        portion: {
+            fillFraction: Math.random(),
+            weight: lerp(100,200,Math.random()),
+               
         }
     } as Dish
 }

@@ -164,13 +164,14 @@ const DiningMenu = ({navigation})=> {
     useEffect(()=>{
         // console.log(currentStation)
         if(diningState?.dishes){
+            const BASE_PORTION_WEIGHT = 200
             const newFoods = diningState.dishes
-                                // .filter(dish => dish.station === currentStation)
+                                .filter(dish => dish.station === currentStation)
                                 .map( dish => {return {
                                     foodName: dish.name,
                                     type: dish.category,
                                     station: dish.station,
-                                    calorieCount : dish.nutritionSummary.calories
+                                    calorieCount : dish.nutritionSummary.calories * BASE_PORTION_WEIGHT
                                 }})
             console.log("Newfoods:",newFoods.length)
             setFoods(newFoods)

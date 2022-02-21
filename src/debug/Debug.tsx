@@ -23,6 +23,11 @@ export function useLogin(navigation){
                         await userActions.login(persistentState.email,persistentState.password) 
                     }catch(e){
                         console.log(e)
+                        await setPersistentState({
+                            ...persistentState,
+                            email: null,
+                            password: null,
+                        })
                         navigation.navigate("Login")
                     }
                 }

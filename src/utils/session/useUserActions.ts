@@ -56,26 +56,26 @@ function useUserActions () {
             username: email,
             password,
         }
-        console.log("LOGIN!",data)
+        // console.log("LOGIN!",data)
 
         // if(auth?.token !== null) return
         try{
-            const auth = await fetchWrapper.post(`${baseUrl}/api/token_auth/`, data)
+            const _auth = await fetchWrapper.post(`${baseUrl}/api/token_auth/`, data)
         
-            if(!("token" in auth)) throw new Error("Invalid auth")
+            if(!("token" in _auth)) throw new Error("Invalid auth" + password +" "+email)
             
-            setAuth(auth)
+            setAuth(_auth)
 
-            const userInfo = await fetchWrapper.get(`${baseUrl}/api/settings/`,null,auth)
+            const userInfo = await fetchWrapper.get(`${baseUrl}/api/settings/`,null,_auth)
             setUsers(userInfo as APIUserSettings)
             // console.log({userInfo})
             // get return url from location state or default to home page
             // const { from } = history.location.state || { from: { pathname: '/' } };
             // history.push(from);
 
-            return auth;
+            return _auth;
         }catch(e){
-            throw "Invalid auth";
+            throw e;
         }
     }
     async function mealsByTime(timeInfo:TimeInfo){

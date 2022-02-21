@@ -100,15 +100,16 @@ export const CustomDrawerContent = (props) => {
             <DrawerButton icon = {settings_icon_svg} width = {width} navigation = {navigation} name = "Settings" screen = "Settings" screenName = {screenName}/>
             <DrawerButton icon = {about_us_icon_svg} width = {width} navigation = {navigation} name = "About Us" screen = "About Us" screenName = {screenName}/>
 
-            <TouchableOpacity style = {{
+            <View style = {{
                 marginTop: 'auto',
                 alignSelf: "center",
                 marginBottom: 20,
-            }} onPress = {()=>{
-                navigation.navigate("SidebarNavigable",{screen:"--DEBUG--"})
             }}>
+            {/* // onPress = {()=>{
+            //     navigation.navigate("SidebarNavigable",{screen:"--DEBUG--"})
+            // }}> */}
                 <SvgXml xml = {weplate_full_logo_svg}/>
-            </TouchableOpacity>
+            </View>
         </View>
     </DrawerContentScrollView>
     

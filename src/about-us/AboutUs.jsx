@@ -1,4 +1,4 @@
-import { View,Text,Button, StyleSheet, ImageBackground, TouchableOpacity } from "react-native"
+import { View,Text,Button, StyleSheet, ImageBackground, TouchableOpacity, Linking } from "react-native"
 // import {bg.png} from '../../src/'
 
 const image = { uri: 'https://s3-alpha-sig.figma.com/img/ab60/32ae/e2a63b157756c696ab479c819cd66e53?Expires=1644796800&Signature=YWfnZp2FVfkuHGonbv~78NNoKg-0s1R44NQnWi9XiLKBCjjXUxR2Klbz6ulpRdIXlzm-IgGB58jgNQB2NJXK4HTODWmHLuzV6OUUvGIw6IrkEaPXnCB0bFk0Xo~oODdrqPblIQnPot2h30GjezWzdi6rdMOfI5f7EiPfO0yPFWxDV-hvK~jQT5F4yjg26A1UFrb0NOpLvseEUkNsdFhR84zPfHaZLHsB0e1mGhEGHaxQa9OV~ht-gb~ltVOjnNAQHY-reO66wmB1orQXfRxXp8hcxL-3HXYDMniCuLFUldzRWW0r4SmboZ--KpidGPQ7OCH4T2pwK8IW32h2rYiVxQ__&Key-Pair-Id=APKAINTVSUGEWH5XD5UA' };
@@ -18,13 +18,26 @@ const AboutUs = ({navigation})=>{
         >
             <View style={{backgroundColor: 'white', padding: 28}}>
                 <Text style={styles.title}>About Us</Text>
-                <Text style={styles.text}>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Non odio euismod lacinia at quis risus sed vulputate odio. Lectus sit amet est placerat in egestas erat imperdiet sed. Commodo odio aenean sed adipiscing diam donec adipiscing. Porttitor rhoncus dolor purus non enim praesent elementum. Quis risus sed vulputate odio ut.</Text>
+                <Text style={styles.text}>We are a team of college students from Babson, MIT, UChicago, and UWaterloo who want to make eating healthy in college convenient and effective, for everyone. 
+
+WePlate’s app is currently in beta testing at Babson College’s Trim Dining Hall. Our goal for our beta test is to collect data on students’ eating habits and refine our algorithm.
+
+Any feedback you provide on foods will be directly reviewed by cafeteria administrators and nutritionists. By using our app, unpopular foods will either be altered or removed entirely, leaving only foods that are both nutritious and tasty.
+
+We hope you enjoy using our beta app! Please provide any feedback at www.weplate.app/feedback.</Text>
                 <TouchableOpacity
                     style={styles.button}
-                    // onPress={() => navigate('HomeScreen')}
+                    onPress={() => {
+                        Linking.canOpenURL("https://www.weplate.app/").then((supported)=>{
+                            if(supported){
+                                Linking.openURL("https://www.weplate.app/")
+                            }
+                        })
+
+                    }}
                     underlayColor='#fff'
                 >
-                    <Text style={styles.buttonText}>Next</Text>
+                    <Text style={styles.buttonText}>More Info</Text>
                 </TouchableOpacity>
             </View>
 
