@@ -5,7 +5,7 @@ const HAMBURGER_MENU_SVG = '<svg width="35" height="35" viewBox="0 0 35 35" fill
 const BaseHeader = (props) =>{
     const {options} = props
     const {opacity,color } = options?.headerTitleStyle ??  {opacity: 1, color: "#A4A4A4"}
-    return <SafeAreaView style = {{ backgroundColor:`rgba(255,255,255,${Math.floor(opacity ?? 1 *255)})`,shadowColor:"black",shadowRadius:5,shadowOpacity:0.5*opacity}}>
+    return <SafeAreaView forceInset={{ bottom: 'never', vertical: 'never'}} style = {{ backgroundColor:`rgba(255,255,255,${Math.floor(opacity ?? 1 *255)})`,shadowColor:"black",shadowRadius:5,shadowOpacity:0.5*opacity}}>
         <View style = {{flexDirection: 'row', alignItems: 'center', justifyContent: 'center',height:64}}>
             <TouchableOpacity
                 style={{

@@ -18,11 +18,11 @@ const AboutUs = ({navigation})=>{
         >
             <View style={{backgroundColor: 'white', padding: 28}}>
                 <Text style={styles.title}>About Us</Text>
-                <Text style={styles.text}>We are a team of college students from Babson, MIT, UChicago, and UWaterloo who want to make eating healthy in college convenient and effective, for everyone. 
+                <Text style={styles.text}>We are a team of college students from Babson, MIT, UCSD, and UWaterloo who want to make eating healthy in college convenient and effective, for everyone. 
 
 WePlate’s app is currently in beta testing at Babson College’s Trim Dining Hall. Our goal for our beta test is to collect data on students’ eating habits and refine our algorithm.
 
-Any feedback you provide on foods will be directly reviewed by cafeteria administrators and nutritionists. By using our app, unpopular foods will either be altered or removed entirely, leaving only foods that are both nutritious and tasty.
+Any feedback you provide on foods will be directly reviewed by cafeteria administrators and nutritionists, and taken into account when making menu changes.
 
 We hope you enjoy using our beta app! Please provide any feedback at www.weplate.app/feedback.</Text>
                 <TouchableOpacity
@@ -38,6 +38,20 @@ We hope you enjoy using our beta app! Please provide any feedback at www.weplate
                     underlayColor='#fff'
                 >
                     <Text style={styles.buttonText}>More Info</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={styles.button}
+                    onPress={() => {
+                        Linking.canOpenURL("https://weplate.notion.site/Sources-eec20ee5735a443a80e2a14c5f017035").then((supported)=>{
+                            if(supported){
+                                Linking.openURL("https://weplate.notion.site/Sources-eec20ee5735a443a80e2a14c5f017035")
+                            }
+                        })
+
+                    }}
+                    underlayColor='#fff'
+                >
+                    <Text style={styles.buttonText}>Nutrition Information and Sources</Text>
                 </TouchableOpacity>
             </View>
 

@@ -25,7 +25,7 @@ const TrayItem = ( props : {isTop ?: boolean, number: number,portion: Portion, d
     if(dish!= null){
         const dishName = dish.name
         const station = dish.station
-        const calories = dish.nutritionSummary.calories
+        const calories = dish.nutritionSummary.calories *( dish?.portion?.weight ?? 200)
         const color = colorOfCategory(dish.category)
         async function castVote(positive:boolean){
             swipeableRef.current.close()

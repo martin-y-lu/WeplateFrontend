@@ -12,7 +12,7 @@ export function dateToString(date){
         return null
     }
 }
-export function stringToDate(string: String){
+export function stringToDate(string: string){
     if(string === null) return null
     const [year,month,day] = string.split('-')
     return new Date(Date.UTC(parseInt(year),parseInt(month)-1,parseInt(day)+1))
@@ -40,8 +40,10 @@ export const dashboardState = atom({
     key: "dashboardState",
     
     default: {
-        currentDate: stringToDate("2030-02-14"),
-        currentMeal: MEALS.Lunch,
+        currentDate: null,
+        currentMeal: null,
+        // currentDate: stringToDate("2030-02-14"),
+        // currentMeal: MEALS.Lunch,
         streakLength: 12
     }
 })

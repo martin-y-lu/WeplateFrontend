@@ -7,6 +7,10 @@ import { useRecoilState } from 'recoil';
 import { usersAtom, useUserActions } from "../utils/session/useUserActions";
 import { APIUserSettings } from '../utils/session/apiTypes';
 import { useEffect } from "react";
+import { useRoute } from '@react-navigation/native';
+
+const BABSON_PK = 10; 
+
 const logo_xml = `<svg width="182" height="86" viewBox="0 0 182 86" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M4 46.0001L11.5 64.0001L19 46.0001L26.5 64.0001L34 46.0001" stroke="#FF3939" stroke-width="6.33166" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M40 55.0001C40 59.9706 44.0294 64.0001 49 64.0001H55M40 55.0001C40 50.0295 44.0294 46.0001 49 46.0001C53.9706 46.0001 58 50.0295 58 55.0001H40Z" stroke="#FF3939" stroke-width="6.33166" stroke-linecap="round" stroke-linejoin="round"/>
@@ -31,15 +35,19 @@ const windowHeight = Dimensions.get('window').height;
 const unfocused_textbox_background_color = '#E8E8E8'
 const focused_textbox_background_color = 'white'
 const Login = ({navigation})=>{
+  const route = useRoute()
   //declares state of page and automatically sets it to 0
   //0 means to show start view (option to log in or get started)
   //1 shows the get started view
   //2 shows the log in view
   const userActions = useUserActions()
   const [persistentState,setPersistentState,fetchPersistentState] = usePersistentAtom() as any
+  const [persistentStateChecked,setPersistentStateChecked] = useState(false);
   useEffect(()=>{
-    if(persistentState.password !== null && persistentState.email !== null){
+    if(persistentState.password !== null && persistentState.email !== null && !persistentStateChecked){
+      console.log("Naving back to dashboard",route.name)
       navigation.navigate("SidebarNavigable",{screen:"Dashboard"})
+      setPersistentStateChecked(true)
     }
   },[persistentState])
 
@@ -98,7 +106,7 @@ const Login = ({navigation})=>{
     })
 
 
-    navigation.navigate("SidebarNavigable",{screen:"Settings"})
+    navigation.navigate("SidebarNavigable",{screen:"Dashboard"})
     // navigation.navigate("SidebarNavigable",{screen:"--DEBUG--"})
   }
   const [user,_setUser] = useRecoilState(usersAtom)
@@ -183,9 +191,7 @@ const Login = ({navigation})=>{
               <ImageBackground
               style={styles.image}
               resizeMode  = "cover"
-              source={{
-                uri: 'https://s3-alpha-sig.figma.com/img/ab60/32ae/e2a63b157756c696ab479c819cd66e53?Expires=1644796800&Signature=YWfnZp2FVfkuHGonbv~78NNoKg-0s1R44NQnWi9XiLKBCjjXUxR2Klbz6ulpRdIXlzm-IgGB58jgNQB2NJXK4HTODWmHLuzV6OUUvGIw6IrkEaPXnCB0bFk0Xo~oODdrqPblIQnPot2h30GjezWzdi6rdMOfI5f7EiPfO0yPFWxDV-hvK~jQT5F4yjg26A1UFrb0NOpLvseEUkNsdFhR84zPfHaZLHsB0e1mGhEGHaxQa9OV~ht-gb~ltVOjnNAQHY-reO66wmB1orQXfRxXp8hcxL-3HXYDMniCuLFUldzRWW0r4SmboZ--KpidGPQ7OCH4T2pwK8IW32h2rYiVxQ__&Key-Pair-Id=APKAINTVSUGEWH5XD5UA',
-              }}
+              source={require("./assets/Background.png")}
             >
               <Modal
         style= {{ flexDirection: 'column-reverse',alignSelf: 'flex-end',
@@ -212,7 +218,7 @@ const Login = ({navigation})=>{
               setSchool(itemValue)
             }>
               <Picker.Item itemStyle ={{color:'red'}} label="-- Select School --" value={null} />
-              <Picker.Item label="Babson College" value={1}/>
+              <Picker.Item label="Babson College" value={BABSON_PK}/>
             </Picker>
           </View>
         </View>

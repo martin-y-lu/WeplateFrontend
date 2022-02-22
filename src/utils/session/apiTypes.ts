@@ -58,7 +58,7 @@ export interface APIItem{
     station : string,
 }
 export interface APIIngredient{
-    name: String,
+    name: string,
     id: APIKey,
 }
 export interface APINutrition{

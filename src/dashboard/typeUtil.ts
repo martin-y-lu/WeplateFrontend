@@ -55,7 +55,7 @@ export interface PortionInfo{
 
 export interface Dish{
     id: number,
-    name: String,
+    name: string,
     station: STATION,
     category: FOOD_CATEGORY,
     nutrition: NutritionInfo,

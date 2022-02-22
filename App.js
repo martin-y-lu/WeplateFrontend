@@ -85,7 +85,9 @@ const SidebarNavigable = ()=>{
 }
 const BaseApp = ()=>{
     return <NavigationContainer>
-        <Stack.Navigator>
+        <Stack.Navigator screenOptions={{
+            headerShown: false
+        }}>
             <Stack.Screen
                 name = "Login"
                 component={Login}
@@ -137,7 +139,9 @@ const BaseApp = ()=>{
             <Stack.Screen
                 name = "SidebarNavigable"
                 component={SidebarNavigable}
-                options={{ headerShown: false }}
+                options={{ headerShown: false,
+                        gestureEnabled: false,
+                     }}
             />
 
         </Stack.Navigator>
