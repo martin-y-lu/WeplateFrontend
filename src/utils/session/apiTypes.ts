@@ -18,7 +18,7 @@ export interface APIMealEvent {
     timestamp: APITimestamp,
     id: APIKey,
 }
-export enum APIFoodCategory {carbohydrate = "grains",protein = "protein",vegetable="vegetable"}
+export enum APIFoodCategory {carbohydrate = "grain",protein = "protein",vegetable="vegetable"}
 export interface APIMealSuggestEntry {
     category: APIFoodCategory,
     items: Array<APIKey>,
@@ -49,13 +49,15 @@ export interface APIAnalyticsMealChoiceEntry{
     large_portion: number,
 }
 export enum APIMeals {"breakfast","lunch","dinner"}
+
+export enum APIStation {A = "HOMESTYLE", B = "ROOTED", C = "FYUL", D = "FLAME", E = "E",F = "F",G = "G",H = "H", I = "I"}
 export interface APIItem{
     ingredients: Array<APIKey>,
     name: string,
     nutrition: APINutrition,
     id: APIKey,
     school: APISchool,
-    station : string,
+    station : APIStation,
 }
 export interface APIIngredient{
     name: string,

@@ -1,4 +1,4 @@
-import { APIFoodCategory, APIPortionInfo, APIItem, APITimestamp } from '../utils/session/apiTypes';
+import { APIFoodCategory, APIPortionInfo, APIItem, APITimestamp, APIStation } from '../utils/session/apiTypes';
 export enum FOOD_CATEGORY{Carbohydrates = "Carbohydrates",Protein = "Protein", Vegetable = "Vegetable"}
 export enum MEALS{Breakfast = "Breakfast", Lunch = "Lunch",Dinner = "Dinner"}
 
@@ -80,11 +80,33 @@ function toNum(num){
     if(isNaN(num)) return 0
     return num ?? 0 
 }
+export function convertAPIStationToStation(stat:APIStation){
+    switch(stat){
+        case APIStation.A:
+            return STATION.A;
+        case APIStation.B:
+            return STATION.B;
+        case APIStation.C:
+            return STATION.C;
+        case APIStation.D:
+            return STATION.D;
+        case APIStation.E:
+            return STATION.E;
+        case APIStation.F:
+            return STATION.F;
+        case APIStation.G:
+            return STATION.G;
+        case APIStation.H:
+            return STATION.H;
+        case APIStation.I:
+            return STATION.I;
+    }
+}
 export function convertAPIItemToDish(item:APIItem){
     return {
         id: item.id,
         name: item.name,
-        station: item.station as STATION,
+        station: convertAPIStationToStation(item.station),
         category: getCategoryOfAPIItem(item),
         nutrition: {
             sugar: item.nutrition.sugar,

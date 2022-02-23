@@ -81,6 +81,7 @@ function useUserActions () {
     }
     async function mealsByTime(timeInfo:TimeInfo){
         const endpoint = `${baseUrl}/api/meals/?date=${encodeURIComponent(timeInfo.date)}&group=${encodeURIComponent(mealToAPIForm(timeInfo.meal))}`
+        console.log("MEALS BY TIME:",endpoint)
         // console.log({endpoint})
         const resp = await fetchWrapper.get(endpoint)
         if(resp.error) throw new Error(resp.message)
