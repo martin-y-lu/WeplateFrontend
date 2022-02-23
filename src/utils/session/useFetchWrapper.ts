@@ -9,7 +9,9 @@ export const authAtom = atom({
 export { useFetchWrapper };
 
 function useFetchWrapper() {
-    const [auth, setAuth] = useRecoilState(authAtom);
+    const [auth, setAuth] = useRecoilState<{
+        token: string
+    }>(authAtom);
 
     return {
         get: request('GET'),

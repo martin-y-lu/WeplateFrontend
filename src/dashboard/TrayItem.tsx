@@ -5,6 +5,7 @@ import { Swipeable } from "react-native-gesture-handler"
 import { SvgXml } from "react-native-svg"
 import { useRef } from "react"
 import { useUserActions } from "../utils/session/useUserActions"
+import { BASE_PORTION_FILL_FRACTION } from "../dining-menu/DiningMenu";
 
 const thumbs_down_xml = `<svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
 <rect x="21.5312" y="1.4375" width="5.5625" height="12.125" rx="1" fill="white"/>
@@ -25,7 +26,7 @@ const TrayItem = ( props : {isTop ?: boolean, number: number,portion: Portion, d
     if(dish!= null){
         const dishName = dish.name
         const station = dish.station
-        const calories = dish.nutritionSummary.calories *( dish?.portion?.weight ?? 200)
+        const calories = dish.nutritionSummary.calories *( dish?.portion?.fillFraction ?? BASE_PORTION_FILL_FRACTION)
         const color = colorOfCategory(dish.category)
         async function castVote(positive:boolean){
             swipeableRef.current.close()
@@ -114,7 +115,7 @@ const TrayItem = ( props : {isTop ?: boolean, number: number,portion: Portion, d
                         color : "#A4A4A4",
                         marginLeft: 5, 
                     }}>
-                        {calories} calories
+                        {Math.ceil(calories)} calories
                     </Text>
                 </View>
             </TouchableOpacity>

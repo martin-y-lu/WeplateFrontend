@@ -181,9 +181,13 @@ function useUserActions () {
     }
 
 
-    function logout() {
+    async function logout() {
         // remove user from local storage, set auth state to null and redirect to login page
-        localStorage.removeItem('user');
+        await setPersistentState({
+            ...persistentState,
+            email: null,
+            password: null,
+        })
         setAuth(null);
         // history.push('/login');
     }

@@ -18,7 +18,7 @@ export interface APIMealEvent {
     timestamp: APITimestamp,
     id: APIKey,
 }
-export enum APIFoodCategory {carbohydrate = "carbohydrate",protein = "protein",vegetable="vegetable"}
+export enum APIFoodCategory {carbohydrate = "grains",protein = "protein",vegetable="vegetable"}
 export interface APIMealSuggestEntry {
     category: APIFoodCategory,
     items: Array<APIKey>,

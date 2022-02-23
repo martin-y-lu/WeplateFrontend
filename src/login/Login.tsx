@@ -99,14 +99,18 @@ const Login = ({navigation})=>{
       return
     }
 
-    setMessage("")
-    await setPersistentState({
-      email,
-      password,
-    })
-
-
-    navigation.navigate("SidebarNavigable",{screen:"Dashboard"})
+    try{
+      await userActions.login(email,password) 
+      setMessage("")
+      await setPersistentState({
+        email,
+        password,
+      })
+      navigation.navigate("SidebarNavigable",{screen:"Dashboard"})
+    }catch(e){
+      setMessage("Invalid email or password")
+      return;
+    }
     // navigation.navigate("SidebarNavigable",{screen:"--DEBUG--"})
   }
   const [user,_setUser] = useRecoilState(usersAtom)
@@ -403,7 +407,7 @@ const Login = ({navigation})=>{
                 </TouchableWithoutFeedback>
                 <View style={{ backgroundColor:"white", height:60,marginTop:"auto"}}>
                   <View flexDirection = 'row' style = {{height: "100%",alignItems:"center"}}> 
-                    <TouchableOpacity style= {{marginBottom:10}} onPress={ () => setState(2)}>
+                    <TouchableOpacity style= {{marginBottom:10}} onPress={ () => {setState(2); setMessage("")}}>
                       <Text style = {{color:'#B1B1B1', paddingVertical:10, marginHorizontal:20, fontSize: 15}}>I already have an account</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style = {styles.continue_button} onPress = {onRegisterPress}>
@@ -478,7 +482,7 @@ const Login = ({navigation})=>{
                 {/* </KeyboardAvoidingView> */}
                 <View>
                 <View flexDirection = 'row' style = {{height: '30%'}}> 
-                  <TouchableOpacity style= {{marginBottom:10}} onPress={ () => setState(1) }>
+                  <TouchableOpacity style= {{marginBottom:10}} onPress={ () =>{ setState(1); setMessage("")} }>
                     <Text style = {{color:'#B1B1B1', paddingVertical:10, marginHorizontal:20, fontSize: 15}}>Create a new account</Text>
                   </TouchableOpacity>
                   <TouchableOpacity style = {styles.continue_button}  onPress = {onLoginPress}>

@@ -17,7 +17,7 @@ export function colorOfCategory(category: FOOD_CATEGORY){
     }
     return color 
 }
-import {leaf_xml,bread_xml,meat_xml} from '../dining-menu/DiningMenu'
+import {leaf_xml,bread_xml,meat_xml, BASE_PORTION_FILL_FRACTION} from '../dining-menu/DiningMenu'
 import React from "react"
 export function iconOfCategory(category: FOOD_CATEGORY){
     switch(category){
@@ -217,7 +217,7 @@ export const NutritionFacts = (props) =>{
             <ScrollView style = {{
                 maxHeight:500,
             }}>
-                <DataRow height = {30} name = "Calories" mealState = {mealState} selector = {(dish:Dish)=> (dish.nutritionSummary.calories *(dish?.portion?.weight ?? 200) )}  />
+                <DataRow height = {30} name = "Calories" mealState = {mealState} selector = {(dish:Dish)=> (dish.nutritionSummary.calories *(dish?.portion?.fillFraction ?? BASE_PORTION_FILL_FRACTION) )}  />
                 <DataRow height = {30} name = "Total Fat" unit = "g" mealState = {mealState} selector = {(dish:Dish)=> dish.nutritionSummary.totalFat}  />
                 <DataRow height = {30} name = "    Saturated Fat" bold = {false}unit = "g" color = "#A6A6A6" mealState = {mealState} selector = {(dish:Dish)=> dish.nutritionSummary.saturatedFat}  />
                 <DataRow height = {30} name = "    Trans Fat" bold = {false}unit = "g" color = "#A6A6A6" mealState = {mealState} selector = {(dish:Dish)=> dish.nutritionSummary.transFat}  />

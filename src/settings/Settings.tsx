@@ -10,6 +10,7 @@ import { dateToString, stringToDate } from "../dashboard/state";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { authAtom } from "../utils/session/useFetchWrapper";
 import NumberPlease from "react-native-number-please";
+import { usePersistentAtom } from "../utils/state/userState";
 
 const empty_avatar_svg = `<svg width="65" height="72" viewBox="0 0 65 72" fill="none" xmlns="http://www.w3.org/2000/svg">
 <circle cx="32.5" cy="32.5391" r="32.5" fill="#A6A6A6"/>
@@ -48,8 +49,7 @@ const Settings = ({navigation})=>{
     async function setUser(newUser:APIUserSettings){
         _setUser(newUser)
         const res = await userActions.postUserSettings(newUser)
-        // console.log({res})
-        
+        // console.log({res}) 
     }
 
     function HeaderText(props){
@@ -65,8 +65,9 @@ const Settings = ({navigation})=>{
     }
     function SettingsEntry(props){
 
-        const {name,current} = props
+        const {name,current,onPress} = props
         const [_open,_setOpen] = useState(false)
+        const openable = props?.openable ?? true
         const open = props?.open ?? _open
         const setOpen = props?.setOpen ?? _setOpen
 
@@ -84,6 +85,9 @@ const Settings = ({navigation})=>{
             }}
                 onPress = {()=>{
                     setOpen(!open)
+                    if(onPress){
+                        onPress()
+                    }
                 }}
                 >
                 <Text style = {{
@@ -103,16 +107,20 @@ const Settings = ({navigation})=>{
                 }} ellipsizeMode = "tail" numberOfLines={1} >
                     {current}
                 </Text>
-                <View style = {{
-                    margin : 10,
-                    transform: [
-                        {
-                            rotate: open ? Math.PI/2 : 0
-                        }
-                    ]
-                }}>    
-                    <SvgXml xml = {arrow_svg}/>
-                </View>
+
+                {
+                    openable &&
+                    <View style = {{
+                        margin : 10,
+                        transform: [
+                            {
+                                rotate: open ? Math.PI/2 : 0
+                            }
+                        ]
+                    }}>    
+                        <SvgXml xml = {arrow_svg}/>
+                    </View>
+                }
             </TouchableOpacity>
             {
                open ? <View style = {{
@@ -247,6 +255,8 @@ const Settings = ({navigation})=>{
     }
 
     // console.log(user.birthdate)
+    // const [persistentState,setPersistentState,fetchPersistentState] = usePersistentAtom() as any
+
     return <ScrollView style={{ flex: 1,paddingLeft: 10,paddingRight:10 , backgroundColor: "white"}} 
                         contentContainerStyle = {{alignItems: 'flex-start',width:"100%"}}>
         <View style = {{
@@ -398,6 +408,17 @@ const Settings = ({navigation})=>{
                 })
             }}/>
         </SettingsEntry>
+        <HeaderText> Account </HeaderText>
+        <SettingsEntry name = "Log out" current = "" openable = {false} onPress = {()=>{
+            async function logOut(){
+                console.log("Logging out")
+                await userActions.logout()
+                navigation.navigate("Login")
+            }
+            logOut()
+        }}/>
+
+        <View style = {{ marginTop: 40,}}/>
         
     </ScrollView>
 }
