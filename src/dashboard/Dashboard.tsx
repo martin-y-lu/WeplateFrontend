@@ -476,7 +476,7 @@ const Dashboard = (props)=>{
                         fontSize: 20,
                         color: "#CE014E",
                     }}>
-                            {viewingPortions ? "Hide Portions" : "View portions"}
+                            {viewingPortions ? "Hide Portions" : "View Portions"}
                     </Text> 
                 </BaseButton>
                 {/* <View style = {{height: 20}}/> */}

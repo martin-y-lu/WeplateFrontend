@@ -7,6 +7,7 @@ import {
     getRecommendationsByPortion,
     getDishByPortion,
     setDishByPortion,
+    getNameOfStation,
 } from './typeUtil';
 export const SHADOW_STYLE = {
     backgroundColor:"white",
@@ -18,6 +19,7 @@ export const SHADOW_STYLE = {
 
 
 import { SvgXml } from "react-native-svg"
+import { BASE_PORTION_FILL_FRACTION } from "../dining-menu/DiningMenu";
 
 const ChangeMenuItem = (props : {modalOpen: Portion,setModalOpen?: (Portion) => void, mealState: MealState, setMealState: (MealState) => void ,setMealDishes : (newDishA: Dish, newDishB: Dish, newDishC: Dish) => Promise<void>}) =>{
     const {modalOpen, setModalOpen, mealState, setMealState,setMealDishes} = props
@@ -47,10 +49,10 @@ const ChangeMenuItem = (props : {modalOpen: Portion,setModalOpen?: (Portion) => 
             marginBottom: 5,
 
             padding:10,
-        }} onPress = {()=>{
+        }} onPress = {async ()=>{
             const tempMealState = setDishByPortion(mealState,modalOpen,item);
             // setMealState()
-            setMealDishes(tempMealState.dishA,tempMealState.dishB,tempMealState.dishC)
+            await setMealDishes(tempMealState.dishA,tempMealState.dishB,tempMealState.dishC)
             
             setModalOpen(null)// close modal
         }}>
@@ -81,13 +83,13 @@ const ChangeMenuItem = (props : {modalOpen: Portion,setModalOpen?: (Portion) => 
                         <Text style = {{
                             color: color ? "white" : "#C0C0C0"
                         }}>
-                            Station {item.station}
+                            Station {getNameOfStation(item.station)}
                         </Text>
                     </View>
                     <Text style = {{
                         color: color ? "white" : "#C0C0C0" 
                     }}>
-                        {item.nutritionSummary.calories} Calories
+                        {Math.ceil(item.nutritionSummary.calories*BASE_PORTION_FILL_FRACTION)} Calories
                     </Text>
                 </View>
             </View>

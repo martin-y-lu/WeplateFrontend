@@ -50,7 +50,7 @@ export interface APIAnalyticsMealChoiceEntry{
 }
 export enum APIMeals {"breakfast","lunch","dinner"}
 
-export enum APIStation {A = "HOMESTYLE", B = "ROOTED", C = "FYUL", D = "FLAME", E = "E",F = "F",G = "G",H = "H", I = "I"}
+export enum APIStation {A = "HOMESTYLE", B = "FRESH_52", C = "ROOTED", D= "FYUL", E = "FLAME", F = "500_DEGREES",G = "CARVED_AND_CRAFTED",H = "CUCINA",I = "SOUP"}
 export interface APIItem{
     ingredients: Array<APIKey>,
     name: string,

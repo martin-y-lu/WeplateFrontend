@@ -190,7 +190,8 @@ function totalBy(func: (Dish)=>number,mealState:MealState){
     return total
 }
 export const NutritionFacts = (props) =>{
-    const {mealState} : {mealState: MealState} = props
+    const {mealState} : {mealState: MealState} = props 
+    const nutrientScale = (dish:Dish)=> (dish?.portion?.fillFraction ?? BASE_PORTION_FILL_FRACTION) 
     return <NutritionFactsContainer disabled = {props?.disabled ?? false}> 
     <View style = {{
         width : "100%",
@@ -217,15 +218,15 @@ export const NutritionFacts = (props) =>{
             <ScrollView style = {{
                 maxHeight:500,
             }}>
-                <DataRow height = {30} name = "Calories" mealState = {mealState} selector = {(dish:Dish)=> (dish.nutritionSummary.calories *(dish?.portion?.fillFraction ?? BASE_PORTION_FILL_FRACTION) )}  />
-                <DataRow height = {30} name = "Total Fat" unit = "g" mealState = {mealState} selector = {(dish:Dish)=> dish.nutritionSummary.totalFat}  />
-                <DataRow height = {30} name = "    Saturated Fat" bold = {false}unit = "g" color = "#A6A6A6" mealState = {mealState} selector = {(dish:Dish)=> dish.nutritionSummary.saturatedFat}  />
-                <DataRow height = {30} name = "    Trans Fat" bold = {false}unit = "g" color = "#A6A6A6" mealState = {mealState} selector = {(dish:Dish)=> dish.nutritionSummary.transFat}  />
-                <DataRow height = {30} name = "Cholesterol" unit = "mg" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.cholesterol}  />
-                <DataRow height = {30} name = "Sodium" unit = "mg" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.sodium}  />
-                <DataRow height = {30} name = "Carbohydrates" unit = "mg" mealState = {mealState} selector = {(dish:Dish)=> dish.nutritionSummary.carbohydrates}  />
-                <DataRow height = {30} name = "    Dietary Fiber" bold = {false}unit = "g" color = "#A6A6A6" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.dietaryFiber}  />
-                <DataRow height = {30} name = "    Total Sugar" bold = {false}unit = "g" color = "#A6A6A6" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.sugar}  />
+                <DataRow height = {30} name = "Calories" mealState = {mealState} selector = {(dish:Dish)=> (dish.nutritionSummary.calories*nutrientScale(dish))}  />
+                <DataRow height = {30} name = "Total Fat" unit = "g" mealState = {mealState} selector = {(dish:Dish)=> dish.nutritionSummary.totalFat*nutrientScale(dish)}  />
+                <DataRow height = {30} name = "    Saturated Fat" bold = {false}unit = "g" color = "#A6A6A6" mealState = {mealState} selector = {(dish:Dish)=> dish.nutritionSummary.saturatedFat*nutrientScale(dish)}  />
+                <DataRow height = {30} name = "    Trans Fat" bold = {false}unit = "g" color = "#A6A6A6" mealState = {mealState} selector = {(dish:Dish)=> dish.nutritionSummary.transFat*nutrientScale(dish)}  />
+                <DataRow height = {30} name = "Cholesterol" unit = "mg" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.cholesterol*nutrientScale(dish)}  />
+                <DataRow height = {30} name = "Sodium" unit = "mg" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.sodium*nutrientScale(dish)}  />
+                <DataRow height = {30} name = "Carbohydrates" unit = "mg" mealState = {mealState} selector = {(dish:Dish)=> dish.nutritionSummary.carbohydrates*nutrientScale(dish)}  />
+                <DataRow height = {30} name = "    Dietary Fiber" bold = {false}unit = "g" color = "#A6A6A6" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.dietaryFiber*nutrientScale(dish)}  />
+                <DataRow height = {30} name = "    Total Sugar" bold = {false}unit = "g" color = "#A6A6A6" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.sugar*nutrientScale(dish)}  />
                 <DataRow height = {30} name = "Protein" unit = "mg" mealState = {mealState} selector = {(dish:Dish)=> dish.nutritionSummary.protein}  />
             </ScrollView>
         </View>
