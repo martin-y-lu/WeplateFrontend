@@ -8,6 +8,7 @@ import {
     getDishByPortion,
     setDishByPortion,
     getNameOfStation,
+    fullVolumeByPortion,
 } from './typeUtil';
 export const SHADOW_STYLE = {
     backgroundColor:"white",
@@ -20,6 +21,7 @@ export const SHADOW_STYLE = {
 
 import { SvgXml } from "react-native-svg"
 import { BASE_PORTION_FILL_FRACTION } from "../dining-menu/DiningMenu";
+import { formatNumber } from "../utils/math";
 
 const ChangeMenuItem = (props : {modalOpen: Portion,setModalOpen?: (Portion) => void, mealState: MealState, setMealState: (MealState) => void ,setMealDishes : (newDishA: Dish, newDishB: Dish, newDishC: Dish) => Promise<void>}) =>{
     const {modalOpen, setModalOpen, mealState, setMealState,setMealDishes} = props
@@ -89,7 +91,7 @@ const ChangeMenuItem = (props : {modalOpen: Portion,setModalOpen?: (Portion) => 
                     <Text style = {{
                         color: color ? "white" : "#C0C0C0" 
                     }}>
-                        {Math.ceil(item.nutritionSummary.calories*BASE_PORTION_FILL_FRACTION)} Calories
+                        {formatNumber(item.nutritionSummary.calories *BASE_PORTION_FILL_FRACTION * fullVolumeByPortion(portion)/item.portion_volume)} Calories
                     </Text>
                 </View>
             </View>

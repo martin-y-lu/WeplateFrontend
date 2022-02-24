@@ -90,7 +90,7 @@ function useUserActions () {
     }
     async function mealById(id:number){
         const endpoint = `${baseUrl}/api/meals/${encodeURIComponent(id)}/`
-        // console.log({endpoint})
+        console.log({endpoint})
         const resp = await fetchWrapper.get(endpoint)
         return resp as APIMealEvent
     }
@@ -101,6 +101,7 @@ function useUserActions () {
     }
     async function portionSuggestionByItemID(small1: number, small2: number, large: number){
         const endpoint = `${baseUrl}/api/suggest/portions/?small1=${encodeURIComponent(small1)}&small2=${encodeURIComponent(small2)}&large=${large}`
+        console.log(endpoint)
         const resp = await fetchWrapper.get(endpoint)
         return resp as APIPortionSuggest;
     }

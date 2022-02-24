@@ -20,7 +20,7 @@ import Tooltip from "./tooltip/components/Tooltip";
 import { APIMealByTimePayload, APIMealSuggest, APIMealSuggestEntry } from '../utils/session/apiTypes';
 import { NutritionFacts } from "./NutritionFacts";
 import { SvgXml } from "react-native-svg";
-import { persistentAtom, usePersistentAtom } from "../utils/state/userState";
+import { usePersistentAtom } from "../utils/state/userState";
 import { useLogin } from '../debug/Debug';
 
 const drag_icon_svg = `<svg width="59" height="55" viewBox="0 0 59 55" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -133,11 +133,11 @@ const Dashboard = (props)=>{
             }else{
                 const portions = await userActions.portionSuggestionByItemID(newDishA.id,newDishB.id,newDishC.id);
                 // console.log({portions})
-                const dishAPortion = getPortionInfoFromAPIPortionInfo(portions.small1,Portion.A);
+                const dishAPortion = getPortionInfoFromAPIPortionInfo(newDishA,portions.small1,Portion.A);
                 const dishA= {...newDishA ,portion: dishAPortion}
-                const dishBPortion = getPortionInfoFromAPIPortionInfo(portions.small2,Portion.B);
+                const dishBPortion = getPortionInfoFromAPIPortionInfo(newDishB,portions.small2,Portion.B);
                 const dishB= {...newDishB ,portion: dishBPortion}
-                const dishCPortion = getPortionInfoFromAPIPortionInfo(portions.large,Portion.C);
+                const dishCPortion = getPortionInfoFromAPIPortionInfo(newDishC,portions.large,Portion.C);
                 const dishC = {...newDishC,portion: dishCPortion}
                 
                 const newMealState :MealState = {
@@ -246,24 +246,26 @@ const Dashboard = (props)=>{
                 dishB = getDishByIdFromList(recommendationB,recentEntry.small2)
                 dishC = getDishByIdFromList(recommendationC,recentEntry.large)
             }
-            // console.log("DISHA :",dishA)
-            // console.log("DISHB :",dishB)
-            // console.log("DISHC :",dishC)
-
+            
             if(dishA === null || dishB === null || dishC == null){
                 // console.log("issue with prevEntries, failing gracefully")
                 dishA = recommendationA[0]
                 dishB = recommendationB[0]
                 dishC = recommendationC[0] 
             }
-
-           
-
-            if(dishA?.portion === null || dishB?.portion === null || dishC?.portion === null){
+            
+            
+            console.log("DISHA :",dishA)
+            console.log("DISHB :",dishB)
+            console.log("DISHC :",dishC)
+            console.log(dishA?.portion,dishB?.portion,dishC?.portion)
+            if(dishA?.portion === undefined || dishB?.portion === undefined || dishC?.portion === undefined){
+                // console.log("FETCHING SIZES")
+                // setMealDishes(dishA,dishB,dishC)
                 const portions = await userActions.portionSuggestionByItemID(dishA.id,dishB.id,dishC.id);
-                dishA.portion = getPortionInfoFromAPIPortionInfo(portions.small1,Portion.A);
-                dishB.portion = getPortionInfoFromAPIPortionInfo(portions.small2,Portion.B);
-                dishC.portion = getPortionInfoFromAPIPortionInfo(portions.large,Portion.C);
+                dishA.portion = getPortionInfoFromAPIPortionInfo(dishA, portions.small1,Portion.A);
+                dishB.portion = getPortionInfoFromAPIPortionInfo(dishB,portions.small2,Portion.B);
+                dishC.portion = getPortionInfoFromAPIPortionInfo(dishC,portions.large,Portion.C);
             }
             
             // console.log(dishes)
@@ -338,30 +340,28 @@ const Dashboard = (props)=>{
 
     //Update portionview state
     useEffect(()=>{
+        const BASE_FILL_FRACTION = 0.5;
         if(mealState?.dishA){
             setTopCategory(mealState.dishA.category)
             // console.log("Top Category:",mealState.dishA)
-            if(mealState?.dishA?.portion?.fillFraction){
-                animateTopLeftSize(mealState.dishA.portion.fillFraction,{duration:400})
-            }
+            const fillFraction = mealState?.dishA?.portion?.fillFraction?? BASE_FILL_FRACTION
+            animateTopLeftSize(fillFraction,{duration:400})
         }else{
             animateTopLeftSize(0,{duration:100})
         }
         if(mealState?.dishB){
             // console.log("Bottom Category:",mealState.dishB.category,)
             setBottomCategory(mealState.dishB.category)
-            if(mealState?.dishB?.portion?.fillFraction){
-                animateBottomLeftSize(mealState.dishB.portion.fillFraction,{duration:400})
-            }
+            const fillFraction = mealState?.dishB?.portion?.fillFraction?? BASE_FILL_FRACTION
+            animateBottomLeftSize(fillFraction,{duration:400})
         }else{
             animateBottomLeftSize(0,{duration: 100})
         }
         if(mealState?.dishC){
             // console.log("Right Category:",mealState.dishC.category,)
             setRightCategory(mealState.dishC.category)
-            if(mealState?.dishC?.portion?.fillFraction){
-                animateRightSize(mealState.dishC.portion.fillFraction,{duration:400})
-            }
+            const fillFraction = mealState?.dishC?.portion?.fillFraction?? BASE_FILL_FRACTION
+            animateRightSize(fillFraction,{duration:400})
         }else{
             animateRightSize(0,{duration:100})
         }

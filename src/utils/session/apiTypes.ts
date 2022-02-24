@@ -50,7 +50,7 @@ export interface APIAnalyticsMealChoiceEntry{
 }
 export enum APIMeals {"breakfast","lunch","dinner"}
 
-export enum APIStation {A = "HOMESTYLE", B = "FRESH_52", C = "ROOTED", D= "FYUL", E = "FLAME", F = "500_DEGREES",G = "CARVED_AND_CRAFTED",H = "CUCINA",I = "SOUP"}
+export enum APIStation {A = "HOMESTYLE", B = "ROOTED", C= "FYUL", D = "FLAME",E = "CARVED AND CRAFTED", F = "500 DEGREES"}
 export interface APIItem{
     ingredients: Array<APIKey>,
     name: string,
@@ -58,6 +58,8 @@ export interface APIItem{
     id: APIKey,
     school: APISchool,
     station : APIStation,
+    portion_weight : number,
+    portion_volume : number,
 }
 export interface APIIngredient{
     name: string,
@@ -152,7 +154,7 @@ export interface APIUserSettings{
     health_goal: APIHealthGoal,
     activity_level: APIActivityLevel,
     grad_year: number,
-    school : APIKey
+    school : APIKey,
 }
 export interface APIRegisterSettings{
     ban: APIUserItemPref[],

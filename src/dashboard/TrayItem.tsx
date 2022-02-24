@@ -26,7 +26,8 @@ const TrayItem = ( props : {isTop ?: boolean, number: number,portion: Portion, d
     if(dish!= null){
         const dishName = dish.name
         const station = dish.station
-        const calories = dish.nutritionSummary.calories *( dish?.portion?.fillFraction ?? BASE_PORTION_FILL_FRACTION)
+        const fillFraction = dish?.portion?.fillFraction ?? BASE_PORTION_FILL_FRACTION 
+        const calories = dish.nutritionSummary.calories *( dish?.portion?.nutrientFraction ?? BASE_PORTION_FILL_FRACTION)
         const color = colorOfCategory(dish.category)
         async function castVote(positive:boolean){
             swipeableRef.current.close()
@@ -116,6 +117,12 @@ const TrayItem = ( props : {isTop ?: boolean, number: number,portion: Portion, d
                         marginLeft: 5, 
                     }}>
                         {Math.ceil(calories)} calories
+                    </Text>
+                    <Text style = {{
+                        color : "#A4A4A4",
+                        marginLeft: 5, 
+                    }}>
+                        {fillFraction} fill
                     </Text>
                 </View>
             </TouchableOpacity>

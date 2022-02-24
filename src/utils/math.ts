@@ -12,3 +12,7 @@ export function interp(a,b,A,B,v){
 export function closest(val,vals){
     return vals.sort((a,b) => Math.abs(a-val)- Math.abs(b - val))[0]
 }
+
+export function formatNumber(num:number){
+    return num.toFixed(0)
+}

@@ -87,7 +87,7 @@ const NutritionFactsContainer = (props) =>{
         <Animated.View style = {{
             width: dim.width,
             height: dim.height-TOP_Y,
-            maxHeight: dim.height-TOP_Y,
+            // maxHeight: dim.height-TOP_Y,
             ...SHADOW_STYLE,
             alignItems: 'center',
             position: 'absolute',

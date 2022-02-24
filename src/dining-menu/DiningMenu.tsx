@@ -9,8 +9,9 @@ import { APIMealByTimeEvent, APIMealByTimePayload } from '../utils/session/apiTy
 import { useUserActions } from '../utils/session/useUserActions';
 import { authAtom } from '../utils/session/useFetchWrapper';
 import { useLogin } from '../debug/Debug';
+import { formatNumber } from '../utils/math';
 
-export const BASE_PORTION_FILL_FRACTION = 0.5
+export const BASE_PORTION_FILL_FRACTION = 0.7
 
 export const leaf_xml = `<svg width="60" height="39" viewBox="0 0 60 39" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path opacity="1" d="M23.5714 22.5714C22.7827 20.5256 21.9319 18.7338 21.0627 17.1739M13.0348 8.31129C14.6037 8.97479 17.9506 11.5884 21.0627 17.1739M21.0627 17.1739C25.0767 9.32987 19.5575 4.23696 16.0453 3.21838C12.5331 2.1998 7.01394 1.69051 3 2.1998C7.51568 9.32976 5.00697 12.3855 9.02091 16.4598C12.2321 19.7193 16.0453 20.1946 17.5505 20.0249"  stroke-width="3" stroke-linecap="round"/>
@@ -99,8 +100,8 @@ const FoodItem = ({foodName, type, calorieCount, station}) => (
         <View>
             <Text style={styles.foodName}>{foodName}</Text>
 
-            {station ? <Text style={styles.calorieCount}>Station {getNameOfStation(station)}<Text/><Text style={{color: 'black', fontWeight: '600'}}> | </Text>{calorieCount} Calories</Text> 
-            : <Text style={styles.calorieCount}>{Math.ceil(calorieCount)} Calories</Text> }
+            {station ? <Text style={styles.calorieCount}>Station {getNameOfStation(station)}<Text/><Text style={{color: 'black', fontWeight: '600'}}> | </Text>{formatNumber(calorieCount)} Calories</Text> 
+            : <Text style={styles.calorieCount}>{formatNumber(calorieCount)} Calories</Text> }
             
         </View>
         

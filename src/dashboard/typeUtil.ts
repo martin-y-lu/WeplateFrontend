@@ -6,14 +6,11 @@ export enum STATION{A = "A", B = "B", C = "C", D = "D", E = "E", F = "F", G = "G
 
 export function getNameOfStation( station: STATION){
     return {A: "Homestyle",
-            B: "Fresh 52",
-            C: "Rooted",
-            D: "FYUL",
-            E: "FLAME",
+            B: "Rooted",
+            C: "FYUL",
+            D: "FLAME",
+            E: "Carved and crafted",
             F:   "500 Degrees",
-            G:    "Cucina",
-            H: "Carved and crafted",
-            I:    "Soup",
             }[station]
 }
 
@@ -25,10 +22,10 @@ export function getMealsIndex(meal:MEALS){
     }
 }
 export interface NutritionInfo{
-    sugar ?: number,
-    cholesterol ?: number,
-    dietaryFiber ?: number,
-    sodium ?: number,
+    sugar ?: number, //
+    cholesterol ?: number, //
+    dietaryFiber ?: number, //
+    sodium ?: number, //
     potassium ?: number,
     calcium ?: number,
     iron ?: number,
@@ -37,12 +34,12 @@ export interface NutritionInfo{
     vitaminA ?: number,
 }
 export interface NutritionSummaryInfo{
-    calories : number,
-    protein : number,
-    carbohydrates : number,
-    totalFat : number,
-    saturatedFat ?: number,
-    transFat ?: number
+    calories : number, //
+    protein : number, //
+    carbohydrates : number, //
+    totalFat : number, // 
+    saturatedFat ?: number, //
+    transFat ?: number //
 }
 
 export type Ingredients = Array<number>
@@ -50,6 +47,7 @@ export type Ingredients = Array<number>
 export interface PortionInfo{
     volume ?: number,
     fillFraction ?: number,
+    nutrientFraction ?: number,
     weight ?: number,
 }
 
@@ -61,6 +59,8 @@ export interface Dish{
     nutrition: NutritionInfo,
     nutritionSummary: NutritionSummaryInfo
     ingredients: Ingredients,
+    portion_weight: number,
+    portion_volume: number,
     portion?: PortionInfo,
 }
 export interface MealState {
@@ -94,12 +94,12 @@ export function convertAPIStationToStation(stat:APIStation){
             return STATION.E;
         case APIStation.F:
             return STATION.F;
-        case APIStation.G:
-            return STATION.G;
-        case APIStation.H:
-            return STATION.H;
-        case APIStation.I:
-            return STATION.I;
+        // case APIStation.G:
+        //     return STATION.G;
+        // case APIStation.H:
+        //     return STATION.H;
+        // case APIStation.I:
+        //     return STATION.I;
     }
 }
 export function convertAPIItemToDish(item:APIItem){
@@ -129,9 +129,11 @@ export function convertAPIItemToDish(item:APIItem){
             transFat: item.nutrition.trans_fat,
         },
         ingredients: item.ingredients,
-        portion:{
-            fillFraction:0.6,
-        }
+        portion_volume: item.portion_volume,
+        portion_weight: item.portion_weight,
+        // portion:{
+        //     fillFraction:0.6,
+        // }
     } as Dish
 }
 export function parseAPITimestamp(date:APITimestamp){
@@ -208,9 +210,10 @@ export function fullVolumeByPortion(portion: Portion){
     }
 }
 
-export function getPortionInfoFromAPIPortionInfo(info:APIPortionInfo,portion: Portion){
+export function getPortionInfoFromAPIPortionInfo(dish:Dish,info:APIPortionInfo,portion: Portion){
     return {
         fillFraction: info.volume/fullVolumeByPortion(portion),
+        nutrientFraction: info.volume/dish.portion_volume,
         volume: info.volume,
         weight: info.weight,
     } as PortionInfo

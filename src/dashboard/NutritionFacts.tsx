@@ -19,6 +19,7 @@ export function colorOfCategory(category: FOOD_CATEGORY){
 }
 import {leaf_xml,bread_xml,meat_xml, BASE_PORTION_FILL_FRACTION} from '../dining-menu/DiningMenu'
 import React from "react"
+import { formatNumber } from '../utils/math';
 export function iconOfCategory(category: FOOD_CATEGORY){
     switch(category){
         case(FOOD_CATEGORY.Carbohydrates):
@@ -175,10 +176,10 @@ const DataRow = (props :{height?: number,bold?:boolean,color ?: string, name ?: 
     const total = totalBy(selector,mealState)
     return <BaseRow height = {height} els = {[
         <Text style = {{ color , flexWrap:"wrap",fontWeight: bold ? "bold" : "normal"}} ellipsizeMode = "tail" numberOfLines={1}> {name} </Text>,
-        <BaseText color= {color} unit = {unit}> {Math.floor(mealState.dishA ? selector(mealState.dishA)??0 :0)}</BaseText>,
-        <BaseText color= {color} unit = {unit}> {Math.floor(mealState.dishB ? selector(mealState.dishB)??0 :0)}</BaseText>,
-        <BaseText color = {color } unit = {unit}> {Math.floor(mealState.dishC ? selector(mealState.dishC)??0 :0)}</BaseText>,
-        <BaseText bold color = {color} unit = {unit}> {Math.floor(total)}</BaseText>,
+        <BaseText color= {color} unit = {unit}> {formatNumber(mealState.dishA ? selector(mealState.dishA)??0 :0)}</BaseText>,
+        <BaseText color= {color} unit = {unit}> {formatNumber(mealState.dishB ? selector(mealState.dishB)??0 :0)}</BaseText>,
+        <BaseText color = {color } unit = {unit}> {formatNumber(mealState.dishC ? selector(mealState.dishC)??0 :0)}</BaseText>,
+        <BaseText bold color = {color} unit = {unit}> {formatNumber(total)}</BaseText>,
     ]}/>
 }
 
@@ -191,7 +192,7 @@ function totalBy(func: (Dish)=>number,mealState:MealState){
 }
 export const NutritionFacts = (props) =>{
     const {mealState} : {mealState: MealState} = props 
-    const nutrientScale = (dish:Dish)=> (dish?.portion?.fillFraction ?? BASE_PORTION_FILL_FRACTION) 
+    const nutrientScale = (dish:Dish)=> (dish?.portion?.nutrientFraction ?? BASE_PORTION_FILL_FRACTION) 
     return <NutritionFactsContainer disabled = {props?.disabled ?? false}> 
     <View style = {{
         width : "100%",
@@ -216,7 +217,10 @@ export const NutritionFacts = (props) =>{
                 <Text style = {{ color: "#747474", flexWrap:"wrap", fontWeight:"bold"}} ellipsizeMode = "tail" numberOfLines={1}> Total </Text>,
                 ]}/>
             <ScrollView style = {{
-                maxHeight:500,
+                flex:1,
+                flexGrow:1,
+                minHeight:300,
+                // maxHeight:500,
             }}>
                 <DataRow height = {30} name = "Calories" mealState = {mealState} selector = {(dish:Dish)=> (dish.nutritionSummary.calories*nutrientScale(dish))}  />
                 <DataRow height = {30} name = "Total Fat" unit = "g" mealState = {mealState} selector = {(dish:Dish)=> dish.nutritionSummary.totalFat*nutrientScale(dish)}  />
@@ -227,7 +231,13 @@ export const NutritionFacts = (props) =>{
                 <DataRow height = {30} name = "Carbohydrates" unit = "mg" mealState = {mealState} selector = {(dish:Dish)=> dish.nutritionSummary.carbohydrates*nutrientScale(dish)}  />
                 <DataRow height = {30} name = "    Dietary Fiber" bold = {false}unit = "g" color = "#A6A6A6" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.dietaryFiber*nutrientScale(dish)}  />
                 <DataRow height = {30} name = "    Total Sugar" bold = {false}unit = "g" color = "#A6A6A6" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.sugar*nutrientScale(dish)}  />
-                <DataRow height = {30} name = "Protein" unit = "mg" mealState = {mealState} selector = {(dish:Dish)=> dish.nutritionSummary.protein}  />
+                <DataRow height = {30} name = "Protein" unit = "mg" mealState = {mealState} selector = {(dish:Dish)=> dish.nutritionSummary.protein*nutrientScale(dish)}  />
+                <DataRow height = {30} name = "Potassium" unit = "mg" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.potassium*nutrientScale(dish)}  />
+                <DataRow height = {30} name = "Calcium" unit = "mg" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.calcium*nutrientScale(dish)}  />
+                <DataRow height = {30} name = "Iron" unit = "mg" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.iron*nutrientScale(dish)}  />
+                <DataRow height = {30} name = "Vitamin D" unit = "IU" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.vitaminD*nutrientScale(dish)}  />
+                <DataRow height = {30} name = "Vitamin C" unit = "mg" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.vitaminC*nutrientScale(dish)}  />
+                <DataRow height = {30} name = "Vitamin A" unit = "IU" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.vitaminA*nutrientScale(dish)}  />
             </ScrollView>
         </View>
     </View>
