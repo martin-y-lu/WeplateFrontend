@@ -4,6 +4,7 @@ import { SvgXml } from "react-native-svg"
 import { PanGestureHandler } from 'react-native-gesture-handler'
 import { closest, interp } from "../utils/math"
 import { SHADOW_STYLE } from './Dashboard'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 export const ARROW_ICON_SVG = '<svg width="30" height="18" viewBox="0 0 30 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M27.2019 15.101L15.101 3.00003L3.00007 15.101" stroke="#C2C2C2" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>'
 export const NutritionFactsContainerHiddenHeight = 85
@@ -11,11 +12,12 @@ const NutritionFactsContainer = (props) =>{
     const ALLOW_OPEN = !(props?.disabled ?? false);
 
     const dim = Dimensions.get('window')
+    const insets = useSafeAreaInsets()
     const HIDDEN_HEIGHT = NutritionFactsContainerHiddenHeight
     const SUFFICIENT_HIDE_LEVEL_GOING_UP = 0.1
     const SUFFICIENT_HIDE_LEVEL_GOING_DOWN = 0.8
     const TOP_Y = 100
-    const BOTTOM_Y = dim.height-HIDDEN_HEIGHT -HIDDEN_HEIGHT
+    const BOTTOM_Y = dim.height-HIDDEN_HEIGHT -65 - insets.top
     const [userSliding,setUserSliding] = useState(false)
     const [targetYValue,setTargetYValue] = useState(BOTTOM_Y)
     const [yValue,setYValue] = useState(new Animated.Value(BOTTOM_Y))
@@ -145,7 +147,7 @@ const NutritionFactsContainer = (props) =>{
             <View style = {{
                 alignSelf : "flex-start"
             }}>
-                { (closest(targetYValue,[TOP_Y,BOTTOM_Y])== TOP_Y) && props.children}
+                { ( (closest(targetYValue,[TOP_Y,BOTTOM_Y])== TOP_Y) || true) && props.children}
             </View>
         </Animated.View>
     </>

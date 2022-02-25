@@ -10,6 +10,7 @@ import { useUserActions } from '../utils/session/useUserActions';
 import { authAtom } from '../utils/session/useFetchWrapper';
 import { useLogin } from '../debug/Debug';
 import { formatNumber } from '../utils/math';
+import { LoadingIcon } from '../utils/Loading';
 
 export const BASE_PORTION_FILL_FRACTION = 0.7
 
@@ -32,75 +33,16 @@ export const meat_xml = `<svg width="53" height="53" viewBox="0 0 53 53" fill="n
 </svg>
 `
 
-// const 
-
-// const foods = [
-
-//     {
-//         foodName: 'Braised Cauliflower',
-//         type: "vegetable",
-//         calorieCount: 100
-//     },
-
-//     {
-//         foodName: 'Boiled Broccoli',
-//         type: "vegetable",
-//         calorieCount: 120
-//     },
-
-//     {
-//         foodName: 'Pickled Radishes',
-//         type: "vegetable",
-//         calorieCount: 80
-//     },
-
-//     {
-//         foodName: 'Mixed Greens',
-//         type: "vegetable",
-//         calorieCount: 80
-//     },
-
-//     {
-//         foodName: 'Garlic Naan',
-//         type: "grain",
-//         calorieCount: 200
-//     },
-    
-
-//     {
-//         foodName: 'Boiled Broccoli',
-//         type: "vegetable",
-//         calorieCount: 150,
-//         station: 'A'
-//     },
-    
-
-//     {
-//         foodName: 'Pickled Radishes',
-//         type: "vegetable",
-//         calorieCount: 150,
-//         station: 'A'
-//     },
-    
-
-//     {
-//         foodName: 'Mixed Greens',
-//         type: "vegetable",
-//         calorieCount: 150,
-//         station: 'A'
-//     },
-    
-
-// ]
-
-const FoodItem = ({foodName, type, calorieCount, station}) => (
-
-    <View style={styles.foodItem}>
+const FoodItem = ({foodName, type, calorieCount, station}) => {
+    const stationName = getNameOfStation(station);
+    const fontSize =   foodName.length> 20? 18: 20
+    // const fontSize =  foodName.length > 45? 10: foodName.length > 35 ? 12: foodName.length> 20? 15: 20
+    return <View style={styles.foodItem}>
 
         <View>
-            <Text style={styles.foodName}>{foodName}</Text>
+            <Text style={[styles.foodName,{fontSize,marginRight:60}]}>{foodName}</Text>
 
-            {station ? <Text style={styles.calorieCount}>Station {getNameOfStation(station)}<Text/><Text style={{color: 'black', fontWeight: '600'}}> | </Text>{formatNumber(calorieCount)} Calories</Text> 
+            {station ? <Text style={styles.calorieCount}>{ stationName.length <= 2 ?"Station " : null}{stationName}<Text/><Text style={{color: 'black', fontWeight: '600'}}> | </Text>{formatNumber(calorieCount)} Calories</Text> 
             : <Text style={styles.calorieCount}>{formatNumber(calorieCount)} Calories</Text> }
             
         </View>
@@ -116,7 +58,7 @@ const FoodItem = ({foodName, type, calorieCount, station}) => (
 
     </View>
 
-);
+};
 
 const renderFood = ({item}) => {
     return (
@@ -130,19 +72,24 @@ const renderFood = ({item}) => {
 }
 
 const STATIONS = Object.keys(STATION)
-const DiningMenu = ({navigation})=> {
+const DiningMenu = ({navigation,route})=> {
     const auth = useRecoilValue(authAtom)
     useLogin(navigation)
 
-    const [currentStation,setCurrentStation] = useState(STATION.A);
+    // const [currentStation,setCurrentStation] = useState(STATION.A);
+    const currentStation = route?.params?.station ?? STATION.A
+    console.log(route.params)
     const [diningState,setDiningState] = useRecoilState(diningMenuState)
     const currentState = useRecoilValue(dashboardState);
     const {currentDate,currentMeal} = currentState
     const timeInfo : TimeInfo = { date: dateToString(currentDate), meal: currentMeal}
     const userActions = useUserActions()
+    const [loading,setLoading] = useState(false) 
     async function fetchMeals(){
         if(auth === null) return
+        if(loading) return
         const data :APIMealByTimePayload = await userActions.mealsByTime(timeInfo)
+        setLoading(true)
         if(data.length === 0){
             console.log("no data for today")
         }else{
@@ -154,11 +101,12 @@ const DiningMenu = ({navigation})=> {
                 dishes,
                 timeInfo: timeInfo
             });
+            setLoading(false)
         }
     }
 
     useEffect(()=>{
-        if(diningState.dishes === null ){
+        if(diningState.dishes === null && !loading){
             fetchMeals()
         }
     },[auth,timeInfo])
@@ -183,60 +131,11 @@ const DiningMenu = ({navigation})=> {
     },[diningState,currentStation])
 
 
-    const BUBBLE_HEIGHT = 30
-
-    function Bubble(props){
-        const color = props.color ?? "orange"
-        const text:string = props.text ?? ""
-        const onPress = props.onPress ?? (()=>{})
-        return <TouchableOpacity style = {{
-            marginLeft: 5,
-            height: BUBBLE_HEIGHT,
-            minWidth:BUBBLE_HEIGHT,
-            borderRadius: BUBBLE_HEIGHT/2,
-            backgroundColor: color,
-
-            justifyContent: "center",
-            alignItems: "center",
-            paddingLeft: text.length <= 1? 0:  10 ,
-            paddingRight: text.length <= 1? 0:  10 ,
-        }}
-            onPress = {onPress}
-        >
-            <Text style = {{
-                color: "white",
-                fontWeight: "bold",
-                fontSize: 18,
-            }}>
-                {text}
-            </Text>
-        </TouchableOpacity>
-    }
+  
     return (
     
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-            <View style = {{
-                marginTop:20,
-                height: 40,
-                width: "100%",
-                justifyContent: "flex-end",
-                alignContent: "center",
-                paddingLeft: 0,
-                paddingRight:10,
-                flexDirection:"row",
-            }}>
-
-            {
-                STATIONS.map( (station:STATION, id) => {
-                    const color = ["#CE014E","#FF5F00","#FDB812","#2FE056","#638CF4"][id%5] 
-                    return <Bubble key = {station} color = {color} text = {station === currentStation ?   getNameOfStation(station) : station }
-                        onPress = {()=>{
-                            setCurrentStation(station)
-                        }}
-                    />
-                })   
-            }   
-            </View>
+            {loading ? <LoadingIcon/> :
             <FlatList 
                 data = {foods}
                 showsVerticalScrollIndicator={false}
@@ -245,6 +144,7 @@ const DiningMenu = ({navigation})=> {
                 // keyExtractor={(item) => item.foodName}
                 style={{width: '100%'}}    
             />
+            }
             
         </View>
 

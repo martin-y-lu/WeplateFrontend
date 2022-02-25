@@ -187,19 +187,19 @@ export const Welcome2 = ({navigation})=>{
                 }}/>
             </View>
         </DropButton>
-        <DropButton name = "Height" value = {height ? height + " inches" : null}>         
+        <DropButton name = "Height" value = {height ? height + " cm" : null}>         
             <   NumberPlease pickerStyle = {{
                 width :"100%"
                 }}
-                digits = {[{id:"height", label: "inches",min: 0,max:1000}]} values = {[{id: "height" ,value:height ??50}]} onChange= {(values)=>{
+                digits = {[{id:"height", label: "cm",min: 0,max:1000}]} values = {[{id: "height" ,value:height ??50}]} onChange= {(values)=>{
                     setHeight(values[0].value)
             }}/>
         </DropButton>
-        <DropButton name = "Weight" value = {weight ? weight + " lbs" : null}>         
+        <DropButton name = "Weight" value = {weight ? weight + " kg" : null}>         
             <NumberPlease pickerStyle={{
                     width: "100%",    
                 }} 
-                digits = {[{id:"weight", label: "lbs",min: 0,max:1000}]} values = {[{id: "weight" ,value:weight ?? 140}]} onChange= {(values)=>{
+                digits = {[{id:"weight", label: "kg",min: 0,max:1000}]} values = {[{id: "weight" ,value:weight ?? 140}]} onChange= {(values)=>{
                     setWeight(values[0].value)
             }}/>
         </DropButton>
@@ -305,7 +305,7 @@ export const Welcome5 = ({navigation})=>{
     const [meals,setMeals] = useState([] as APIEveryMeal[])
     
    return <BaseWelcome>
-            <Text style={styles.sub_title}>Part 3:</Text>
+            <Text style={styles.sub_title}>Part 4:</Text>
             <Text style={styles.sub_title2}>Daily Meals</Text>
             <View style = {{width: 40,borderTopWidth:4,borderColor:"white",marginTop:5,marginBottom:5}}/>
             <Text style={styles.sub_title2}>From the following, select the meals that you normally have every day.</Text>
@@ -333,9 +333,9 @@ export const Welcome5 = ({navigation})=>{
 }
 export const Welcome6 = ({navigation})=>{
     const [user,_setUser] = useRecoilState(usersAtom)
-    const [mealLength,setMealLength] = useState(null as number)
+    const [mealLength,setMealLength] = useState(40 as number)
    return <BaseWelcome>
-        <Text style={styles.sub_title}>Part 3:</Text>
+        <Text style={styles.sub_title}>Part 5:</Text>
         <Text style={styles.sub_title2}>Meal Length</Text>
         <View style = {{width: 40,borderTopWidth:4,borderColor:"white",marginTop:5,marginBottom:5}}/>
         <Text style={styles.sub_title2}>How long do you generally take for each meal?</Text>
@@ -361,7 +361,7 @@ export const Welcome7 = ({navigation})=>{
     const [restrictions,setRestrictions] = useState([] as APIDietaryRestriction[])
     
    return <BaseWelcome>
-            <Text style={styles.sub_title}>Part 3:</Text>
+            <Text style={styles.sub_title}>Part 6:</Text>
             <Text style={styles.sub_title2}>Dietary Restrictions</Text>
             <View style = {{width: 40,borderTopWidth:4,borderColor:"white",marginTop:5,marginBottom:5}}/>
             <Text style={styles.sub_title2}> Which restrictions do you adhere to?</Text>
@@ -376,7 +376,7 @@ export const Welcome7 = ({navigation})=>{
             })
         }
 
-        { restrictions.length > 0 && <WelcomeButton onPress = {()=>{
+        { true && <WelcomeButton onPress = {()=>{
             _setUser({
                 ...user,
                 dietary_restrictions:restrictions
@@ -400,7 +400,7 @@ export const Welcome8 = ({navigation})=>{
     const [allergens,setAllergens] = useState([] as APIBaseAllergen[])
     
    return <BaseWelcome>
-            <Text style={styles.sub_title}>Part 3:</Text>
+            <Text style={styles.sub_title}>Part 7:</Text>
             <Text style={styles.sub_title2}>Allergies</Text>
             <View style = {{width: 40,borderTopWidth:4,borderColor:"white",marginTop:5,marginBottom:5}}/>
             {/* <Text style={styles.sub_title2}>P.</Text> */}
@@ -415,7 +415,7 @@ export const Welcome8 = ({navigation})=>{
             })
         }
 
-        { allergens.length > 0 && <WelcomeButton onPress = {()=>{
+        { true && <WelcomeButton onPress = {()=>{
             console.log({ingredients})
              const newData = allergens.map(el => {return {name: el, id : getId(el)}}).filter(el=> el.id !== null)
              function getId(allergenName){
@@ -436,9 +436,9 @@ export const Welcome8 = ({navigation})=>{
 }
 export const Welcome9 = ({navigation})=>{
     const [user,_setUser] = useRecoilState(usersAtom)
-    const [gradYear,setGradYear] = useState(null as number)
+    const [gradYear,setGradYear] = useState(2025)
    return <BaseWelcome>
-        <Text style={styles.sub_title}>Part 3:</Text>
+        <Text style={styles.sub_title}>Part 8:</Text>
         <Text style={styles.sub_title2}>More about you</Text>
         <View style = {{width: 40,borderTopWidth:4,borderColor:"white",marginTop:5,marginBottom:5}}/>
         <Text style={styles.sub_title2}>What is your graduation year? </Text>

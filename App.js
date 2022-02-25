@@ -22,6 +22,7 @@ import BaseHeader from "./src/utils/BaseHeader";
 import Debug from "./src/debug/Debug";
 import { CustomDrawerContent } from "./src/utils/DrawerContent";
 import { Welcome1, Welcome10, Welcome2, Welcome3, Welcome4, Welcome5, Welcome6, Welcome7, Welcome8, Welcome9 } from "./src/welcome/Welcome";
+import DiningMenuHeader from "./src/dining-menu/DiningMenuHeader";
 
 const Stack = createNativeStackNavigator()
 const Drawer = createDrawerNavigator();
@@ -49,7 +50,7 @@ const SidebarNavigable = ()=>{
             name = "Dining Menu"
             component = {DiningMenu}
             options = {{
-                header: (props) =>  <BaseHeader {...props}/>,
+                header: (props) =>  <DiningMenuHeader {...props}/>,
             }}
         />
         <Drawer.Screen

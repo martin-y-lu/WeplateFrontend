@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, FlatList } from "react-native";
+import { View, Text, TouchableOpacity, FlatList, Animated } from "react-native";
 import { colorOfCategory, iconOfCategory } from "./NutritionFacts";
 import {
     MealState,
@@ -22,15 +22,24 @@ export const SHADOW_STYLE = {
 import { SvgXml } from "react-native-svg"
 import { BASE_PORTION_FILL_FRACTION } from "../dining-menu/DiningMenu";
 import { formatNumber } from "../utils/math";
+import { useState } from "react";
+import {useEffect} from 'react';
+import { LoadingIcon } from "../utils/Loading";
+
+
+
 
 const ChangeMenuItem = (props : {modalOpen: Portion,setModalOpen?: (Portion) => void, mealState: MealState, setMealState: (MealState) => void ,setMealDishes : (newDishA: Dish, newDishB: Dish, newDishC: Dish) => Promise<void>}) =>{
     const {modalOpen, setModalOpen, mealState, setMealState,setMealDishes} = props
+    const [selectedDish,setSelectedDish] = useState(null);
     const portion = modalOpen
     const dishes = getRecommendationsByPortion(mealState,portion)
     const currentDish = getDishByPortion(mealState,portion)
     function renderDish({item , index}:{item:Dish, index : number}){
-        const color = item.id === currentDish.id ? colorOfCategory(item.category): null
+        const color = selectedDish != null ?  null : 
+                     item.id === currentDish.id ? colorOfCategory(item.category): null
         const icon = iconOfCategory(item.category)
+        const stationName = getNameOfStation(item.station)
         return <TouchableOpacity style = {{
             flex:1,
             flexGrow:1,
@@ -52,23 +61,29 @@ const ChangeMenuItem = (props : {modalOpen: Portion,setModalOpen?: (Portion) => 
 
             padding:10,
         }} onPress = {async ()=>{
-            const tempMealState = setDishByPortion(mealState,modalOpen,item);
-            // setMealState()
-            await setMealDishes(tempMealState.dishA,tempMealState.dishB,tempMealState.dishC)
-            
-            setModalOpen(null)// close modal
+            if(selectedDish == null){
+                setSelectedDish(item.id)
+                const tempMealState = setDishByPortion(mealState,modalOpen,item);
+                // setMealState()
+                await setMealDishes(tempMealState.dishA,tempMealState.dishB,tempMealState.dishC)
+                
+                setModalOpen(null)// close modal
+            }
         }}>
             <View style = {{
                 flexDirection:"column",
                 justifyContent: "center",
+                flexShrink: 1,
             }}>
                 <View style = {{
                     marginBottom: 4,
+                    flexShrink: 1,
                 }}>
                     <Text style ={{
-                        fontSize: 17,
+                        flexWrap:"wrap",
+                        fontSize: item.name.length> 25? 12:17,
                         fontWeight:"bold",
-                        color: color? "white": "#555555"
+                        color: color? "white": "#555555",
                     }}>
                         {item.name}
                     </Text>
@@ -85,7 +100,7 @@ const ChangeMenuItem = (props : {modalOpen: Portion,setModalOpen?: (Portion) => 
                         <Text style = {{
                             color: color ? "white" : "#C0C0C0"
                         }}>
-                            Station {getNameOfStation(item.station)}
+                            {stationName.length <=2?"Station" : null}{stationName}
                         </Text>
                     </View>
                     <Text style = {{
@@ -100,7 +115,12 @@ const ChangeMenuItem = (props : {modalOpen: Portion,setModalOpen?: (Portion) => 
                 justifyContent:"center",
                 alignContent:"center",
             }}>
-                <SvgXml stroke = {color ? "white" : "#D3D3D3"} xml = {icon}/>
+                {
+                    selectedDish == item.id ?
+                    <LoadingIcon/>:
+                    <SvgXml stroke = {color ? "white" : "#D3D3D3"} xml = {icon}/>
+                    
+                }
             </View>
         </TouchableOpacity>
     }

@@ -386,22 +386,22 @@ const Settings = ({navigation})=>{
             }}/>
         </SettingsEntry>
         
-        <SettingsEntry name = "Weight" current = {user?.weight+ " lbs"} >
+        <SettingsEntry name = "Weight" current = {user?.weight+ " kg"} >
             <NumberPlease pickerStyle={{
                     width: "100%",    
                 }} 
-                digits = {[{id:"weight", label: "lbs",min: 0,max:1000}]} values = {[{id: "weight" ,value:user?.weight}]} onChange= {(values)=>{
+                digits = {[{id:"weight", label: "kg",min: 0,max:1000}]} values = {[{id: "weight" ,value:user?.weight}]} onChange= {(values)=>{
                 setUser({   
                     ...user,
                     weight: values[0].value
                 })
             }}/>
         </SettingsEntry>
-        <SettingsEntry name = "Height" current = {user?.height+ " inches"} >
+        <SettingsEntry name = "Height" current = {user?.height+ " cm"} >
             <NumberPlease pickerStyle = {{
                     width :"100%"
                 }}
-                digits = {[{id:"height", label: "inches",min: 0,max:1000}]} values = {[{id: "height" ,value:user?.height}]} onChange= {(values)=>{
+                digits = {[{id:"height", label: "cm",min: 0,max:1000}]} values = {[{id: "height" ,value:user?.height}]} onChange= {(values)=>{
                 setUser({   
                     ...user,
                     height: values[0].value

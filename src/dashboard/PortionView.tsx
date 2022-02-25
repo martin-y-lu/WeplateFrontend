@@ -300,7 +300,7 @@ const PortionView = (props)=>{
 
     const loader = new OBJLoader()
     // const asset = Asset.fromModule(require(''))
-    const modelAsset = Asset.fromModule(require('./assets/weplate-v1.obj'))
+    const modelAsset = Asset.fromModule(require('./assets/weplate-v3.obj'))
     const model = await loader.loadAsync(modelAsset.uri)
     // console.log(model)
     const textureLoader = new TextureLoader();
@@ -392,11 +392,11 @@ const PortionView = (props)=>{
 
       const usePerspective = centralizeValue.current !== 1
       // const usePerspective = true
-      const fov1 = 0.2
+      const fov1 = 0.21
       const dist1 = 420
 
-      const fov2 = 75
-      const dist2 = 2.5
+      const fov2 = 60
+      const dist2 = 2.8
       if(usePerspective){      
         //interpolate fov such that when centralised, the projection is almost orthographic
         const fov = lerp(75,8,centralizeValue.current)
@@ -408,7 +408,7 @@ const PortionView = (props)=>{
         _perspectiveCamera.position.set(0,0,dist)
         _perspectiveCamera.updateProjectionMatrix()
       }else{
-        const MAGIC_NUMBER = 1.65
+        const MAGIC_NUMBER = 1.61
         const width = interp(fov1,fov2,dist1*Math.tan(degToRad(fov1)/2),dist2*Math.tan(degToRad(fov2)/2),0)*MAGIC_NUMBER
         // console.log(width)
         const height = width*gl.drawingBufferHeight/gl.drawingBufferWidth
@@ -430,27 +430,28 @@ const PortionView = (props)=>{
       }
     
       //lerp opacity of box
-      components.current["PlateBody"].material.opacity = lerp(0.5,0,centralizeValue.current)
+      components.current["PlateBody"].material.opacity = lerp(0.3,0,centralizeValue.current)
 
-      components.current["Right"].material.opacity= rightSizeTarg.current == 0 ? 0 : lerp(0.9,1,centralizeValue.current)
-      components.current["TopLeft"].material.opacity = topLeftSizeTarg.current == 0 ? 0:  lerp(0.9,1,centralizeValue.current)
-      components.current["BottomLeft"].material.opacity = bottomLeftSizeTarg.current == 0 ? 0 : lerp(0.9,1,centralizeValue.current)
+      components.current["Right"].material.opacity= rightSizeTarg.current == 0 ? 0 : lerp(0.93,1,centralizeValue.current)
+      components.current["TopLeft"].material.opacity = topLeftSizeTarg.current == 0 ? 0:  lerp(0.93,1,centralizeValue.current)
+      components.current["BottomLeft"].material.opacity = bottomLeftSizeTarg.current == 0 ? 0 : lerp(0.93,1,centralizeValue.current)
 
+      const WALL_HEIGHT = 1.2
       //set sizes of components
       let rightScale = lerp(rightSizeValue.current,1,centralizeValue.current)
       if(rightScale == 0) rightScale = 0.01 // prevent z fight
       components.current["Right"].scale.set(1,rightScale,1)
-      _rightSquare.position.set(0.6,0.4*rightScale - 0.2 +0.01,0)
+      _rightSquare.position.set(0.6,WALL_HEIGHT/2*rightScale - 0.2 +0.01,0)
 
       let topScale = lerp(topLeftSizeValue.current,1,centralizeValue.current)
       if(topScale == 0) topScale = 0.01
       components.current["TopLeft"].scale.set(1,topScale,1)
-      _topSquare.position.set(-0.6,0.4*topScale - 0.2 +0.01,-0.4)
+      _topSquare.position.set(-0.6,WALL_HEIGHT/2*topScale - 0.2 +0.01,-0.4)
 
       let bottomScale = lerp(bottomLeftSizeValue.current,1,centralizeValue.current);
       if(bottomScale == 0 ) bottomScale = 0.01
       components.current["BottomLeft"].scale.set(1,bottomScale,1)
-      _bottomSquare.position.set(-0.6,0.4*bottomScale - 0.2 +0.01,0.4)
+      _bottomSquare.position.set(-0.6,WALL_HEIGHT/2*bottomScale - 0.2 +0.01,0.4)
 
       
       renderer.render(scene,usePerspective? _perspectiveCamera : _orthographicCamera)

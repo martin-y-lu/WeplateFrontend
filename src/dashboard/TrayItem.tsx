@@ -21,11 +21,12 @@ const TrayItem = ( props : {isTop ?: boolean, number: number,portion: Portion, d
     const userActions = useUserActions()
     const {isTop, number, dish, disabled} = props
     let body = <></>
-
+    
     const swipeableRef = useRef(null)
     if(dish!= null){
         const dishName = dish.name
         const station = dish.station
+        const stationName = getNameOfStation(station)
         const fillFraction = dish?.portion?.fillFraction ?? BASE_PORTION_FILL_FRACTION 
         const calories = dish.nutritionSummary.calories *( dish?.portion?.nutrientFraction ?? BASE_PORTION_FILL_FRACTION)
         const color = colorOfCategory(dish.category)
@@ -89,11 +90,13 @@ const TrayItem = ( props : {isTop ?: boolean, number: number,portion: Portion, d
             <TouchableOpacity disabled = {disabled} style = {{
                 marginLeft: 10,
                 flexDirection: 'column',
+                flexShrink: 1,
+                paddingRight: 20,
             }} onPress = {()=>{
                 props.modalOpen(props.portion)
             }}>
                 <Text style = {{
-                    fontSize: 20,
+                    fontSize: dishName.length > 30? 15: 20,
                     color: color,
                 }}>
                     {dishName}
@@ -109,7 +112,7 @@ const TrayItem = ( props : {isTop ?: boolean, number: number,portion: Portion, d
                             color : "#A4A4A4",
                             marginRight: 5,
                         }}>
-                            Station {getNameOfStation(station)}
+                            {stationName.length<=2 ? "Station " : ""}{stationName}
                         </Text>
                     </View>
                     <Text style = {{
@@ -118,12 +121,12 @@ const TrayItem = ( props : {isTop ?: boolean, number: number,portion: Portion, d
                     }}>
                         {Math.ceil(calories)} calories
                     </Text>
-                    <Text style = {{
+                    {/* <Text style = {{
                         color : "#A4A4A4",
                         marginLeft: 5, 
                     }}>
                         {fillFraction} fill
-                    </Text>
+                    </Text> */}
                 </View>
             </TouchableOpacity>
         </Swipeable> 

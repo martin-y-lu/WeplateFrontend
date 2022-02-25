@@ -38,6 +38,7 @@ const NutritionKey = (props) =>{
     if(dish == null) return <></>
     const color = colorOfCategory(dish.category)
     return <View style = {{
+        flexShrink: 1,
         flexDirection: 'row',
         alignItems: "center",
         marginBottom: 10
@@ -59,7 +60,7 @@ const NutritionKey = (props) =>{
         </View>
         <Text style = {{
             color: "#747474",
-            fontSize: 16,
+            fontSize: dish.name.length > 35 ? 10: 16,
         }}>
             {dish.name}
         </Text>
@@ -207,7 +208,7 @@ export const NutritionFacts = (props) =>{
             width: "100%",
             paddingLeft: 20,
             paddingRight: 20,
-            alignSelf:"flex-end",
+            alignSelf:"flex-start",
         }}> 
             <BaseRow borderWidth = {0} els = {[
                 null,
