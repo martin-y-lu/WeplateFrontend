@@ -37,9 +37,10 @@ const ChangeMenuItem = (props : {modalOpen: Portion,setModalOpen?: (Portion) => 
     const currentDish = getDishByPortion(mealState,portion)
     function renderDish({item , index}:{item:Dish, index : number}){
         const color = selectedDish != null ?  null : 
-                     item.id === currentDish.id ? colorOfCategory(item.category): null
+        item.id === currentDish.id ? colorOfCategory(item.category): null
         const icon = iconOfCategory(item.category)
         const stationName = getNameOfStation(item.station)
+        const cals = item.nutritionSummary.calories *BASE_PORTION_FILL_FRACTION * fullVolumeByPortion(portion)/item.portion_volume
         return <TouchableOpacity style = {{
             flex:1,
             flexGrow:1,
@@ -103,11 +104,13 @@ const ChangeMenuItem = (props : {modalOpen: Portion,setModalOpen?: (Portion) => 
                             {stationName.length <=2?"Station" : null}{stationName}
                         </Text>
                     </View>
-                    <Text style = {{
-                        color: color ? "white" : "#C0C0C0" 
-                    }}>
-                        {formatNumber(item.nutritionSummary.calories *BASE_PORTION_FILL_FRACTION * fullVolumeByPortion(portion)/item.portion_volume)} Calories
-                    </Text>
+                    { isFinite(cals) &&
+                        <Text style = {{
+                            color: color ? "white" : "#C0C0C0" 
+                        }}>
+                            {formatNumber(cals)} Calories
+                        </Text>
+                    }
                 </View>
             </View>
             <View style = {{

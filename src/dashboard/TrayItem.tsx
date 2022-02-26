@@ -145,9 +145,9 @@ const TrayItem = ( props : {isTop ?: boolean, number: number,portion: Portion, d
                         // alignSelf: "flex-start",
                         // backgroundColor: "orange", 
                         // marginTop: 20,
-                        borderTopWidth: isTop ? 1: 0 ,
+                        borderTopWidth:  1 ,
                         borderBottomWidth:1,
-                        borderColor: "#EDEDED",
+                        borderColor: isTop ? "white" : "#EDEDED",
 
                     }}>
                         {body}

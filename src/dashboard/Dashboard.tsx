@@ -177,7 +177,7 @@ const Dashboard = (props)=>{
             setNoMeal({message})
         }else{
             const mealID = data[0].id as number;
-
+            console.log("MealID:",mealID)
             //TODONE make fetches concurrent
             // const mealEvent = await userActions.mealById(mealID);
             // const suggestion = await userActions.suggestionByMealId(mealID);
@@ -189,6 +189,11 @@ const Dashboard = (props)=>{
             // console.log({mealEvent})
             // debug purposes
             const dishes = mealEvent.items.map(convertAPIItemToDish)
+            if(dishes.length === 0){
+                setNoMeal({message:"Mo meals at this time!"})
+                return;
+            }
+            console.log("Dishes: ",dishes.length)
             function getDishByIdFromList(list:Dish[],id:number){
                 const dish = list.filter(dish=> dish.id === id)
                 if(dish.length === 1){
@@ -414,20 +419,25 @@ const Dashboard = (props)=>{
                 </Text> 
             </BaseButton>
          </View>
+    }else if (loading){
+        content = <>
+            <View style = {{height: 20}}/>
+            <LoadingIcon/>   
+        </>
     }else{
         const disableButtons = isPast;
 
         content = <> 
             <View style = {{height: 20}}/>
-            {loading && <LoadingIcon/>}
+            
             <CopilotStep text = "If our default suggestion isn’t to your liking, you can easily switch options here!" 
                 order = {2} name = "test:2">
                 <WalkableView>
                     <TrayItem disabled = {disableButtons} isTop number = {1} dish = {mealState.dishA} portion = {Portion.A} modalOpen = {setModalOpen}/>
                 </WalkableView>
             </CopilotStep>
-                <TrayItem disabled = {disableButtons} number = {2}  dish = {mealState.dishB} portion = {Portion.B} modalOpen = {setModalOpen} />
-                <TrayItem disabled = {disableButtons} number = {3}  dish = {mealState.dishC} portion = {Portion.C} modalOpen = {setModalOpen}/>
+            <TrayItem disabled = {disableButtons} number = {2}  dish = {mealState.dishB} portion = {Portion.B} modalOpen = {setModalOpen} />
+            <TrayItem disabled = {disableButtons} number = {3}  dish = {mealState.dishC} portion = {Portion.C} modalOpen = {setModalOpen}/>
             <CopilotStep text = {`At every meal, WePlate generates foods which are tailored for your needs and preferences.
                             Note: in addition to following our recommendations, use your best judgement when choosing foods.`} 
                 order = {0} name = "test:1">
