@@ -23,6 +23,7 @@ import Debug from "./src/debug/Debug";
 import { CustomDrawerContent } from "./src/utils/DrawerContent";
 import { Welcome1, Welcome10, Welcome2, Welcome3, Welcome4, Welcome5, Welcome6, Welcome7, Welcome8, Welcome9 } from "./src/welcome/Welcome";
 import DiningMenuHeader from "./src/dining-menu/DiningMenuHeader";
+import EditInfo from "./src/settings/EditInfo";
 
 const Stack = createNativeStackNavigator()
 const Drawer = createDrawerNavigator();
@@ -70,6 +71,11 @@ const SidebarNavigable = ()=>{
             }}
         />
         <Drawer.Screen
+            name = "EditInfo"
+            component = {EditInfo}
+            options={{ headerShown: false}}
+        />
+        <Drawer.Screen
             name = "About Us"
             component = {AboutUs}
             options = {{
@@ -91,7 +97,7 @@ const BaseApp = ()=>{
         }}>
             <Stack.Screen
                 name = "Login"
-                component={Login}
+                component={Login} //dont forget to change this when you finish working on settings
             />
             <Stack.Screen
                 name = "Survey"
