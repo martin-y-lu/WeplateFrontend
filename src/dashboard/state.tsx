@@ -40,10 +40,10 @@ export const dashboardState = atom({
     key: "dashboardState",
     
     default: {
-        currentDate: null,
-        currentMeal: null,
-        // currentDate: stringToDate("2030-02-14"),
-        // currentMeal: MEALS.Lunch,
+        // currentDate: null,
+        // currentMeal: null,
+        currentDate: stringToDate("2022-02-27"),
+        currentMeal: MEALS.Dinner,
         streakLength: 12
     }
 })
@@ -126,18 +126,18 @@ export const mealStateWithDateMeal =  (date: Date,meal: MEALS) => {
     const recC = makeRecommendationList()
     const state : MealState = {
         mealID: null,
-        // recommendationA: null,
-        // dishA: null,
-        // recommendationB: null,
-        // dishB: null,
-        // recommendationC: recC,
-        // dishC: null,
-        recommendationA: recA,
-        dishA: randomSelect(...recA),
-        recommendationB: recB,
-        dishB: randomSelect(...recB),
+        recommendationA: null,
+        dishA: null,
+        recommendationB: null,
+        dishB: null,
         recommendationC: recC,
-        dishC: randomSelect(...recC),
+        dishC: null,
+        // recommendationA: recA,
+        // dishA: randomSelect(...recA),
+        // recommendationB: recB,
+        // dishB: randomSelect(...recB),
+        // recommendationC: recC,
+        // dishC: randomSelect(...recC),
     }
     const mealState =  atom({
         key,

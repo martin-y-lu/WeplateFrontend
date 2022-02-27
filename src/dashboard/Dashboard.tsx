@@ -228,11 +228,16 @@ const Dashboard = (props)=>{
                 // console.log({entryCategory: entry.category})
                 return makeRecommendationList(entry.items as Array<number>,FoodCategoryFromAPIFoodCategory(entry.category))
             }
+            console.log("Suggestion:",suggestion)            
             const recommendationA = makeRecommendation(suggestion.small1)
             const recommendationB = makeRecommendation(suggestion.small2)
             const recommendationC = makeRecommendation(suggestion.large)
 
-            if (recommendationA.length == 0 || recommendationB.length == 0 || recommendationC.length == 0 ) throw new Error("Issue with suggestions!")
+            if (recommendationA.length == 0 || recommendationB.length == 0 || recommendationC.length == 0 ){
+                setNoMeal({message: "WePlate couldn't find any suggestions 😐"})
+                return
+                // throw new Error("Issue with suggestions!")
+            } 
 
             // get lateset
             let dishA = null;

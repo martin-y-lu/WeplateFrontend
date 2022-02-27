@@ -54,6 +54,7 @@ export interface PortionInfo{
 
 export interface Dish{
     id: number,
+    graphic?: string,
     name: string,
     station: STATION,
     category: FOOD_CATEGORY,
@@ -74,7 +75,7 @@ export interface MealState {
     dishC: Dish,
 }
 function getCategoryOfAPIItem(item:APIItem){
-    return FOOD_CATEGORY.Carbohydrates
+    return FoodCategoryFromAPIFoodCategory(item.category)
 }
 
 function toNum(num){
@@ -107,6 +108,7 @@ export function convertAPIItemToDish(item:APIItem){
     return {
         id: item.id,
         name: item.name,
+        graphic : item.graphic,
         station: convertAPIStationToStation(item.station),
         category: getCategoryOfAPIItem(item),
         nutrition: {

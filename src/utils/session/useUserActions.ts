@@ -96,6 +96,7 @@ function useUserActions () {
     }
     async function suggestionByMealId(id:number){
         const endpoint =  `${baseUrl}/api/suggest/${encodeURIComponent(id)}/items/`
+        console.log(endpoint)
         const resp = await fetchWrapper.get(endpoint)
         return resp as APIMealSuggest;
     }

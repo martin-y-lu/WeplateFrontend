@@ -3,6 +3,7 @@ import { FOOD_CATEGORY } from '../../dashboard/typeUtil';
 export type APIMealByTimePayload = Array<APIMealByTimeEvent>
 export type APIKey = number
 export type APITimestamp = string
+export type APILink = string
 
 export interface APIMealByTimeEvent {
     group: APIMeals,
@@ -52,11 +53,13 @@ export enum APIMeals {"breakfast","lunch","dinner"}
 
 export enum APIStation {A = "HOMESTYLE", B = "ROOTED", C= "FYUL", D = "FLAME",E = "CARVED AND CRAFTED", F = "500 DEGREES"}
 export interface APIItem{
+    graphic?: APILink
     ingredients: Array<APIKey>,
     name: string,
     nutrition: APINutrition,
     id: APIKey,
     school: APISchool,
+    category: APIFoodCategory,
     station : APIStation,
     portion_weight : number,
     portion_volume : number,

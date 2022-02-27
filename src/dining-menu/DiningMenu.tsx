@@ -1,7 +1,7 @@
 import { View, Text, Button, ScrollView, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { SvgXml } from "react-native-svg"
 import { useRecoilState, useRecoilValue } from "recoil";
-import { STATION, getNameOfStation, convertAPIItemToDish, FOOD_CATEGORY } from '../dashboard/typeUtil';
+import { STATION, getNameOfStation, convertAPIItemToDish, FOOD_CATEGORY, Dish } from '../dashboard/typeUtil';
 import { diningMenuState } from './state';
 import {useEffect, useState} from 'react';
 import { dashboardState, dateToString, TimeInfo } from '../dashboard/state';
@@ -32,41 +32,76 @@ export const meat_xml = `<svg width="53" height="53" viewBox="0 0 53 53" fill="n
 <ellipse cx="36.5649" cy="17.4382" rx="5.52339" ry="3.68226" transform="rotate(42.2057 36.5649 17.4382)" stroke-width="3"/>
 </svg>
 `
-
-const FoodItem = ({foodName, type, calorieCount, station}) => {
+const NutritionInfoEntry = ({name, value, unit})=>{
+    return   <View style = {{flexDirection: "row"}}>
+                    <Text style = {{ color: "#747474"}}>
+                        {name}
+                    </Text>
+                    <Text style = {{ color: "#515151", marginLeft: "auto"}}>
+                        {isFinite(value) && `${formatNumber(value)}${unit}` }
+                    </Text>
+                </View>
+}
+const FoodItem = ({dish} :{dish: Dish}) => {
+    const [open,setOpen] = useState(false)
+    const foodName= dish.name
+    const type= dish.category
+    const calorieCount= dish.nutritionSummary.calories
+    const station= dish.station
     const stationName = getNameOfStation(station);
     const fontSize =   foodName.length> 20? 18: 20
     // const fontSize =  foodName.length > 45? 10: foodName.length > 35 ? 12: foodName.length> 20? 15: 20
-    return <View style={styles.foodItem}>
-
-        <View>
-            <Text style={[styles.foodName,{fontSize,marginRight:60}]}>{foodName}</Text>
-
-            {station ? <Text style={styles.calorieCount}>{ stationName.length <= 2 ?"Station " : null}{stationName}<Text/><Text style={{color: 'black', fontWeight: '600'}}> | </Text>{formatNumber(calorieCount)} Calories</Text> 
-            : <Text style={styles.calorieCount}>{formatNumber(calorieCount)} Calories</Text> }
+    return <View style = {{backgroundColor: '#D3D3D3', marginTop: 20, marginLeft: 20, marginRight:20, borderRadius: 12}}>
+        <TouchableOpacity style={styles.foodItem} onPress = {()=>{setOpen(!open)}}>
+            <View>
+                <Text style={[styles.foodName,{fontSize,marginRight:60}]}>{foodName}</Text>
+                {station ? <Text style={styles.calorieCount}>{ stationName.length <= 2 ?"Station " : null}{stationName}<Text/><Text style={{color: 'black', fontWeight: '600'}}> | </Text>{formatNumber(calorieCount)} Calories</Text> 
+                : <Text style={styles.calorieCount}>{formatNumber(calorieCount)} Calories</Text> }
+            </View>
             
-        </View>
-        
-        { type == FOOD_CATEGORY.Vegetable ?
+            { type == FOOD_CATEGORY.Vegetable ?
 
-            <SvgXml style={{marginLeft: 'auto'}} stroke = "#C0C0C0" xml={leaf_xml} height="100%"/> 
+                <SvgXml style={{marginLeft: 'auto'}} stroke = "#C0C0C0" xml={leaf_xml} height="100%"/> 
+                
+            : type == FOOD_CATEGORY.Carbohydrates ? 
+                
+                <SvgXml style={{marginLeft: 'auto'}} stroke = "#C0C0C0" xml={bread_xml} height="100%"/>
+                
+            :
+                <SvgXml style={{marginLeft: 'auto'}} stroke = "#C0C0C0" xml={meat_xml} height="100%"/>
+            }
+
+        </TouchableOpacity>
+        {open && <View style = {{flexDirection:"column"}}>
             
-            :( type == FOOD_CATEGORY.Carbohydrates ? <SvgXml style={{marginLeft: 'auto'}} stroke = "#C0C0C0" xml={bread_xml} height="100%"/>:
-                 <SvgXml style={{marginLeft: 'auto'}} stroke = "#C0C0C0" xml={meat_xml} height="100%"/>)
-
-        }
-
+            <View style = {{flexDirection:"row", padding: 20, paddingLeft: 30 }}>
+                <View style = {{flexDirection: "column", flex: 1, paddingRight: 20,}}>
+                    <NutritionInfoEntry name = "Total Fats" value = {dish.nutritionSummary.totalFat} unit = "g"/>
+                    <NutritionInfoEntry name = "Saturated Fat" value = {dish.nutritionSummary.saturatedFat} unit = "g"/>
+                    <NutritionInfoEntry name = "Sugar" value = {dish.nutrition.sugar} unit = "g"/>
+                    <NutritionInfoEntry name = "Fiber" value = {dish.nutrition.dietaryFiber} unit = "g"/>
+                    <NutritionInfoEntry name = "Potassium" value = {dish.nutrition.potassium} unit = "mg"/>
+                    <NutritionInfoEntry name = "Iron" value = {dish.nutrition.iron} unit = "mg"/>
+                </View>
+                <View style = {{flexDirection: "column", flex: 1}}>
+                    <NutritionInfoEntry name = "Proteins" value = {dish.nutritionSummary.protein} unit = "g"/>
+                    <NutritionInfoEntry name = "Carbohydrates" value = {dish.nutritionSummary.carbohydrates} unit = "g"/>
+                    <NutritionInfoEntry name = "Cholesterol" value = {dish.nutrition.cholesterol} unit = "mg"/>
+                    <NutritionInfoEntry name = "Sodium" value = {dish.nutrition.sodium} unit = "mg"/>
+                    <NutritionInfoEntry name = "Calcium" value = {dish.nutrition.calcium} unit = "mg"/>
+                    <NutritionInfoEntry name = "Vitamin D" value = {dish.nutrition.vitaminD} unit = "IU"/>
+                </View>
+            </View>
+        </View>}
     </View>
 
 };
 
-const renderFood = ({item}) => {
+const renderFood = ({ item}) => {
     return (
         <FoodItem 
-            foodName={item.foodName}
-            type={item.type}
-            calorieCount={item.calorieCount}
-            station={item.station}
+            dish = {item}
+            
         />
     );
 }
@@ -85,6 +120,7 @@ const DiningMenu = ({navigation,route})=> {
     const timeInfo : TimeInfo = { date: dateToString(currentDate), meal: currentMeal}
     const userActions = useUserActions()
     const [loading,setLoading] = useState(false) 
+    const [noMealInfo,setNoMealInfo] = useState(null as {message: string})
     async function fetchMeals(){
         if(auth === null) return
         if(loading) return
@@ -92,6 +128,8 @@ const DiningMenu = ({navigation,route})=> {
         setLoading(true)
         if(data.length === 0){
             console.log("no data for today")
+            setNoMealInfo({message:"No menu for today."})
+            setLoading(false)
         }else{
             const mealID = data[0].id as number;
             const mealEvent = await userActions.mealById(mealID)
@@ -106,7 +144,7 @@ const DiningMenu = ({navigation,route})=> {
     }
 
     useEffect(()=>{
-        if(diningState.dishes === null && !loading){
+        if(diningState.dishes === null && !loading && noMealInfo == null){
             fetchMeals()
         }
     },[auth,timeInfo])
@@ -118,12 +156,12 @@ const DiningMenu = ({navigation,route})=> {
             
             const newFoods = diningState.dishes
                                 .filter(dish => dish.station === currentStation)
-                                .map( dish => {return {
-                                    foodName: dish.name,
-                                    type: dish.category,
-                                    station: dish.station,
-                                    calorieCount : dish.nutritionSummary.calories * BASE_PORTION_FILL_FRACTION
-                                }})
+                                // .map( dish => {return {
+                                //     foodName: dish.name,
+                                //     type: dish.category,
+                                //     station: dish.station,
+                                //     calorieCount : dish.nutritionSummary.calories * BASE_PORTION_FILL_FRACTION
+                                // }})
             console.log("Newfoods:",newFoods.length)
             setFoods(newFoods)
         }
@@ -135,7 +173,15 @@ const DiningMenu = ({navigation,route})=> {
     return (
     
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-            {loading ? <LoadingIcon/> :
+            {loading ? 
+                <LoadingIcon/> 
+            : noMealInfo != null ? 
+                <Text style = {{
+                    fontSize:20, color : "#606060"
+                }}>
+                    {noMealInfo.message}    
+                </Text> 
+            :
             <FlatList 
                 data = {foods}
                 showsVerticalScrollIndicator={false}
@@ -162,7 +208,6 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         padding: 20,
         borderRadius: 10,
-        margin: 15,
         marginBottom: 0,
 
         // drop shadow for ios
