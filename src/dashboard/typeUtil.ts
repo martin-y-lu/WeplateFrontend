@@ -12,7 +12,7 @@ export function getNameOfStation( station: STATION){
             D: "FLAME",
             E: "Carved and crafted",
             F:   "500 Degrees",
-            }[station]
+            }[station] ?? null
 }
 
 export function getMealsIndex(meal:MEALS){

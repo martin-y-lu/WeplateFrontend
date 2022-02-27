@@ -92,18 +92,20 @@ const ChangeMenuItem = (props : {modalOpen: Portion,setModalOpen?: (Portion) => 
                 <View style = {{
                     flexDirection: "row"
                 }}>
-                    <View style = {{
-                        borderRightWidth: 2,
-                        paddingRight: 5,
-                        marginRight: 5,
-                        borderColor: color ? "white" : "#555555"
-                    }}>
-                        <Text style = {{
-                            color: color ? "white" : "#C0C0C0"
+                    {stationName != null &&
+                        <View style = {{
+                            borderRightWidth: 2,
+                            paddingRight: 5,
+                            marginRight: 5,
+                            borderColor: color ? "white" : "#555555"
                         }}>
-                            {stationName.length <=2?"Station" : null}{stationName}
-                        </Text>
-                    </View>
+                            <Text style = {{
+                                color: color ? "white" : "#C0C0C0"
+                            }}>
+                                {stationName.length <=2?"Station" : null}{stationName}
+                            </Text>
+                        </View>
+                    }
                     { isFinite(cals) &&
                         <Text style = {{
                             color: color ? "white" : "#C0C0C0" 

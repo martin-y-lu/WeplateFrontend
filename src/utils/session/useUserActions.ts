@@ -21,6 +21,8 @@ export const ingredientsAtom = atom({
 })
 
 export { useUserActions };
+const LB_PER_KG = 2.2046 
+const CM_PER_INCH =2.54
 
 function useUserActions () {
     const baseUrl = "https://weplate-backend.nn.r.appspot.com";
@@ -51,8 +53,7 @@ function useUserActions () {
         registerUser,
         checkEmail,
     }
-    const LB_PER_KG = 2.2046 
-    const CM_PER_INCH =2.54
+   
 
     function kgToLbs(kg){
         return kg*LB_PER_KG

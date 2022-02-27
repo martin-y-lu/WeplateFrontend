@@ -4,9 +4,10 @@ import { SvgXml } from "react-native-svg"
 import {editInfoState} from './state2'
 import { TouchableOpacity } from "react-native-gesture-handler"
 import {Rname,RdietGoals,RactivityLevel,RdietaryRestrictions,RfoodAllergies,Rbirthday,Rsex,Rweight,Rheight ,infoState} from './state'
-import { capitalizeFirstLetter, getAPIActivityLevelName, getAPIHealthGoalName } from "../utils/session/apiTypes"
+import { capitalizeFirstLetter, getAPIActivityLevelName, getAPIBaseAllergenName, getAPIDietaryRestrictionName, getAPIHealthGoalName } from "../utils/session/apiTypes"
 import { useState } from "react"
 import { useUserActions } from "../utils/session/useUserActions"
+import { formatNumber } from "../utils/math"
 
 const Settings = ({navigation})=>{
     const userActions = useUserActions()
@@ -112,7 +113,7 @@ const Settings = ({navigation})=>{
         <View style = {styles.seperator}>
           <Text style = {styles.feildName}>Dietary Restrictions</Text>
           <View style = {styles.feildAndArrowContainter}>
-                  <Text style = {styles.feild}> {arrayToPrettyArray(dietaryRestrictions)}</Text>
+                  <Text style = {styles.feild}> {arrayToPrettyArray(dietaryRestrictions.map(getAPIDietaryRestrictionName))}</Text>
                   <View style = {{justifyContent:'center'}}>
                       <TouchableOpacity style= {{paddingLeft:10}} onPress = {()=> edit('Dietary Restrictions')}>
                           <SvgXml style = {styles.triangle} xml = {arrow}/>
@@ -127,7 +128,7 @@ const Settings = ({navigation})=>{
       <View style = {styles.seperator}>
         <Text style = {styles.feildName}>Food Allergies</Text>
         <View style = {styles.feildAndArrowContainter}>
-            <Text style = {styles.feild}> {arrayToPrettyArray(foodAllergies)}</Text>
+            <Text style = {styles.feild}> {arrayToPrettyArray(foodAllergies.map(getAPIBaseAllergenName))}</Text>
             <View style = {{justifyContent:'center'}}>
                 <TouchableOpacity style= {{paddingLeft:10}} onPress = {()=> edit('Food Allergies')}>
                     <SvgXml style = {styles.triangle} xml = {arrow}/>
@@ -165,24 +166,24 @@ const Settings = ({navigation})=>{
       </View>
       }
 
-      {weight &&
+      {isFinite(weight) ?
       <View style = {styles.seperator}>
         <Text style = {styles.feildName}>Weight</Text>
         <View style = {styles.feildAndArrowContainter}>
-            <Text style = {styles.feild}> {weight + ' lbs'}</Text>
+            <Text style = {styles.feild}> {formatNumber(weight) + ' lbs'}</Text>
             <View style = {{justifyContent:'center'}}>
                 <TouchableOpacity style= {{paddingLeft:10}} onPress = {()=> edit('Weight')}>
                     <SvgXml style = {styles.triangle} xml = {arrow}/>
                 </TouchableOpacity>
             </View>
         </View>
-      </View>
+      </View> : null
       }
-      {height &&
+      { isFinite(height) &&
       <View style = {styles.seperator}>
         <Text style = {styles.feildName}>Height</Text>
         <View style = {styles.feildAndArrowContainter}>
-            <Text style = {styles.feild}> {inchesToFeet(height)[0]+ '\'' + inchesToFeet(height)[1] + '\"'}</Text>
+            <Text style = {styles.feild}> {inchesToFeet(height)[0]+ '\'' + Math.floor(inchesToFeet(height)[1]) + '\"'}</Text>
             <View style = {{justifyContent:'center'}}>
                 <TouchableOpacity style= {{paddingLeft:10}} onPress = {()=> edit('Height')}>
                     <SvgXml style = {styles.triangle} xml = {arrow}/>
@@ -203,8 +204,8 @@ const Settings = ({navigation})=>{
                 </TouchableOpacity>
             </View>
         </View>
-      </View>
-
+      </View> */}
+{/* 
       <View style = {styles.seperator}>
         <Text style = {styles.feildName}>Email</Text>
         <View style = {styles.feildAndArrowContainter}>
@@ -215,9 +216,9 @@ const Settings = ({navigation})=>{
                 </TouchableOpacity>
             </View>
         </View>
-      </View>
+      </View> */}
 
-      <View style = {styles.seperator}>
+      {/* <View style = {styles.seperator}>
         <Text style = {styles.feildName}>Password</Text>
         <View style = {styles.feildAndArrowContainter}>
             <Text style = {styles.feild}> {sex}</Text>

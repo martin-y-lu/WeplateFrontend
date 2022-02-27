@@ -533,7 +533,7 @@ const EditHeight = () => {
 
     const initialHeight = [
         {id:"feet", value: inchesToFeet(height)[0]},
-        {id:"inches", value: inchesToFeet(height)[1]}
+        {id:"inches", value: Math.floor(inchesToFeet(height)[1])}
     ];
 
     const [heightValue, setHeightValue] = useState(initialHeight)
@@ -546,10 +546,10 @@ const EditHeight = () => {
         <View style={styles.innerContainer}> 
             <Text style={styles.header}>Height</Text>
             <View style = {{width:'100%',height:'92%',backgroundColor:'white',flexDirection:'column',justifyContent:'space-between', alignItems:'center'}}>
-                <TouchableOpacity style = {{width:Dimensions.get('window').width}} onPress = {()=>{setShowPicker(!showPicker)}}>
-                <View style = {[styles.seperator, {borderTopWidth:1,marginHorizontal:10, justifyContent:'center'}]}>
-                    <Text style={{color:'#A6A6A6', fontSize:20}}>{inchesToFeet(height)[0] + '\''+ inchesToFeet(height)[1]+'\"'}</Text>
-                </View>
+                <TouchableOpacity style = {{width:Dimensions.get('window').width}} >
+                    <View style = {[styles.seperator, {borderTopWidth:1,marginHorizontal:10, justifyContent:'center'}]}>
+                        <Text style={{color:'#A6A6A6', fontSize:20}}>{inchesToFeet(height)[0] + '\''+ Math.floor(inchesToFeet(height)[1])+'\"'}</Text>
+                    </View>
                 </TouchableOpacity>
                 {showPicker &&
                 <View style = {{height:'30%', width:'50%', backgroundColor:'#EDEDED', alignItems:'center', marginTop: 'auto'}}>

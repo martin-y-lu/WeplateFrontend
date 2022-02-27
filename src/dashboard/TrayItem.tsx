@@ -104,17 +104,19 @@ const TrayItem = ( props : {isTop ?: boolean, number: number,portion: Portion, d
                 <View style = {{
                     flexDirection: 'row'
                 }}>
-                    <View style = {{
-                        borderRightWidth: 2,
-                        borderColor: color,
-                    }}>
-                        <Text style = {{
-                            color : "#A4A4A4",
-                            marginRight: 5,
+                    {station != null &&
+                        <View style = {{
+                            borderRightWidth: 2,
+                            borderColor: color,
                         }}>
-                            {stationName.length<=2 ? "Station " : ""}{stationName}
-                        </Text>
-                    </View>
+                            <Text style = {{
+                                color : "#A4A4A4",
+                                marginRight: 5,
+                            }}>
+                                {stationName.length<=2 ? "Station " : ""}{stationName}
+                            </Text>
+                        </View>
+                    }
                     <Text style = {{
                         color : "#A4A4A4",
                         marginLeft: 5, 
