@@ -1,4 +1,4 @@
-import { View, Text, Button, ScrollView, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, Button, ScrollView, FlatList, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { SvgXml } from "react-native-svg"
 import { useRecoilState, useRecoilValue } from "recoil";
 import { STATION, getNameOfStation, convertAPIItemToDish, FOOD_CATEGORY, Dish } from '../dashboard/typeUtil';
@@ -73,7 +73,11 @@ const FoodItem = ({dish} :{dish: Dish}) => {
 
         </TouchableOpacity>
         {open && <View style = {{flexDirection:"column"}}>
-            
+            {dish?.graphic && 
+                <View style = {{width: "100%",padding:20}}>
+                    <Image style = {{ flex:1,aspectRatio:1,borderRadius:20}} source = {{uri: dish.graphic}}/>
+                </View>
+            }
             <View style = {{flexDirection:"row", padding: 20, paddingLeft: 30 }}>
                 <View style = {{flexDirection: "column", flex: 1, paddingRight: 20,}}>
                     <NutritionInfoEntry name = "Total Fats" value = {dish.nutritionSummary.totalFat} unit = "g"/>

@@ -181,6 +181,8 @@ function useUserActions () {
         const endpoint = `${baseUrl}/api/register/`
         const resp = await fetchWrapper.post(endpoint,{
             ...newUser,
+            height: InchToCm(newUser.height),
+            weight: LbsToKg(newUser.weight),
             ban: [],
             favour: [],
             allergies: newUser.allergies.map(el=> el.id),

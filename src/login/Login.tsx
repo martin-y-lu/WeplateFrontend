@@ -58,7 +58,7 @@ const Login = ({navigation})=>{
   const [nameColor, changeNameColor] = useState(unfocused_textbox_background_color);
 
   // const [email, onEmailChangeText] = useState("2021090@appleby.on.ca");
-  const [email, onEmailChangeText] = useState();
+  const [email, onEmailChangeText] = useState(null as string);
   const [emailColor, changeEmailColor] = useState(unfocused_textbox_background_color);
 
   // const [password, onPasswordChangeText] = useState("goodpassword123");
@@ -103,7 +103,7 @@ const Login = ({navigation})=>{
       await userActions.login(email,password) 
       setMessage("")
       await setPersistentState({
-        email,
+        email : email.toLowerCase(),
         password,
       })
       navigation.navigate("SidebarNavigable",{screen:"Dashboard"})
@@ -158,7 +158,7 @@ const Login = ({navigation})=>{
 
     setMessage("")
     await setPersistentState({
-      email,
+      email: email.toLowerCase(),
       password,
     })
 

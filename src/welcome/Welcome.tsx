@@ -186,6 +186,29 @@ export const Welcome2 = ({navigation})=>{
     const [birthdate,setBirthDate] = useState(null)
     const [height,setHeight] = useState(null)
     const [weight,setWeight] = useState(null as number)
+    const inchesToFeet = (inches) =>{
+        const ft =  Math.floor(inches/12)
+        const inc = inches%12
+        return [ft, inc]
+    }
+
+    const feetToInches = (feet, inches) =>{
+        return feet*12 + inches
+    }
+
+    const initialHeight = [
+        {id:"feet", value: inchesToFeet(60)[0]},
+        {id:"inches", value: Math.floor(inchesToFeet(60)[1])}
+    ];
+
+    const [heightValue, setHeightValue] = useState(initialHeight)
+    const heightEntry = [
+        {id: "feet", label:'\'', min: 0, max:8},
+        {id: "inches", label:'\"', min: 0, max:11}
+    ]
+
+    var twentyYearsAgo = new Date();
+    twentyYearsAgo.setFullYear(twentyYearsAgo.getFullYear() -20);
 
     return <BaseWelcome>
         <Text style={styles.sub_title}>Part 1:</Text>
@@ -202,24 +225,32 @@ export const Welcome2 = ({navigation})=>{
             }}>
                 <DateTimePicker style = {{
                     height: 50,
-                }} value = {stringToDate(birthdate) ?? new Date()} mode = "date" display = "calendar" onChange = {(event,date)=>{
+                }} value = {stringToDate(birthdate) ?? twentyYearsAgo} mode = "date" display = "calendar" onChange = {(event,date)=>{
                     setBirthDate(dateToString(date))
                 }}/>
             </View>
         </DropButton>
-        <DropButton name = "Height" value = {height ? height + " cm" : null}>         
+        {/* <DropButton name = "Height" value = {height ? height + " cm" : null}>         
             <   NumberPlease pickerStyle = {{
                 width :"100%"
                 }}
                 digits = {[{id:"height", label: "cm",min: 0,max:1000}]} values = {[{id: "height" ,value:height ??50}]} onChange= {(values)=>{
                     setHeight(values[0].value)
             }}/>
+        </DropButton> */}
+        <DropButton name = "Height" value = {height ? ( inchesToFeet(height)[0] + '\''+ Math.floor(inchesToFeet(height)[1])+'\"') : null}>         
+            <NumberPlease pickerStyle={{ width: "50%"}} 
+                            digits = {heightEntry} values = {heightValue} onChange= {(values)=>{
+                            setHeightValue(values)
+                            setHeight(feetToInches(values[0].value, values[1].value))
+                        }}/>
         </DropButton>
-        <DropButton name = "Weight" value = {weight ? weight + " kg" : null}>         
+        
+        <DropButton name = "Weight" value = {weight ? weight + " lbs" : null}>         
             <NumberPlease pickerStyle={{
                     width: "100%",    
                 }} 
-                digits = {[{id:"weight", label: "kg",min: 0,max:1000}]} values = {[{id: "weight" ,value:weight ?? 140}]} onChange= {(values)=>{
+                digits = {[{id:"weight", label: "lbs",min: 0,max:1000}]} values = {[{id: "weight" ,value:weight ?? 140}]} onChange= {(values)=>{
                     setWeight(values[0].value)
             }}/>
         </DropButton>

@@ -133,7 +133,7 @@ const Dashboard = (props)=>{
                 return;
             }else{
                 const portions = await userActions.portionSuggestionByItemID(newDishA.id,newDishB.id,newDishC.id);
-                // console.log({portions})
+                console.log({portions})
                 const dishAPortion = getPortionInfoFromAPIPortionInfo(newDishA,portions.small1,Portion.A);
                 const dishA= {...newDishA ,portion: dishAPortion}
                 const dishBPortion = getPortionInfoFromAPIPortionInfo(newDishB,portions.small2,Portion.B);
