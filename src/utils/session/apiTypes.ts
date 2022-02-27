@@ -132,7 +132,7 @@ export function getAPIBaseAllergenName(allergen: string){
 }
 export type APIDietaryRestriction = "vegetarian" | "vegan" | "lactose_intolerant" | "kosher" | "halal" | "gluten_free"
 export const dietaryRestrictions =  ["vegetarian" , "vegan" , "lactose_intolerant" , "kosher" , "halal" , "gluten_free"]
-export function getAPIDietaryRestictionName(restriction: APIDietaryRestriction){
+export function getAPIDietaryRestrictionName(restriction: APIDietaryRestriction){
     return {"vegetarian":"Vegetarian" , "vegan":"Vegan" , "lactose_intolerant":"Lactose Intolerant" , "kosher":"Kosher" , "halal":"Halal" , "gluten_free":"Gluten Free"}[restriction]
 }
 export type APIEveryMeal = "breakfast" | "morning_snack" | "lunch" | "afternoon_snack" | "dinner" | "evening_snack";

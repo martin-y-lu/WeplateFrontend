@@ -1,11 +1,16 @@
-import { View,Text,Button, Image,StyleSheet,SafeAreaView, ScrollView } from "react-native"
+import { View,Text,Button, Image,StyleSheet,SafeAreaView, ScrollView, Dimensions } from "react-native"
 import { useRecoilState, useRecoilValue } from "recoil"
 import { SvgXml } from "react-native-svg"
 import {editInfoState} from './state2'
 import { TouchableOpacity } from "react-native-gesture-handler"
 import {Rname,RdietGoals,RactivityLevel,RdietaryRestrictions,RfoodAllergies,Rbirthday,Rsex,Rweight,Rheight ,infoState} from './state'
+import { capitalizeFirstLetter, getAPIActivityLevelName, getAPIHealthGoalName } from "../utils/session/apiTypes"
+import { useState } from "react"
+import { useUserActions } from "../utils/session/useUserActions"
 
 const Settings = ({navigation})=>{
+    const userActions = useUserActions()
+
     const name = useRecoilValue(Rname)
     const dietGoals = useRecoilValue(RdietGoals)
     const activityLevel = useRecoilValue(RactivityLevel)
@@ -23,7 +28,8 @@ const Settings = ({navigation})=>{
 
     const edit = (page) =>{
       setSelected(page)
-      navigation.navigate("EditInfo")
+      // navigation.navigate("EditInfo")
+      navigation.navigate("EditInfo",{page})
     }
 
     const arrayToPrettyArray = (arr) =>{
@@ -76,10 +82,11 @@ const Settings = ({navigation})=>{
       <Text numberOfLines = {0} style = {{color:'#A6A6A6',fontSize: 30, alignSelf:'center', marginLeft: 20, marginRight: 20}}> {name} </Text>
       </View>
       <Text style = {styles.miniHeader}>Personal Settings</Text>
+      {dietGoals &&
       <View style = {[styles.seperator, {borderTopWidth:1}]}>
         <Text style = {styles.feildName}>Diet Goals</Text>
         <View style = {styles.feildAndArrowContainter}>
-            <Text style = {styles.feild}> {dietGoals}</Text>
+            <Text style = {styles.feild}> {getAPIHealthGoalName(dietGoals)}</Text>
             <View style = {{justifyContent:'center'}}>
                 <TouchableOpacity style= {{paddingLeft:10}} onPress = {()=> edit('Diet Goals')}>
                     <SvgXml style = {styles.triangle} xml = {arrow}/>
@@ -87,31 +94,36 @@ const Settings = ({navigation})=>{
             </View>
         </View>
       </View>
-
+      }
+      {activityLevel &&
       <View style = {styles.seperator}>
-        <Text style = {styles.feildName}>Activiy Level</Text>
+        <Text style = {styles.feildName}>Activity Level</Text>
         <View style = {styles.feildAndArrowContainter}>
-            <Text style = {styles.feild}> {activityLevel}</Text>
+            <Text style = {styles.feild}> {getAPIActivityLevelName(activityLevel)}</Text>
             <View style = {{justifyContent:'center'}}>
-                <TouchableOpacity style= {{paddingLeft:10}} onPress = {()=> edit('Activiy Level')}>
+                <TouchableOpacity style= {{paddingLeft:10}} onPress = {()=> edit('Activity Level')}>
                     <SvgXml style = {styles.triangle} xml = {arrow}/>
                 </TouchableOpacity>
             </View>
         </View>
-      </View>
+      </View>}
 
-      <View style = {styles.seperator}>
-        <Text style = {styles.feildName}>Dietary Restictions</Text>
-        <View style = {styles.feildAndArrowContainter}>
-            <Text style = {styles.feild}> {arrayToPrettyArray(dietaryRestrictions)}</Text>
-            <View style = {{justifyContent:'center'}}>
-                <TouchableOpacity style= {{paddingLeft:10}} onPress = {()=> edit('Dietary Restictions')}>
-                    <SvgXml style = {styles.triangle} xml = {arrow}/>
-                </TouchableOpacity>
-            </View>
+      {dietaryRestrictions && <>
+        <View style = {styles.seperator}>
+          <Text style = {styles.feildName}>Dietary Restrictions</Text>
+          <View style = {styles.feildAndArrowContainter}>
+                  <Text style = {styles.feild}> {arrayToPrettyArray(dietaryRestrictions)}</Text>
+                  <View style = {{justifyContent:'center'}}>
+                      <TouchableOpacity style= {{paddingLeft:10}} onPress = {()=> edit('Dietary Restrictions')}>
+                          <SvgXml style = {styles.triangle} xml = {arrow}/>
+                      </TouchableOpacity>
+                  </View>
+          </View>
         </View>
-      </View>
+      </>}
 
+      {foodAllergies &&
+      <>
       <View style = {styles.seperator}>
         <Text style = {styles.feildName}>Food Allergies</Text>
         <View style = {styles.feildAndArrowContainter}>
@@ -123,8 +135,9 @@ const Settings = ({navigation})=>{
             </View>
         </View>
       </View>
-
+      </>}
       <Text style = {styles.miniHeader}>Biological Settings</Text>
+      {birthday &&
       <View style = {[styles.seperator, {borderTopWidth:1}]}>
         <Text style = {styles.feildName}>Birthday</Text>
         <View style = {styles.feildAndArrowContainter}>
@@ -135,12 +148,14 @@ const Settings = ({navigation})=>{
                 </TouchableOpacity>
             </View>
         </View>
-      </View>
+      </View> 
+      }
 
+      {sex &&
       <View style = {styles.seperator}>
         <Text style = {styles.feildName}>Sex</Text>
         <View style = {styles.feildAndArrowContainter}>
-            <Text style = {styles.feild}> {sex}</Text>
+            <Text style = {styles.feild}> { capitalizeFirstLetter(sex)}</Text>
             <View style = {{justifyContent:'center'}}>
                 <TouchableOpacity style= {{paddingLeft:10}} onPress = {()=> edit('Sex')}>
                     <SvgXml style = {styles.triangle} xml = {arrow}/>
@@ -148,7 +163,9 @@ const Settings = ({navigation})=>{
             </View>
         </View>
       </View>
+      }
 
+      {weight &&
       <View style = {styles.seperator}>
         <Text style = {styles.feildName}>Weight</Text>
         <View style = {styles.feildAndArrowContainter}>
@@ -160,7 +177,8 @@ const Settings = ({navigation})=>{
             </View>
         </View>
       </View>
-
+      }
+      {height &&
       <View style = {styles.seperator}>
         <Text style = {styles.feildName}>Height</Text>
         <View style = {styles.feildAndArrowContainter}>
@@ -172,9 +190,10 @@ const Settings = ({navigation})=>{
             </View>
         </View>
       </View>
+      }
 
       <Text style = {styles.miniHeader}>Account Settings</Text>
-      <View style = {[styles.seperator, {borderTopWidth:1}]}>
+      {/* <View style = {[styles.seperator, {borderTopWidth:1}]}>
         <Text style = {styles.feildName}>Name</Text>
         <View style = {styles.feildAndArrowContainter}>
             <Text style = {styles.feild}> {sex}</Text>
@@ -208,10 +227,92 @@ const Settings = ({navigation})=>{
                 </TouchableOpacity>
             </View>
         </View>
-      </View>
+      </View> */}
+
+      <SettingsEntry name = "Log out" current = "" openable = {false} onPress = {()=>{
+            async function logOut(){
+                console.log("Logging out")
+                await userActions.logout()
+                navigation.navigate("Login")
+            }
+            logOut()
+        }}/>
+
+        <View style = {{ marginTop: 40,}}/>
       </ScrollView>
     </SafeAreaView> 
 }
+
+function SettingsEntry(props){
+  const {name,current,onPress} = props
+  const [_open,_setOpen] = useState(false)
+  const openable = props?.openable ?? true
+  const open = props?.open ?? _open
+  const setOpen = props?.setOpen ?? _setOpen
+
+  return <View>
+          <TouchableOpacity style = {{
+          // flex:1,
+          alignSelf:"stretch",
+          width:(Dimensions.get('window').width - 20),
+          height: 60,
+          flexDirection: "row",
+          alignItems: "center",
+          borderBottomWidth: 1, 
+          borderTopWidth: 1, 
+          borderColor: "#EDEDED",
+      }}
+          onPress = {()=>{
+              setOpen(!open)
+              if(onPress){
+                  onPress()
+              }
+          }}
+          >
+          <Text style = {{
+              marginLeft: 20,
+              fontSize: 20,
+              color:  "#bfbfbf",
+          }}>
+              {name}
+          </Text>
+
+          <Text style = {{
+              marginLeft: "auto",
+              fontSize: 20,
+              color:  "#bfbfbf",
+              width: props?.width ?? 200,
+              textAlign: "right",
+          }} ellipsizeMode = "tail" numberOfLines={1} >
+              {current}
+          </Text>
+
+          {
+              openable &&
+              <View style = {{
+                  margin : 10,
+                  transform: [
+                      {
+                          rotate: open ? Math.PI/2 : 0
+                      }
+                  ]
+              }}>    
+                  <SvgXml xml = {arrow_svg}/>
+              </View>
+          }
+      </TouchableOpacity>
+      {
+         open ? <View style = {{
+          marginLeft: 10,
+          paddingLeft: 20,
+          borderLeftWidth: 2,
+          borderColor: "#EDEDED", 
+          }}> 
+              {props.children}
+          </View> : null 
+      }
+  </View>
+} 
 
 const styles = StyleSheet.create({
     container: {

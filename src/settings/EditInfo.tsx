@@ -9,7 +9,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { dateToString, stringToDate } from "../dashboard/state";
 import { ingredientsAtom, usersAtom, useUserActions } from "../utils/session/useUserActions";
 import NumberPlease from "react-native-number-please";
-import {baseAllergens, getAPIBaseAllergenName} from '../utils/session/apiTypes';
+import { baseAllergens, dietaryRestrictions, getAPIBaseAllergenName, APIDietaryRestriction, getAPIDietaryRestrictionName } from '../utils/session/apiTypes';
 import {authAtom} from '../utils/session/useFetchWrapper'
 import {useLogin} from '../debug/Debug'
 
@@ -181,17 +181,21 @@ const EditDietaryRestrictions = () => {
         <View style={styles.innerContainer}> 
             <Text style={styles.header}>Dietary Restictions</Text>
             <Text style={styles.subheader}>Select all that apply</Text>
-                <View style={styles.checkboxSeperator}>
-                    <TouchableOpacity style = {{flexDirection:'row'}} onPress = {()=>toggle("Vegitarian")}>
+            {
+                dietaryRestrictions.map((dietaryRestriction:APIDietaryRestriction)=>{
+                return <View key = {dietaryRestriction} style={styles.checkboxSeperator}>
+                    <TouchableOpacity style = {{flexDirection:'row'}} onPress = {()=>toggle(dietaryRestriction)}>
                         <View style= {styles.checkbox} > 
-                            {selected('Vegitarian') &&
+                            {selected(dietaryRestriction) &&
                                     <SvgXml style = {styles.innerCheckmark} xml = {checkmark}/>
                                 }
                         </View>
-                        <Text style = {styles.feildName}>Vegitarian</Text>
+                        <Text style = {styles.feildName}>{getAPIDietaryRestrictionName(dietaryRestriction)}</Text>
                     </TouchableOpacity>
                 </View>
-                <View style={styles.checkboxSeperator}>
+                })
+            }
+                {/* <View style={styles.checkboxSeperator}>
                     <TouchableOpacity style = {{flexDirection:'row'}} onPress = {()=>toggle("Vegan")}>
                         <View style= {styles.checkbox} > 
                             {selected('Vegan') &&
@@ -240,7 +244,7 @@ const EditDietaryRestrictions = () => {
                         </View>
                         <Text style = {styles.feildName}>Gluten Free</Text>
                     </TouchableOpacity>
-                </View>
+                </View> */}
         </View>
     )
 }
@@ -274,7 +278,7 @@ const EditFoodAllergies = () => {
     }
     return(
         <View style={styles.innerContainer}> 
-            <Text style={styles.header}>Dietary Restictions</Text>
+            <Text style={styles.header}>Allergens</Text>
             <Text style={styles.subheader}>Select all that apply</Text>
                 {/* <View style={styles.checkboxSeperator}>
                     <TouchableOpacity style = {{flexDirection:'row'}} onPress = {()=>toggle("Peanuts")}>
@@ -288,7 +292,7 @@ const EditFoodAllergies = () => {
                 </View> */}
 
                 {baseAllergens.map(((allergen:APIBaseAllergen)=>{
-                return  <View style={styles.checkboxSeperator}>
+                return  <View key = {allergen} style={styles.checkboxSeperator}>
                         <TouchableOpacity style = {{flexDirection:'row'}} onPress = {()=>toggle(allergen)}>
                             <View style= {styles.checkbox} > 
                                 {selected(allergen) &&
@@ -387,7 +391,8 @@ const EditFoodAllergies = () => {
 const EditBirthday = () => {
     const [user,_setUser] = useRecoilState(usersAtom)
     const [birthdate, setBirthday] = useRecoilState(Rbirthday);
-    const [showPicker, setShowPicker] = useState(false); 
+    // const [showPicker, setShowPicker] = useState(false); 
+    const showPicker = true;
     const dateToPrettyDate = (date) =>{
         const [year,month,day] = date.split('-')
         const monthDict = {
@@ -414,21 +419,20 @@ const EditBirthday = () => {
         <View style={styles.innerContainer} > 
             <Text style={styles.header}>Birthday</Text>
             <View style = {{width:'100%',height:'92%',backgroundColor:'white',flexDirection:'column',justifyContent:'space-between', alignItems:'center'}}>
-                <TouchableOpacity style = {{width:Dimensions.get('window').width}} onPress = {()=>{setShowPicker(!showPicker)}}>
+                <TouchableOpacity style = {{width:Dimensions.get('window').width}} >
                 <View style = {[styles.seperator, {borderTopWidth:1,marginHorizontal:10, justifyContent:'center'}]}>
                     <Text style={{color:'#A6A6A6', fontSize:20}}>{dateToPrettyDate(birthdate)}</Text>
                 </View>
                 </TouchableOpacity>
                 {showPicker &&
                 <View style = {{height:300, width:'100%', backgroundColor:'#EDEDED', alignItems:'center'}}>
-                    <DateTimePicker style= {{height:300, backgroundColor:'#EDEDED', width:300, alignItems:'center', marginTop:10}} value = {stringToDate(birthdate)} mode = "date" display = "spinner" onChange = {(event,date)=> {setBirthday(dateToString(date))}}
-                        // {(event,date)=>{
-                        //     // setShow(Platform.OS === 'ios');
-                        //     setUser({
-                        //         ...user,
-                        //         birthdate: dateToString(date)
-                        //     })
-                        // }}
+                    <DateTimePicker style= {{height:300, backgroundColor:'#EDEDED', width:300, alignItems:'center', marginTop:10}} value = {stringToDate(birthdate)} mode = "date" display = "spinner" onChange = {
+                        (event,date)=> {
+                            const newDate = dateToString(date)
+                            console.log(newDate)
+                            setBirthday(newDate)
+                        }
+                    }
                         />
                 </View>
                 }
@@ -438,7 +442,7 @@ const EditBirthday = () => {
 }
 
 const EditSex = () => {
-    const [selectedBox, changeSelectedBox] = useRecoilState(RactivityLevel)
+    const [selectedBox, changeSelectedBox] = useRecoilState(Rsex)
     const checkmark = `<svg width="17" height="18" viewBox="0 0 17 18" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M6.0331 12.3893C6.26619 12.6194 6.65382 12.5669 6.81744 12.2832L13.621 0.487082C13.7706 0.227812 14.1128 0.157117 14.3529 0.33593L16.2254 1.73096C16.4306 1.88387 16.4872 2.16711 16.3566 2.3872L7.40846 17.4565C7.24372 17.7339 6.86325 17.785 6.63117 17.5609L0.325091 11.4698C0.140486 11.2915 0.120868 11.0024 0.279695 10.8008L1.7462 8.93922C1.93073 8.70499 2.27795 8.6833 2.49019 8.89276L6.0331 12.3893Z" fill="#DDDDDD"/>
     </svg>
@@ -450,24 +454,24 @@ const EditSex = () => {
     return(
         <View style={styles.innerContainer} > 
             <Text style={styles.header}>Biological Sex</Text>
-                <TouchableOpacity onPress = {()=> changeSelectedBox("Male")}>
+                <TouchableOpacity onPress = {()=> changeSelectedBox("male")}>
                 <View style={[{borderTopWidth:1},styles.seperator]}> 
                     <Text style = {styles.feildName}>Male</Text>
-                    {selectedBox == "Male" &&
+                    {selectedBox == "male" &&
                         <SvgXml style = {styles.checkmark} xml = {checkmark}/>
                     }
-                    {selectedBox != "Male" &&
+                    {selectedBox != "male" &&
                         <SvgXml style = {styles.checkmark} xml = {checkmarkInvisible}/>
                     }
                 </View>
             </TouchableOpacity>
-            <TouchableOpacity onPress = {()=> changeSelectedBox("Female")}>
+            <TouchableOpacity onPress = {()=> changeSelectedBox("female")}>
                 <View style={styles.seperator}> 
                     <Text style = {styles.feildName}>Female</Text>
-                    {selectedBox == "Female" &&
+                    {selectedBox == "female" &&
                         <SvgXml style = {styles.checkmark} xml = {checkmark}/>
                     }
-                    {selectedBox != "Female" &&
+                    {selectedBox != "female" &&
                         <SvgXml style = {styles.checkmark} xml = {checkmarkInvisible}/>
                     }
                 </View>
@@ -498,7 +502,6 @@ const EditWeight = () => {
                     <Text style={{color:'#A6A6A6', fontSize:20}}>{weight + ' lbs'}</Text>
                 </View>
                 </TouchableOpacity>
-                {showPicker &&
                 <View style = {{height:'35%', width:'100%', backgroundColor:'#EDEDED', alignItems:'center'}}>
                     <NumberPlease pickerStyle={{ width: "100%", backgroundColor:'#EDEDED'}} 
                         digits = {weightEntry} values = {weightValue} onChange= {(values)=>{
@@ -506,7 +509,6 @@ const EditWeight = () => {
                         setWeight(values[0].value)
                     }}/>
                 </View>
-                }
                 </View>
             </View>
     )
@@ -515,7 +517,8 @@ const EditWeight = () => {
 const EditHeight = () => {
     const [user,_setUser] = useRecoilState(usersAtom)
     const [height, setHeight] = useRecoilState(Rheight);
-    const [showPicker, setShowPicker] = useState(false);
+    // const [showPicker, setShowPicker] = useState(false);
+    const showPicker = true
     
 
     const inchesToFeet = (inches) =>{
@@ -578,13 +581,21 @@ const EditName = () => {
     )
 }
 
-const EditInfo = ({navigation})=>{
+const EditInfo = ({navigation,route})=>{
+    const page = route?.params.page ?? "Diet Goals"
     const infoStates = useRecoilValue(infoState);
     const selected = useRecoilValue(editInfoState);
     const [user, setUser] = useRecoilState(usersAtom);
     const userActions = useUserActions()
     const auth = useRecoilValue(authAtom)
     useLogin(navigation)
+    const ingredients = useRecoilValue(ingredientsAtom)
+    useEffect(()=>{
+        const getIngredients = async function(){
+            await userActions.getIngredients()
+        }
+        getIngredients()
+    },[auth])
 
     const name = useRecoilValue(Rname)
     const dietGoals = useRecoilValue(RdietGoals)
@@ -604,13 +615,7 @@ const EditInfo = ({navigation})=>{
     <path d="M8.17044 14.4243C8.02856 14.6022 8.02473 14.8535 8.16112 15.0357L17.8882 28.0273C18.1371 28.3598 17.8956 28.8332 17.4803 28.8269L10.9852 28.7283C10.8303 28.7259 10.6853 28.6519 10.5925 28.528L0.402676 14.9175C0.266292 14.7353 0.270122 14.484 0.411996 14.3061L11.0122 1.01214C11.1088 0.891069 11.256 0.821559 11.4108 0.823916L17.9056 0.922844C18.3209 0.92917 18.5478 1.40976 18.2889 1.7345L8.17044 14.4243Z" fill="#A4A4A4"/>
     </svg>`
 
-    const ingredients = useRecoilValue(ingredientsAtom)
-    useEffect(()=>{
-        const getIngredients = async function(){
-            await userActions.getIngredients()
-        }
-        getIngredients()
-    },[auth])
+  
 
     function getId(allergenName){
         for(const ingredient of (ingredients?? [])){
@@ -620,30 +625,47 @@ const EditInfo = ({navigation})=>{
     }
     const newData = foodAllergies.map(el => {return {name: el, id : getId(el)}}).filter(el=> el.id !== null)
 
-    const submit = () =>{
-        const temp = { ...user,
-            dietary_restrictions: dietaryRestrictions,
-            allergies: newData,
-            name: name,
-            height: height,
-            weight: weight,
-            birthdate: birthday,
-            sex: sex,
-            health_goal: dietGoals,
-            activity_level: activityLevel
-        }
-    //setUser(temp)
-    console.log(temp)
-    //navigation.navigate("SidebarNavigable",{screen: "Settings"})
+    const submit = async () =>{
+        const res = await userActions.postUserSettings(user)
+        console.log({res})
+        navigation.navigate("SidebarNavigable",{screen: "Settings"})
+    }
+
+    let PageComponent = EditFoodAllergies
+    switch(page){
+        case "Diet Goals": 
+            PageComponent = EditDietGoals
+            break
+        case "Activity Level": 
+            PageComponent = EditActivityLevel
+            break
+        case 'Dietary Restrictions': 
+            PageComponent = EditDietaryRestrictions
+            break
+        case "Food Allergies": 
+            PageComponent = EditFoodAllergies
+            break
+        case "Birthday": 
+            PageComponent = EditBirthday
+            break
+        case "Sex": 
+            PageComponent = EditSex
+            break
+        case "Weight": 
+            PageComponent = EditWeight
+            break
+        case "Height": 
+            PageComponent = EditHeight
+            break
     }
 
     return <SafeAreaView style = {{height: '100%',backgroundColor:'white'}}>
                     <View style = {styles.headerView}>
-                <TouchableOpacity onPress = {()=> submit}>
+                <TouchableOpacity style = {{paddingTop: 10,paddingBottom: 10,paddingRight:30}} onPress = { submit}>
                     <SvgXml style = {styles.backArrow} xml = {backArrow}/>
                 </TouchableOpacity>
             </View>
-        <EditFoodAllergies/>
+        <PageComponent/>
     </SafeAreaView>
 }
 

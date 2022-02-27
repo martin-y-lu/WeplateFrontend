@@ -2,7 +2,27 @@ import React, { useEffect, useState } from "react"
 import { Image, StyleSheet, Text, View } from "react-native"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { SvgXml } from "react-native-svg"
-import { arrow_svg, check_svg, selected_icon_svg, unselected_icon_svg } from '../settings/Settings2';
+// import { arrow_svg, check_svg, selected_icon_svg, unselected_icon_svg } from '../settings/Settings';
+
+export const arrow_svg = `<svg width="13" height="16" viewBox="0 0 13 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M12.5 7.13397C13.1667 7.51888 13.1667 8.48112 12.5 8.86602L2 14.9282C1.33333 15.3131 0.499999 14.832 0.499999 14.0622L0.5 1.93782C0.5 1.16802 1.33333 0.686896 2 1.0718L12.5 7.13397Z" fill="#DDDDDD"/>
+</svg>
+`
+export const check_svg = `<svg width="17" height="18" viewBox="0 0 17 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M6.0331 12.3893C6.26619 12.6194 6.65382 12.5669 6.81744 12.2832L13.621 0.487082C13.7706 0.227812 14.1128 0.157117 14.3529 0.33593L16.2254 1.73096C16.4306 1.88387 16.4872 2.16711 16.3566 2.3872L7.40846 17.4565C7.24372 17.7339 6.86325 17.785 6.63117 17.5609L0.325091 11.4698C0.140486 11.2915 0.120868 11.0024 0.279695 10.8008L1.7462 8.93922C1.93073 8.70499 2.27795 8.6833 2.49019 8.89276L6.0331 12.3893Z" fill="#DDDDDD"/>
+</svg>
+`
+
+export const unselected_icon_svg =   `<svg width="19" height="19" viewBox="0 0 19 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+<circle cx="9.5" cy="9.5" r="8"  stroke-width="3"/>
+</svg>
+`
+export const selected_icon_svg = `<svg width="19" height="19" viewBox="0 0 19 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+<circle cx="9.5" cy="9.5" r="8"  stroke-width="3" fill = "none"/>
+<circle cx="9.5" cy="9.5" r="4.5" />
+</svg>
+`
+
 function BaseWelcome(props){
    return <View style={{ flex: 1, alignItems: 'center', backgroundColor: '#ff7474', justifyContent: 'center' }}>
    <View style={{alignItems: 'left', margin: 15,paddingLeft:20,}}>
@@ -125,7 +145,7 @@ import { stringToDate, dateToString } from '../dashboard/state';
 import { valueXY } from '../dashboard/tooltip/components/types';
 import { useRecoilState, useRecoilValue } from "recoil"
 import { ingredientsAtom, usersAtom, useUserActions } from "../utils/session/useUserActions"
-import { APIHealthGoal, getAPIHealthGoalName, healthGoals, activityLevels, APIActivityLevel, getAPIActivityLevelName, getAPIActivityLevelDescription, APIEveryMeal, everyMeals, getAPIEveryMealName, dietaryRestrictions, APIDietaryRestriction, getAPIDietaryRestictionName, baseAllergens, APIBaseAllergen, getAPIBaseAllergenName } from '../utils/session/apiTypes';
+import { APIHealthGoal, getAPIHealthGoalName, healthGoals, activityLevels, APIActivityLevel, getAPIActivityLevelName, getAPIActivityLevelDescription, APIEveryMeal, everyMeals, getAPIEveryMealName, dietaryRestrictions, APIDietaryRestriction, getAPIDietaryRestrictionName, baseAllergens, APIBaseAllergen, getAPIBaseAllergenName } from '../utils/session/apiTypes';
 import { usePersistentAtom } from '../utils/state/userState';
 function PickButton(props){
     const width = Dimensions.get("window").width   -100
@@ -366,7 +386,7 @@ export const Welcome7 = ({navigation})=>{
             <View style = {{width: 40,borderTopWidth:4,borderColor:"white",marginTop:5,marginBottom:5}}/>
             <Text style={styles.sub_title2}> Which restrictions do you adhere to?</Text>
             { dietaryRestrictions.map( (restriction: APIDietaryRestriction)=>{
-                return <RadioButton key = {restriction} name = {getAPIDietaryRestictionName(restriction)} check = {restrictions.includes(restriction)} onPress = {()=>{
+                return <RadioButton key = {restriction} name = {getAPIDietaryRestrictionName(restriction)} check = {restrictions.includes(restriction)} onPress = {()=>{
                     if(restrictions.includes(restriction)){
                         setRestrictions(restrictions.filter(restr => restr !== restriction))
                     }else{

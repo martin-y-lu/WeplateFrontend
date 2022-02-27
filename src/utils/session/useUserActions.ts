@@ -51,7 +51,22 @@ function useUserActions () {
         registerUser,
         checkEmail,
     }
+    const LB_PER_KG = 2.2046 
+    const CM_PER_INCH =2.54
 
+    function kgToLbs(kg){
+        return kg*LB_PER_KG
+    }
+    function LbsToKg(kg){
+        return kg/LB_PER_KG
+    }
+
+    function InchToCm(cm){
+        return cm*CM_PER_INCH
+    }
+    function CmToInch(cm){
+        return cm/CM_PER_INCH
+    }
     async function login(email:string, password:string) {
         let data = {
             username: email,
@@ -67,8 +82,13 @@ function useUserActions () {
             
             setAuth(_auth)
 
-            const userInfo = await fetchWrapper.get(`${baseUrl}/api/settings/`,null,_auth)
-            setUsers(userInfo as APIUserSettings)
+            const userInfo : APIUserSettings = await fetchWrapper.get(`${baseUrl}/api/settings/`,null,_auth)
+            const fixedUserInfo : APIUserSettings = {
+                ... userInfo,
+                weight: kgToLbs(userInfo.weight),
+                height: CmToInch(userInfo.height),
+            }
+            setUsers(fixedUserInfo)
             // console.log({userInfo})
             // get return url from location state or default to home page
             // const { from } = history.location.state || { from: { pathname: '/' } };
@@ -148,6 +168,8 @@ function useUserActions () {
         const endpoint = `${baseUrl}/api/settings/update/`
         const resp = await fetchWrapper.post(endpoint,{
             ... newUser,
+            height: InchToCm(newUser.height),
+            weight: LbsToKg(newUser.weight),
             ban: [],
             favour: [],
             allergies: newUser.allergies.map(el=> el.id),
@@ -169,6 +191,7 @@ function useUserActions () {
         if(ingredients != null) return ingredients
 
         const endpoint = `${baseUrl}/api/ingredients/${encodeURIComponent(users?.school)}/`
+        console.log(endpoint)
         const resp = await fetchWrapper.get(endpoint)
         setIngredients(resp)
         return resp as {
