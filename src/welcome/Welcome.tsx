@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react"
 import { Image, StyleSheet, Text, View } from "react-native"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { SvgXml } from "react-native-svg"
-import { arrow_svg, check_svg, selected_icon_svg, unselected_icon_svg } from '../settings/Settings';
+import { arrow_svg, check_svg, selected_icon_svg, unselected_icon_svg } from '../settings/Settings2';
 function BaseWelcome(props){
    return <View style={{ flex: 1, alignItems: 'center', backgroundColor: '#ff7474', justifyContent: 'center' }}>
    <View style={{alignItems: 'left', margin: 15,paddingLeft:20,}}>
