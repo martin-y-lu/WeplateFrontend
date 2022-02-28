@@ -10,6 +10,9 @@ import { useEffect } from "react";
 import { useRoute } from '@react-navigation/native';
 
 const BABSON_PK = 10; 
+const numToSchool = {
+  10: "Babson College"
+}
 
 const logo_xml = `<svg width="182" height="86" viewBox="0 0 182 86" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M4 46.0001L11.5 64.0001L19 46.0001L26.5 64.0001L34 46.0001" stroke="#FF3939" stroke-width="6.33166" stroke-linecap="round" stroke-linejoin="round"/>
@@ -219,7 +222,7 @@ const Login = ({navigation})=>{
               style = {{marginTop:0}}
               selectedValue={school}
               onValueChange={(itemValue, itemIndex) =>
-              setSchool(itemValue)
+                setSchool(itemValue)
             }>
               <Picker.Item itemStyle ={{color:'red'}} label="-- Select School --" value={null} />
               <Picker.Item label="Babson College" value={BABSON_PK}/>
@@ -266,9 +269,9 @@ const Login = ({navigation})=>{
                   </View>
                 </TouchableWithoutFeedback>
                 <TouchableWithoutFeedback onPress = {Keyboard.dismiss}>
-                  <KeyboardAvoidingView behavior = 'position' style ={{height: '60%',borderTopRightRadius: 30, borderTopLeftRadius: 30,backgroundColor:'white'}}>
+                  <KeyboardAvoidingView behavior = 'position' style ={styles.registerOuterView}>
                     <TouchableWithoutFeedback onPress = {Keyboard.dismiss}>
-                      <View>
+                      <View style = {styles.registerInnerView}>
                         {/* Register header */}
                         <Text style = {styles.headerText}>Register</Text>
                         <Text style = {{
@@ -278,7 +281,7 @@ const Login = ({navigation})=>{
                            marginLeft: 50,
                            marginBottom: 20,
                         }}>{message}</Text>
-                        <ScrollView style={styles.register}>
+                        {/* <ScrollView style={styles.register}> */}
                           {/* Render textboxes */}
                           {/* Name textbox */}
                           <TextInput
@@ -387,26 +390,26 @@ const Login = ({navigation})=>{
                                 padding: 10,
                                 backgroundColor: unfocused_textbox_background_color,
                                 borderRadius: 5,}}
-                              value={school}
+                              value={numToSchool[school]}
                               placeholder="Select School"
                               placeholderTextColor = '#B1B1B1'
                               borderColor = '#E8E8E8'
                               onPressIn={ () => openPicker()}
                               editable = {false}
                             />
-                            <TouchableOpacity style = {{flex:1}} onPress = { () => openPicker() }>
+                            <TouchableOpacity style = {{flex:1}} onPress = { () => openPicker()}>
                             <View style = {{ flex: 1, marginLeft:2, marginRight:20,marginBottom:20, backgroundColor: unfocused_textbox_background_color, borderRadius:5, justifyContent: 'center', alignItems:'center'}}>
                               <View style ={styles.TriangleView}/>
                             </View>
                             </TouchableOpacity>
                           </View>
-                        </ScrollView>
+                        {/* </ScrollView> */}
                       </View>
                     </TouchableWithoutFeedback>
                   </KeyboardAvoidingView>
                 </TouchableWithoutFeedback>
-                <View style={{ backgroundColor:"white", height:60,marginTop:"auto"}}>
-                  <View flexDirection = 'row' style = {{height: "100%",alignItems:"center"}}> 
+                <View style={{ backgroundColor:"white", height:'20%'}}>
+                  <View flexDirection = 'row' style = {{alignItems:"center"}}> 
                     <TouchableOpacity style= {{marginBottom:10}} onPress={ () => {setState(2); setMessage("")}}>
                       <Text style = {{color:'#B1B1B1', paddingVertical:10, marginHorizontal:20, fontSize: 15}}>I already have an account</Text>
                     </TouchableOpacity>
@@ -503,6 +506,34 @@ const Login = ({navigation})=>{
         </View> 
     }
 const styles = StyleSheet.create({
+
+  registerOuterView: {
+    //height:'80%',
+    backgroundColor: 'white',
+    borderTopLeftRadius: 30, 
+    borderTopRightRadius: 30,
+    marginTop:'auto'
+    //alignItems: 'center',
+    // shadowOffset: {
+    //   width: 0,
+    //   height: -7,
+    // },
+    // shadowOpacity: .3,
+    // shadowRadius: 5,
+  },
+
+  registerInnerView: {
+    backgroundColor: 'white',
+    borderTopLeftRadius: 30, 
+    borderTopRightRadius: 30,
+    //alignItems: 'center',
+    shadowOffset: {
+      width: 0,
+      height: -7,
+    },
+    shadowOpacity: .3,
+    shadowRadius: 5,
+  },
   TriangleView: {
     //backgroundColor: '#B1B1B1',
     width: 0,
