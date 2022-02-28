@@ -122,8 +122,16 @@ const Dashboard = (props)=>{
 
 
     const onLoad = ()=>{
+        console.log({doOnboarding})
         if(doOnboarding){
             start()
+            async function didOnboarding(){
+                await setPersistentState({
+                    ...persistentState,
+                    doOnboarding: false,
+                })
+            }
+            didOnboarding()
         }
     }
     //Fetch meals 
@@ -308,6 +316,8 @@ const Dashboard = (props)=>{
             }catch(e){
                 console.error(e)
             }
+        }else{
+            onLoad()
         }
     },[auth,timeInfo,loading])
 
@@ -319,12 +329,6 @@ const Dashboard = (props)=>{
     //         if(name != currentStepName) setCurrentStepName(name)
     //     }
     // })
-    copilotEvents.on("stop",()=>{
-        setPersistentState({
-            ...persistentState,
-            doOnboarding: false,
-        })
-    })
 
     //portion view animate
     const portionAnimationState = usePortionViewAnimationState();

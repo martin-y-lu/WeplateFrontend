@@ -12,6 +12,13 @@ const MONTH_ABBREV = ["Jan.","Feb.","Mar.","Apr.","May","Jun.","Jul.","Aug.","Se
 const STREAK_ELEMENT_WIDTH = 100
 const HEADER_HEIGHT = 64;
 
+const more_info_icon = `<svg width="35" height="36" viewBox="0 0 35 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+<circle cx="17.625" cy="17.9375" r="16.125" stroke="#CCCCCC" stroke-width="2.5"/>
+<path d="M16.4558 19.78C16.4558 19.4067 16.4758 19.1 16.5158 18.86C16.5691 18.62 16.6491 18.4067 16.7558 18.22C16.8624 18.02 17.0024 17.8267 17.1758 17.64C17.3491 17.4533 17.5691 17.2267 17.8358 16.96C18.0358 16.7467 18.2358 16.54 18.4358 16.34C18.6491 16.1267 18.8358 15.9067 18.9958 15.68C19.1691 15.4533 19.3091 15.2133 19.4158 14.96C19.5224 14.7067 19.5758 14.42 19.5758 14.1C19.5758 13.46 19.3891 12.94 19.0158 12.54C18.6424 12.1267 18.1224 11.92 17.4558 11.92C16.7758 11.92 16.2224 12.12 15.7958 12.52C15.3824 12.92 15.1224 13.4467 15.0158 14.1L13.2158 13.9C13.3091 13.3533 13.4758 12.8667 13.7158 12.44C13.9691 12.0133 14.2824 11.66 14.6558 11.38C15.0291 11.0867 15.4558 10.8667 15.9358 10.72C16.4158 10.56 16.9291 10.48 17.4758 10.48C18.0224 10.48 18.5291 10.56 18.9958 10.72C19.4758 10.8667 19.8891 11.0933 20.2358 11.4C20.5958 11.6933 20.8758 12.0667 21.0758 12.52C21.2758 12.96 21.3758 13.4667 21.3758 14.04C21.3758 14.48 21.3091 14.88 21.1758 15.24C21.0558 15.5867 20.8891 15.9133 20.6758 16.22C20.4758 16.5133 20.2358 16.8 19.9558 17.08C19.6758 17.3467 19.3891 17.62 19.0958 17.9C18.8824 18.1 18.7091 18.2733 18.5758 18.42C18.4558 18.5667 18.3624 18.72 18.2958 18.88C18.2291 19.04 18.1824 19.22 18.1558 19.42C18.1424 19.6067 18.1358 19.84 18.1358 20.12V21.04H16.4558V19.78ZM17.2958 22.72C17.6291 22.72 17.9091 22.84 18.1358 23.08C18.3758 23.3067 18.4958 23.5867 18.4958 23.92C18.4958 24.2533 18.3691 24.54 18.1158 24.78C17.8758 25.0067 17.6024 25.12 17.2958 25.12C16.9891 25.12 16.7091 25.0067 16.4558 24.78C16.2158 24.54 16.0958 24.2533 16.0958 23.92C16.0958 23.5867 16.2091 23.3067 16.4358 23.08C16.6758 22.84 16.9624 22.72 17.2958 22.72Z" fill="#CCCCCC"/>
+</svg>
+
+`
+
 const DashboardHeader = (props) =>{
     const {route,navigation} = props
     const insets = useSafeAreaInsets() 
@@ -57,24 +64,45 @@ const DashboardHeader = (props) =>{
     }
     return  <SafeAreaView style = {{ backgroundColor:"white",...SHADOW_STYLE, height: HEADER_HEIGHT+insets.top}}>
         <View style = {{flexDirection: 'row', alignItems: 'center', justifyContent: 'center',height: HEADER_HEIGHT}}>
-            <TouchableOpacity
+         
+            <View style = {{
+                position: "absolute",
+                width: "100%",
+                height: 60,
+                // backgroundColor: "orange",
+                flexDirection:"row",
+                zIndex:1,
+
+            }} pointerEvents = "box-none">
+                <TouchableOpacity
                 style={{
-                    position: "absolute",
-                    left: 0,
-                    top: 0,
-                    flex:0,
                     width: STREAK_ELEMENT_WIDTH,
                     height: 60,
-                    // backgroundColor:"orange",
                     // justifyContent: "flex-start",
                     paddingLeft:12,
                     paddingTop: 14,
-                    zIndex:1,
+                    
                 }}
                 onPress={() => navigation.toggleDrawer()}
                 >
                 <SvgXml xml = {HAMBURGER_MENU_SVG}/>
             </TouchableOpacity>
+                <TouchableOpacity style = {{
+                    marginLeft: "auto",
+                    width: 60,
+                    height: 60,
+                    // backgroundColor:"orange",
+                    alignItems: "center",
+                    justifyContent: "center",
+                }}
+                    onPress = {()=>{
+                        navigation.navigate("SidebarNavigable",{screen: "Dashboard", params: {timeInfo, doOnboarding:true}})
+                    }}
+                >
+                    <SvgXml xml = {more_info_icon}/>
+                </TouchableOpacity>
+            </View>
+
             <View style= {{
                 flex:1,
                 flexDirection: "row",

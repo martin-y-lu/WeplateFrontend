@@ -6,8 +6,8 @@ const persistentAtom = atom({
     default: {
         loaded: false,
         doOnboarding: true,
-        email: "2021090@appleby.on.ca",
-        password: "sussy amongussi",
+        email: null,
+        password: null,
     },
 })
 

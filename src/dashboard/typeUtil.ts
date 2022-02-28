@@ -2,7 +2,7 @@ import { APIFoodCategory, APIPortionInfo, APIItem, APITimestamp, APIStation } fr
 export enum FOOD_CATEGORY{Carbohydrates = "Carbohydrates",Protein = "Protein", Vegetable = "Vegetable"}
 export enum MEALS{Breakfast = "Breakfast", Lunch = "Lunch",Dinner = "Dinner"}
 
-export enum STATION{A = "A", B = "B", C = "C", D = "D", E = "E"}
+export enum STATION{A = "A", B = "B", C = "C", D = "D", E = "E",F = "F"}
 // export enum STATION{A = "A", B = "B", C = "C", D = "D", E = "E", F = "F", G = "G", H = "H", I = "I"}
 
 export function getNameOfStation( station: STATION){
@@ -94,8 +94,8 @@ export function convertAPIStationToStation(stat:APIStation){
             return STATION.D;
         case APIStation.E:
             return STATION.E;
-        // case APIStation.F:
-        //     return STATION.F;
+        case APIStation.F:
+            return STATION.F;
         // case APIStation.G:
         //     return STATION.G;
         // case APIStation.H:

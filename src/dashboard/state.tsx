@@ -40,10 +40,10 @@ export const dashboardState = atom({
     key: "dashboardState",
     
     default: {
-        // currentDate: null,
-        // currentMeal: null,
-        currentDate: stringToDate("2022-02-27"),
-        currentMeal: MEALS.Dinner,
+        currentDate: null,
+        currentMeal: null,
+        // currentDate: stringToDate("2022-02-27"),
+        // currentMeal: MEALS.Dinner,
         streakLength: 12
     }
 })
