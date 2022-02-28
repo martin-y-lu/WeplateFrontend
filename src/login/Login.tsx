@@ -108,6 +108,7 @@ const Login = ({navigation})=>{
       await setPersistentState({
         email : email.toLowerCase(),
         password,
+
       })
       navigation.navigate("SidebarNavigable",{screen:"Dashboard"})
     }catch(e){
@@ -163,6 +164,7 @@ const Login = ({navigation})=>{
     await setPersistentState({
       email: email.toLowerCase(),
       password,
+      doOnboarding:true,
     })
 
     _setUser({
