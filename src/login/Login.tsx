@@ -103,7 +103,7 @@ const Login = ({navigation})=>{
     }
 
     try{
-      await userActions.login(email,password) 
+      await userActions.login(email.toLowerCase(),password) 
       setMessage("")
       await setPersistentState({
         email : email.toLowerCase(),

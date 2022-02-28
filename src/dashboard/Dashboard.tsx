@@ -89,7 +89,7 @@ const Dashboard = (props)=>{
     },[route?.params,currentState])
 
     
-    const [persistentState,setPersistentState,fetchPersistentState] = usePersistentAtom() as any
+    const [persistentState,setPersistentState,fetchPersistentState,dangerouslySetPersistentState] = usePersistentAtom() as any
 
     const doOnboarding :boolean = route?.params?.doOnboarding ?? persistentState.doOnboarding ?? false
 
@@ -125,13 +125,7 @@ const Dashboard = (props)=>{
         console.log({doOnboarding})
         if(doOnboarding){
             start()
-            async function didOnboarding(){
-                await setPersistentState({
-                    ...persistentState,
-                    doOnboarding: false,
-                })
-            }
-            didOnboarding()
+       
         }
     }
     //Fetch meals 
@@ -329,6 +323,21 @@ const Dashboard = (props)=>{
     //         if(name != currentStepName) setCurrentStepName(name)
     //     }
     // })
+    // const [stopped,setStopped] = useState(false);
+    useEffect(()=>{
+        const onStop = ()=>{
+            
+            setPersistentState({
+                ...persistentState,
+                doOnboarding: false,
+            })
+        }
+        copilotEvents.on("stop",onStop)
+        return ()=>{
+            copilotEvents.off("stop",onStop)
+        }
+    },[])
+   
 
     //portion view animate
     const portionAnimationState = usePortionViewAnimationState();

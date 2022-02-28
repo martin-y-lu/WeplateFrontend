@@ -70,7 +70,7 @@ function useUserActions () {
     }
     async function login(email:string, password:string) {
         let data = {
-            username: email,
+            username: email.toLowerCase(),
             password,
         }
         // console.log("LOGIN!",data)

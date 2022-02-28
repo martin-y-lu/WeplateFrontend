@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { useEffect } from 'react'
 import {atom, useRecoilState, } from 'recoil'
 
 const persistentAtom = atom({
@@ -44,6 +45,12 @@ export function usePersistentAtom(){
         setPers(newPers)
         await AsyncStorage.setItem("persist",JSON.stringify(newPers))
     }
-    return [pers,setPersistentAtom,fetchPersistentAtom]
+    useEffect(()=>{
+        return ()=>{
+            setPersistentAtom(pers)
+        }
+    },[])
+    const dangerouslySetPersistentAtom = setPers
+    return [pers,setPersistentAtom,fetchPersistentAtom,dangerouslySetPersistentAtom]
 
 }
