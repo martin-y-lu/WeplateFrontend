@@ -8,9 +8,9 @@ import { dashboardState, dateToString, TimeInfo } from '../dashboard/state';
 import { APIMealByTimeEvent, APIMealByTimePayload } from '../utils/session/apiTypes';
 import { useUserActions } from '../utils/session/useUserActions';
 import { authAtom } from '../utils/session/useFetchWrapper';
-import { useLogin } from '../debug/Debug';
 import { formatNumber } from '../utils/math';
 import { LoadingIcon } from '../utils/Loading';
+import { useLogin } from '../utils/session/session';
 
 export const BASE_PORTION_FILL_FRACTION = 0.7
 

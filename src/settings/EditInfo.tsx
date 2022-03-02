@@ -11,7 +11,7 @@ import { ingredientsAtom, usersAtom, useUserActions } from "../utils/session/use
 import NumberPlease from "react-native-number-please";
 import { baseAllergens, dietaryRestrictions, getAPIBaseAllergenName, APIDietaryRestriction, getAPIDietaryRestrictionName } from '../utils/session/apiTypes';
 import {authAtom} from '../utils/session/useFetchWrapper'
-import {useLogin} from '../debug/Debug'
+import { useLogin } from '../utils/session/session'
 
 
 

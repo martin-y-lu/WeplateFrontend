@@ -8,43 +8,6 @@ import { authAtom } from '../utils/session/useFetchWrapper';
 
 const RCTNetworking = require('react-native/Libraries/Network/RCTNetworking')
 
-export function useLogin(navigation){
-    const userActions = useUserActions()
-    const [persistentState,setPersistentState,fetchPersistentState] = usePersistentAtom() as any
-    const [loading,setLoading] = useState(false);
-    const auth = useRecoilValue(authAtom)
-    useEffect(()=>{
-        const login  = (async ()=>{
-            if(persistentState.loaded && !loading){
-                if(persistentState.email === null || persistentState.password == null){
-                    navigation.navigate("Login")
-                }else{
-                    try{
-                        await userActions.login(persistentState.email,persistentState.password) 
-                    }catch(e){
-                        console.log(e)
-                        await setPersistentState({
-                            ...persistentState,
-                            email: null,
-                            password: null,
-                        })
-                        navigation.navigate("Login")
-                    }
-                }
-            }else{
-                if(!loading){
-                    setLoading(true);
-                    await fetchPersistentState()
-                    setLoading(false)
-                }
-            }
-            // userActions.login("2021090@appleby.on.ca","goodpassword123") 
-        })
-        if(!auth){
-            login()
-        }
-    },[persistentState])
-}
 const Debug = ({navigation})=>{
     const userActions = useUserActions()
     const user = useRecoilValue(usersAtom)

@@ -216,6 +216,7 @@ function useUserActions () {
             ...persistentState,
             email: null,
             password: null,
+            doOnboarding: true,
         })
         setAuth(null);
         // history.push('/login');

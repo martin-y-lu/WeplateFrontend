@@ -225,6 +225,7 @@ export const NutritionFacts = (props) =>{
     return <NutritionFactsContainer disabled = {props?.disabled ?? false}> 
     <View style = {{
         width : "100%",
+        height: "100%",
         flexDirection: "column",
         alignItems:"flex-start",
         justifyContent: "flex-start"
@@ -268,7 +269,10 @@ export const NutritionFacts = (props) =>{
                 <DataRow height = {30} name = "Vitamin C" unit = "mg" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.vitaminC*nutrientScale(dish)}  />
                 <DataRow height = {30} name = "Vitamin A" unit = "IU" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.vitaminA*nutrientScale(dish)}  />
             </ScrollView>
-            <SvgXml style = {{marginTop: 80}} xml = {easter_egg_xml}/>
+        </View>
+        <View style = {{marginTop: "auto",marginBottom:20,marginRight:20,marginLeft: "auto"}}>
+
+        <SvgXml  xml = {easter_egg_xml}/>
         </View>
     </View>
     

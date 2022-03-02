@@ -276,9 +276,12 @@ function RadioButton(props){
     const [user,_setUser] = useRecoilState(usersAtom)
     const check :boolean = props.check  ?? true
     const width = Dimensions.get("window").width   -100
+    const condensed = props?.desc?.length> 10 ?? false
     return <TouchableOpacity style = {{
         height: 40,
         width,
+        marginBottom: condensed ? 5: 0,
+        marginTop: condensed ? 5: 0,
         // backgroundColor: "orange",
         flexDirection:"row",
         alignItems: "center",
@@ -296,7 +299,7 @@ function RadioButton(props){
         <Text style = {{
             color: "white",
             marginLeft: "auto",
-            fontSize : 16,
+            fontSize : condensed? 14 : 16,
         }}>
             {props.desc}
         </Text>

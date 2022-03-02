@@ -45,11 +45,6 @@ export function usePersistentAtom(){
         setPers(newPers)
         await AsyncStorage.setItem("persist",JSON.stringify(newPers))
     }
-    useEffect(()=>{
-        return ()=>{
-            setPersistentAtom(pers)
-        }
-    },[])
     const dangerouslySetPersistentAtom = setPers
     return [pers,setPersistentAtom,fetchPersistentAtom,dangerouslySetPersistentAtom]
 

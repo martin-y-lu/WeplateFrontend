@@ -45,14 +45,14 @@ const Login = ({navigation})=>{
   //2 shows the log in view
   const userActions = useUserActions()
   const [persistentState,setPersistentState,fetchPersistentState] = usePersistentAtom() as any
-  const [persistentStateChecked,setPersistentStateChecked] = useState(false);
-  useEffect(()=>{
-    if(persistentState.password !== null && persistentState.email !== null && !persistentStateChecked){
-      console.log("Naving back to dashboard",route.name)
-      navigation.navigate("SidebarNavigable",{screen:"Dashboard"})
-      setPersistentStateChecked(true)
-    }
-  },[persistentState])
+  // const [persistentStateChecked,setPersistentStateChecked] = useState(false);
+  // useEffect(()=>{
+  //   if(persistentState.password !== null && persistentState.email !== null && !persistentStateChecked){
+  //     console.log("Naving back to dashboard",route.name)
+  //     navigation.navigate("SidebarNavigable",{screen:"Dashboard"})
+  //     setPersistentStateChecked(true)
+  //   }
+  // },[persistentState])
 
   const [state, setState] = useState(0);
 
