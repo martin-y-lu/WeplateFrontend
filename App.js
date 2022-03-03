@@ -19,7 +19,6 @@ import AboutUs from "./src/about-us/AboutUs";
 import Feedback from "./src/feedback/Feedback";
 import { RecoilRoot } from "recoil";
 import BaseHeader from "./src/utils/BaseHeader";
-import Debug from "./src/debug/Debug";
 import { CustomDrawerContent } from "./src/utils/DrawerContent";
 import { Welcome1, Welcome10, Welcome2, Welcome3, Welcome4, Welcome5, Welcome6, Welcome7, Welcome8, Welcome9 } from "./src/welcome/Welcome";
 import DiningMenuHeader from "./src/dining-menu/DiningMenuHeader";
@@ -84,10 +83,6 @@ const SidebarNavigable = ()=>{
                 headerTransparent: true,
                 headerTitleStyle: {opacity: 0}
             }}
-        />
-        <Drawer.Screen
-            name = "--DEBUG--"
-            component = {Debug}
         />
     </Drawer.Navigator>
 }

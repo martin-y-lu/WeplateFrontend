@@ -85,7 +85,7 @@ function Splash({navigation}){
         }
     },[persistentState,loading]) 
     const shift = {x: -5, y: -20}
-    return <View style={{ flex: 1, alignItems: 'center', backgroundColor: '#ff7474', justifyContent: 'center' }}>
+    return <View style={{ flex: 1, alignItems: 'center', backgroundColor: '#FF3939', justifyContent: 'center' }}>
     <View style={{alignItems: 'left', margin: 15,paddingLeft:20,}}>
         <View>
             <Animated.View style = {{

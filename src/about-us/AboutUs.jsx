@@ -20,11 +20,11 @@ const AboutUs = ({navigation})=>{
                 <Text style={styles.title}>About Us</Text>
                 <Text style={styles.text}>We are a team of college students from Babson, MIT, UCSD, and UWaterloo who want to make eating healthy in college convenient and effective, for everyone. 
 
-WePlate’s app is currently in beta testing at Babson College’s Trim Dining Hall. Our goal for our beta test is to collect data on students’ eating habits and refine our algorithm.
+WePlate’s app is integrated at Babson College’s Trim Dining Hall. Our goal is to collect data on students’ eating habits and refine our algorithm.
 
 Any feedback you provide on foods will be directly reviewed by cafeteria administrators and nutritionists, and taken into account when making menu changes.
 
-We hope you enjoy using our beta app! Please provide any feedback at www.weplate.app/feedback.</Text>
+We hope you enjoy using our app! Please provide any feedback at www.weplate.app/feedback.</Text>
                 <TouchableOpacity
                     style={styles.button}
                     onPress={() => {
