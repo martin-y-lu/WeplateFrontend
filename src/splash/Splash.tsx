@@ -1,7 +1,9 @@
 import React, { useEffect, useRef, useState, } from "react"
-import { Image, StyleSheet, Text, View, Animated, Easing } from "react-native"
+import { Image, StyleSheet, Text, View, Animated, Easing, Linking, Dimensions } from "react-native"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { SvgXml } from "react-native-svg"
+import { APIVersionResponse, APIHandleUpdateStrategies } from '../utils/session/apiTypes';
+import { useUserActions } from "../utils/session/useUserActions";
 import { usePersistentAtom } from '../utils/state/userState';
 const logo_svg =   `<svg width="65" height="46" viewBox="0 0 65 46" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M32.4725 3.90527H61.3254V42.3758H32.4725M32.4725 3.90527H3.61963V23.1405M32.4725 3.90527V23.1405M32.4725 42.3758H3.61963V23.1405M32.4725 42.3758V23.1405M32.4725 23.1405H3.61963" stroke="white" stroke-width="6.33166" stroke-linecap="round" stroke-linejoin="round"/>
@@ -21,10 +23,20 @@ const plate_svg =  `<svg width="146" height="77" viewBox="0 0 146 77" fill="none
 </svg>
 `
 
+const appStoreLink = "itms-apps://apps.apple.com/ca/app/weplate/id1610953263"
+
 function Splash({navigation}){
+    const userActions = useUserActions()
+    const {width,height} = Dimensions.get("window")
 
     const [persistentState,setPersistentState,fetchPersistentState] = usePersistentAtom() as any
     const [persistentStateChecked,setPersistentStateChecked] = useState(false);
+    async function getPersistentState(){
+        if(persistentState.loaded){
+            return persistentState;
+        }
+        return await fetchPersistentState()
+    }
     const [loading,setLoading] = useState(false)
     const logoYAnimRef = useRef(new Animated.Value(-50));
     const weYAnimRef = useRef(new Animated.Value(-50));
@@ -34,6 +46,9 @@ function Splash({navigation}){
             setTimeout(resolve,500)
         })
     }
+
+    const [updateRequired,setUpdateRequired] = useState<APIHandleUpdateStrategies>("none");
+
     const useNativeDriver =  false
     useEffect(()=>{
         Animated.stagger(100,[ 
@@ -59,59 +74,163 @@ function Splash({navigation}){
 
         ]).start()
     },[])
-
-    useEffect(()=>{
-        console.log(persistentState)
-        async function checkState(){
-            if(!loading){
-                if(persistentState.loaded){
-                    setPersistentStateChecked(true)
-                    await leaveSplashAnimation()
-                    if(persistentState.password !== null && persistentState.email !== null && !persistentStateChecked){
-                        navigation.navigate("SidebarNavigable",{screen:"Dashboard"})
-                    }else{
-                        navigation.navigate("Login")
-                    }
-                }else{
-                    console.log("fetching persistent state",persistentState)
-                    setLoading(true)
-                    await fetchPersistentState()
-                    setLoading(false)
-                }
+    async function goToAppStore(){
+        const linkSupported = await Linking.canOpenURL(appStoreLink);
+        if(linkSupported){
+            Linking.openURL(appStoreLink)
+        }
+    }
+    async function checkUpdate(){
+        const compatibility = await userActions.checkVersion();
+        console.log({compatibility})
+        if(!compatibility.compatible){
+            setUpdateRequired(compatibility.handling_update)
+            if(compatibility.handling_update == "force"){
+                await goToAppStore()
             }
         }
-        if(!persistentStateChecked){
-            checkState()
+        return compatibility
+    }
+    async function handleEnterApp(){
+        const fetchedState = await getPersistentState()
+        await leaveSplashAnimation()
+        if(fetchedState.password !== null && fetchedState.email !== null){
+            navigation.navigate("SidebarNavigable",{screen:"Dashboard"})
+        }else{
+            navigation.navigate("Login")
         }
-    },[persistentState,loading]) 
+    }
+
+    useEffect(()=>{
+       
+        async function handleSplash(){
+            const compat = await checkUpdate();
+            if(compat.compatible){
+                handleEnterApp()
+            }
+        }
+        handleSplash()
+    },[]) 
+    // useEffect(()=>{
+    //     console.log(persistentState)
+    //     async function checkState(){
+    //         if(!loading){
+    //             if(persistentState.loaded){
+    //                 setPersistentStateChecked(true)
+    //                 await leaveSplashAnimation()
+    //                 if(persistentState.password !== null && persistentState.email !== null && !persistentStateChecked){
+    //                     navigation.navigate("SidebarNavigable",{screen:"Dashboard"})
+    //                 }else{
+    //                     navigation.navigate("Login")
+    //                 }
+    //             }else{
+    //                 console.log("fetching persistent state",persistentState)
+    //                 setLoading(true)
+    //                 await fetchPersistentState()
+    //                 setLoading(false)
+    //             }
+    //         }
+    //     }
+    //     if(!persistentStateChecked){
+    //         checkState()
+    //     }
+    // },[persistentState,loading]) 
     const shift = {x: -5, y: -20}
-    return <View style={{ flex: 1, alignItems: 'center', backgroundColor: '#FF3939', justifyContent: 'center' }}>
-    <View style={{alignItems: 'left', margin: 15,paddingLeft:20,}}>
-        <View>
-            <Animated.View style = {{
-                position: "absolute",
-                left: -73 +shift.x,
-                top: Animated.add(logoYAnimRef.current,-32 + shift.y),
-            }}> 
-                <SvgXml xml= {logo_svg}/>
-            </Animated.View>
-            <Animated.View style = {{
-                position: "absolute",
-                left: -116 +shift.x,
-                top: Animated.add(weYAnimRef.current, 22 +shift.y),
-                
-            }}>
-                <SvgXml xml= {we_svg}/>
-            </Animated.View>
-            <Animated.View style = {{
-                position: "absolute",
-                left: -33 +shift.x,
-                top: Animated.add(plateYAnimRef.current, 0 + shift.y),
-            }}>
-                <SvgXml xml= {plate_svg}/>
-            </Animated.View>
+    return <View style={{ flex: 1, backgroundColor: '#FF3939', justifyContent: 'center' }}>
+        <View style = {{
+            width: "100%",
+            alignItems:"center",
+        }}>
+        <View style={{alignItems: 'left', margin: 15,paddingLeft:20,}}>
+            <View>
+                <Animated.View style = {{
+                    position: "absolute",
+                    left: -73 +shift.x,
+                    top: Animated.add(logoYAnimRef.current,-32 + shift.y),
+                }}> 
+                    <SvgXml xml= {logo_svg}/>
+                </Animated.View>
+                <Animated.View style = {{
+                    position: "absolute",
+                    left: -116 +shift.x,
+                    top: Animated.add(weYAnimRef.current, 22 +shift.y),
+                    
+                }}>
+                    <SvgXml xml= {we_svg}/>
+                </Animated.View>
+                <Animated.View style = {{
+                    position: "absolute",
+                    left: -33 +shift.x,
+                    top: Animated.add(plateYAnimRef.current, 0 + shift.y),
+                }}>
+                    <SvgXml xml= {plate_svg}/>
+                </Animated.View>
+            </View>
         </View>
     </View>
+    { updateRequired != "none" && 
+        <Animated.View style = {{
+            position: "absolute",
+            left: 0,
+            top: height*0.7,
+            alignItems:'center',
+            width: "100%",
+        }}>
+            <Text style = {{
+                color: "white",
+                fontSize: 20,
+            }}>
+                A new update is available:
+            </Text>
+            <View style = {{
+                flexDirection: "row",
+                paddingLeft: 50,
+                paddingRight: 50
+            }}>
+
+                <TouchableOpacity style = {{
+                        backgroundColor: "white",
+                        padding: 10,
+                        margin:5,
+                        borderRadius: 20,
+                    }}
+                    onPress = {()=>{
+                        async function handlePress(){
+                            await goToAppStore()
+                        }
+                        handlePress()
+                    }}
+                >   
+                    <Text  style = {{
+                        color: '#FF3939'
+                    }}>
+                        Get update
+                    </Text>
+                </TouchableOpacity>
+                { updateRequired != "force" &&
+                    <TouchableOpacity style = {{
+                        backgroundColor: "white",
+                        padding: 10,
+                        margin:5,
+                        borderRadius: 20,
+                    }}
+                        onPress = {()=>{
+                            async function handlePress(){
+                                await handleEnterApp();
+                            }
+                            handlePress()
+                        }}
+                    >
+                        <Text style = {{
+                            color: '#FF3939'
+                        }}>
+                            Continue to app
+                        </Text>
+                    </TouchableOpacity>
+                }
+            </View>
+        </Animated.View>
+    }
  </View> 
  }
 

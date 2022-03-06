@@ -25,7 +25,9 @@ export function usePersistentAtom(){
             }
             if(newPers !== pers){
                 setPers(newPers)
+            
             }
+            return newPers;
         }else{
             const newPers = {
                 ...pers,
@@ -35,6 +37,7 @@ export function usePersistentAtom(){
                 await setPersistentAtom(newPers)
                 setPers(newPers)
             }
+            return newPers;
         }
     }
     async function setPersistentAtom(value){

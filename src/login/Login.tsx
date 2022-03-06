@@ -85,6 +85,7 @@ const Login = ({navigation})=>{
     );
   };
   const onLoginPress = async ()=>{
+    setMessage("")
     console.log({
       email,
       password,
@@ -112,6 +113,7 @@ const Login = ({navigation})=>{
       })
       navigation.navigate("SidebarNavigable",{screen:"Dashboard"})
     }catch(e){
+      console.log(e)
       setMessage("Invalid email or password")
       return;
     }

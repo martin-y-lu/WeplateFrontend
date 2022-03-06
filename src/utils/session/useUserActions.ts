@@ -2,9 +2,10 @@ import { atom, useSetRecoilState, useRecoilState } from 'recoil';
 import { TimeInfo } from '../../dashboard/state';
 import { mealToAPIForm, MealState } from '../../dashboard/typeUtil';
 import { authAtom, useFetchWrapper } from './useFetchWrapper';
-import { APIMealSuggest, APIPortionInfo, APIPortionSuggest, APIMealEvent, APIMealByTimePayload, APIAnalyticsMealChoiceEntry, APIUserSettings, APIKey, APIRegisterSettings } from './apiTypes';
+import { APIMealSuggest, APIPortionInfo, APIPortionSuggest, APIMealEvent, APIMealByTimePayload, APIAnalyticsMealChoiceEntry, APIUserSettings, APIKey, APIRegisterSettings, APIVersionResponse } from './apiTypes';
 import { usePersistentAtom } from '../state/userState';
 import {useEffect} from 'react';
+import Constants from "expo-constants"
 
 export const usersAtom = atom({
     key: "usersAtom",
@@ -52,6 +53,7 @@ function useUserActions () {
         getIngredients,
         registerUser,
         checkEmail,
+        checkVersion,
     }
    
 
@@ -80,14 +82,15 @@ function useUserActions () {
             const _auth = await fetchWrapper.post(`${baseUrl}/api/token_auth/`, data)
         
             if(!("token" in _auth)) throw new Error("Invalid auth" + password +" "+email)
+            // console.log({_auth})
             
             setAuth(_auth)
 
             const userInfo : APIUserSettings = await fetchWrapper.get(`${baseUrl}/api/settings/`,null,_auth)
             const fixedUserInfo : APIUserSettings = {
                 ... userInfo,
-                weight: kgToLbs(userInfo.weight),
-                height: CmToInch(userInfo.height),
+                weight: kgToLbs(userInfo?.weight),
+                height: CmToInch(userInfo?.height),
             }
             setUsers(fixedUserInfo)
             // console.log({userInfo})
@@ -105,7 +108,6 @@ function useUserActions () {
         console.log("MEALS BY TIME:",endpoint)
         // console.log({endpoint})
         const resp = await fetchWrapper.get(endpoint)
-        if(resp.error) throw new Error(resp.message)
         if(resp == null) throw new Error(`No data.`)
         return resp as APIMealByTimePayload
     }
@@ -207,6 +209,27 @@ function useUserActions () {
         const endpoint = `${baseUrl}/api/register/check_email/${encodeURIComponent(email)}/`
         const resp = await fetchWrapper.get(endpoint)
         return resp
+    }
+
+    
+
+    async function checkVersion(){
+        const version = Constants.manifest.version
+        const defaultResp = {
+            backend_version: version,
+            compatible: false,
+            handling_update: 'recommend'
+        } as APIVersionResponse
+        const endpoint = `${baseUrl}/api/version/?version=${encodeURIComponent(version)}/`
+        try{
+            const resp = await fetchWrapper.get(endpoint)
+            if(!resp){
+                return defaultResp;
+            }
+            return resp as APIVersionResponse
+        }catch(e){
+            return defaultResp
+        }
     }
 
 

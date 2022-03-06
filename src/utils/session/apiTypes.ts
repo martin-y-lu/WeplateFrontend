@@ -56,19 +56,14 @@ export interface APIItem{
     graphic?: APILink
     ingredients: Array<APIKey>,
     name: string,
-    nutrition: APINutrition,
+    // nutrition: APINutrition,
     id: APIKey,
     school: APISchool,
     category: APIFoodCategory,
     station : APIStation,
     portion_weight : number,
     portion_volume : number,
-}
-export interface APIIngredient{
-    name: string,
-    id: APIKey,
-}
-export interface APINutrition{
+    
     calcium?: number,
     calories ?: number,
     carbohydrate ?: number,
@@ -85,6 +80,10 @@ export interface APINutrition{
     vitamin_a ?: number,
     vitamin_c ?: number,
     vitamin_d ?: number,
+}
+export interface APIIngredient{
+    name: string,
+    id: APIKey,
 }
 
 export interface APISchool{
@@ -177,4 +176,11 @@ export interface APIRegisterSettings{
     school : APIKey
     username :string,
     password : string, 
+}
+
+export type APIHandleUpdateStrategies = "none" | "force" | "recommend"
+export interface APIVersionResponse{
+    backend_version: string,
+    compatible: boolean,
+    handling_update: APIHandleUpdateStrategies,
 }
