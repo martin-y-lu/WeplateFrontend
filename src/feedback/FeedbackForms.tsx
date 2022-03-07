@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { FeedbackTypes, feedbackAtom, diningHallFeedbacks } from './state';
-import { BaseFeedback, FeedbackRadioButton } from './Feedback';
+import { BaseFeedback, FeedbackRadioButton, feedbackStyles } from './Feedback';
 import { View,Text,Button, StyleSheet, Image, TouchableOpacity, TextInput, ScrollView, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView, Platform} from "react-native"
 import { SvgXml } from 'react-native-svg';
 import { useRecoilValue, useRecoilState } from 'recoil';
@@ -10,6 +10,7 @@ import { useUserActions } from '../utils/session/useUserActions';
 import { MealState } from "../dashboard/typeUtil";
 import { getTimeInfoOfNow, mealStateFromTimeInfo } from '../dashboard/state';
 import { useLogin } from "../utils/session/session";
+import { LoadingIcon } from "../utils/Loading";
 
 const FeedbackForms = ({navigation,route}) => {
     const auth = useRecoilValue(authAtom)
@@ -35,7 +36,39 @@ const FeedbackForms = ({navigation,route}) => {
         }
     }
 
-    let FeedbackComponent = (props :  {continueToNext: ()=> void})=><></>
+    let FeedbackComponent = (props :  {continueToNext: ()=> void})=><View style = {{flex:1, backgroundColor:"#FF7070"}}>
+    <Image source={require('../faded-backdrop2.png')} style={feedbackStyles.backdrop} />
+    <Image source={require('../faded-backdrop2.png')} style={[feedbackStyles.backdrop, {top: 350}]} />
+  
+    <KeyboardAvoidingView style = {{flex: 1,flexDirection: "column-reverse"}} behavior={Platform.OS === "ios" ? "padding" : "height"}>
+    <TouchableWithoutFeedback
+    onPress={() => Keyboard.dismiss()}
+> 
+    <View style={{ flex: 1, justifyContent: 'center' ,padding:40}}>
+        <View style = {{
+            flexDirection: "row",
+            marginBottom: 16,
+        }}>
+            <Text style = {{
+                fontSize: 36,
+                color : "white",
+                marginRight: 25
+            }}>
+                Sending Feedback
+            </Text>
+            <LoadingIcon/>
+        </View>
+
+    </View>
+        </TouchableWithoutFeedback>
+
+    </KeyboardAvoidingView>
+    <View style = {{padding: 20}}>
+        <Text style = {{color: "white",fontSize: 12}}>
+            All feedback is completely anonymous. Responses can never be traced back to your name or email.
+        </Text>
+    </View>
+    </View>
     switch(feedbacksList[0]){
         case FeedbackTypes.COOKING_FOOD_PREP:
             FeedbackComponent= FeedbackCookingFoodPrep;

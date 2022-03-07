@@ -207,6 +207,7 @@ function useUserActions () {
     }
     async function checkEmail(email:string){
         const endpoint = `${baseUrl}/api/register/check_email/${encodeURIComponent(email)}/`
+        console.log({endpoint})
         const resp = await fetchWrapper.get(endpoint)
         return resp
     }

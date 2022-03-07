@@ -106,6 +106,7 @@ export const BaseFeedback = (params: {showText:boolean,textTitle?:string,textDef
     // const allowContinue = false;
 
     const [text, setText] = useState("");
+    const _allowContinue = allowContinue &&  (!showText || text.length >0)
 
     // setText("")
     // setDone(false)
@@ -140,7 +141,7 @@ export const BaseFeedback = (params: {showText:boolean,textTitle?:string,textDef
             
             { 
                 <View style = {{
-                    opacity: allowContinue? 1 : 0.3,
+                    opacity: _allowContinue? 1 : 0.3,
                     alignSelf: 'flex-end',
                 }}>
                     <TouchableOpacity 
@@ -153,7 +154,7 @@ export const BaseFeedback = (params: {showText:boolean,textTitle?:string,textDef
                             paddingHorizontal: 25
                         }}
                         onPress={() =>{
-                            if(allowContinue){
+                            if(_allowContinue){
                                 onContinue(text)
                             }
                         } }
