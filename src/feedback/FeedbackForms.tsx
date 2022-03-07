@@ -63,7 +63,7 @@ function FeedbackCookingFoodPrep(props: {continueToNext: ()=> void}){
         setFeedback({
             ...feedback,
             [FeedbackTypes.COOKING_FOOD_PREP]:{
-                dishNames: dishNames.filter(dishName => dishName in selDishNames),
+                dishNames: dishNames.filter(dishName => selDishNames?.[dishName]),
                 feedback:text
             }
         })
@@ -93,7 +93,7 @@ function FeedbackDiningHallManagement(props: {continueToNext: ()=> void}){
         setFeedback({
             ...feedback,
             [FeedbackTypes.DINING_HALL_MANAGEMENT]:{
-                diningHallFeedbacks: diningHallFeedbacks.filter(dhfb => dhfb in selDHFeedbacks),
+                diningHallFeedbacks: diningHallFeedbacks.filter(dhfb => selDHFeedbacks?.[dhfb]),
                 feedback: text
             }
         })
@@ -127,7 +127,7 @@ function FeedbackAppFeatures(props: {continueToNext: ()=> void}){
         setFeedback({
             ...feedback,
             [FeedbackTypes.REQUEST_APP_FEATURES]:{
-                features: upcomingFeatures.filter((feature)=> feature in selFeatures),
+                features: upcomingFeatures.filter((feature)=> selFeatures?.[feature]),
                 feedback: text,
             }
         })
