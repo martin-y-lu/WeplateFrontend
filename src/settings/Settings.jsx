@@ -110,158 +110,38 @@ const Settings = ({navigation})=>{
       <Text style = {styles.miniHeader}>Personal Settings</Text>
       {dietGoals &&
       <NewSettingsEntry name="Diet Goals" value = {getAPIHealthGoalName(dietGoals)} target = 'Diet Goals' edit = {edit}/> 
-    //   <View style = {[styles.seperator, {borderTopWidth:1}]}>
-    //     <Text style = {styles.feildName}>Diet Goals</Text>
-    //     <View style = {styles.feildAndArrowContainter}>
-    //         <Text style = {styles.feild}> {getAPIHealthGoalName(dietGoals)}</Text>
-    //         <View style = {{justifyContent:'center'}}>
-    //             <TouchableOpacity style= {{paddingLeft:10}} onPress = {()=> edit('Diet Goals')}>
-    //                 <SvgXml style = {styles.triangle} xml = {arrow}/>
-    //             </TouchableOpacity>
-    //         </View>
-    //     </View>
-    //   </View>
       }
       {activityLevel &&
       <NewSettingsEntry name = "Activity Level" value = {getAPIActivityLevelName(activityLevel)} target = 'Activity Level' edit = {edit}/>
-    //   <View style = {styles.seperator}>
-    //     <Text style = {styles.feildName}>Activity Level</Text>
-    //     <View style = {styles.feildAndArrowContainter}>
-    //         <Text style = {styles.feild}> {getAPIActivityLevelName(activityLevel)}</Text>
-    //         <View style = {{justifyContent:'center'}}>
-    //             <TouchableOpacity style= {{paddingLeft:10}} onPress = {()=> edit('Activity Level')}>
-    //                 <SvgXml style = {styles.triangle} xml = {arrow_icon}/>
-    //             </TouchableOpacity>
-    //         </View>
-    //     </View>
-    //   </View>
       }
 
       {dietaryRestrictions && 
         <NewSettingsEntry name = "Dietary Restrictions" value = {arrayToPrettyArray(dietaryRestrictions.map(getAPIDietaryRestrictionName))} target = "Dietary Restrictions" edit = {edit}/>
-        // <View style = {styles.seperator}>
-        //   <Text style = {styles.feildName}>Dietary Restrictions</Text>
-        //   <View style = {styles.feildAndArrowContainter}>
-        //           <Text style = {styles.feild}> {arrayToPrettyArray(dietaryRestrictions.map(getAPIDietaryRestrictionName))}</Text>
-        //           <View style = {{justifyContent:'center'}}>
-        //               <TouchableOpacity style= {{paddingLeft:10}} onPress = {()=> edit('Dietary Restrictions')}>
-        //                   <SvgXml style = {styles.triangle} xml = {arrow_icon}/>
-        //               </TouchableOpacity>
-        //           </View>
-        //   </View>
-        // </View>
       }
 
       {foodAllergies &&
         <NewSettingsEntry name = "Food Allergies" value = {arrayToPrettyArray(foodAllergies.map(getAPIBaseAllergenName))} target = "Food Allergies" edit = {edit}/>
-    //   <View style = {styles.seperator}>
-    //     <Text style = {styles.feildName}>Food Allergies</Text>
-    //     <View style = {styles.feildAndArrowContainter}>
-    //         <Text style = {styles.feild}> {arrayToPrettyArray(foodAllergies.map(getAPIBaseAllergenName))}</Text>
-    //         <View style = {{justifyContent:'center'}}>
-    //             <TouchableOpacity style= {{paddingLeft:10}} onPress = {()=> edit('Food Allergies')}>
-    //                 <SvgXml style = {styles.triangle} xml = {arrow_icon}/>
-    //             </TouchableOpacity>
-    //         </View>
-    //     </View>
-    //   </View>
       }
       <Text style = {styles.miniHeader}>Biological Settings</Text>
       {birthday &&
       <NewSettingsEntry name = "Birthday" value = {dateToPrettyDate(birthday)} target = "Birthday" edit = {edit} />
-    //   <View style = {[styles.seperator, {borderTopWidth:1}]}>
-    //     <Text style = {styles.feildName}>Birthday</Text>
-    //     <View style = {styles.feildAndArrowContainter}>
-    //         <Text style = {styles.feild}> {dateToPrettyDate(birthday)}</Text>
-    //         <View style = {{justifyContent:'center'}}>
-    //             <TouchableOpacity style= {{paddingLeft:10}} onPress = {()=> edit('Birthday')}>
-    //                 <SvgXml style = {styles.triangle} xml = {arrow_icon}/>
-    //             </TouchableOpacity>
-    //         </View>
-    //     </View>
-    //   </View> 
       }
 
       {sex &&
       <NewSettingsEntry name = "Sex" value = {capitalizeFirstLetter(sex)} target = "Sex" edit = {edit}/>
-      // <View style = {styles.seperator}>
-      //   <Text style = {styles.feildName}>Sex</Text>
-      //   <View style = {styles.feildAndArrowContainter}>
-      //       <Text style = {styles.feild}> { capitalizeFirstLetter(sex)}</Text>
-      //       <View style = {{justifyContent:'center'}}>
-      //           <TouchableOpacity style= {{paddingLeft:10}} onPress = {()=> edit('Sex')}>
-      //               <SvgXml style = {styles.triangle} xml = {arrow_icon}/>
-      //           </TouchableOpacity>
-      //       </View>
-      //   </View>
-      // </View>
       }
 
       {isFinite(weight) &&
       <NewSettingsEntry name = "Weight" value ={formatNumber(weight) + ' lbs'} target = "Weight" edit = {edit}/>
-      // <View style = {styles.seperator}>
-      //   <Text style = {styles.feildName}>Weight</Text>
-      //   <View style = {styles.feildAndArrowContainter}>
-      //       <Text style = {styles.feild}> {formatNumber(weight) + ' lbs'}</Text>
-      //       <View style = {{justifyContent:'center'}}>
-      //           <TouchableOpacity style= {{paddingLeft:10}} onPress = {()=> edit('Weight')}>
-      //               <SvgXml style = {styles.triangle} xml = {arrow_icon}/>
-      //           </TouchableOpacity>
-      //       </View>
-      //   </View>
-      // </View> 
       }
       { isFinite(height) &&
       <NewSettingsEntry name = "Height" value = {inchesToFeet(height)[0]+ '\'' + Math.floor(inchesToFeet(height)[1]) + '\"'} target = "Height" edit = {edit}/>
-      // <View style = {styles.seperator}>
-      //   <Text style = {styles.feildName}>Height</Text>
-      //   <View style = {styles.feildAndArrowContainter}>
-      //       <Text style = {styles.feild}> {inchesToFeet(height)[0]+ '\'' + Math.floor(inchesToFeet(height)[1]) + '\"'}</Text>
-      //       <View style = {{justifyContent:'center'}}>
-      //           <TouchableOpacity style= {{paddingLeft:10}} onPress = {()=> edit('Height')}>
-      //               <SvgXml style = {styles.triangle} xml = {arrow_icon}/>
-      //           </TouchableOpacity>
-      //       </View>
-      //   </View>
-      // </View>
       }
 
       <Text style = {styles.miniHeader}>Account Settings</Text>
-      {/* <View style = {[styles.seperator, {borderTopWidth:1}]}>
-        <Text style = {styles.feildName}>Name</Text>
-        <View style = {styles.feildAndArrowContainter}>
-            <Text style = {styles.feild}> {sex}</Text>
-            <View style = {{justifyContent:'center'}}>
-                <TouchableOpacity style= {{paddingLeft:10}} onPress = {()=> edit('Name')}>
-                    <SvgXml style = {styles.triangle} xml = {arrow}/>
-                </TouchableOpacity>
-            </View>
-        </View>
-      </View> */}
-{/* 
-      <View style = {styles.seperator}>
-        <Text style = {styles.feildName}>Email</Text>
-        <View style = {styles.feildAndArrowContainter}>
-            <Text style = {styles.feild}> {sex}</Text>
-            <View style = {{justifyContent:'center'}}>
-                <TouchableOpacity style= {{paddingLeft:10}} onPress = {()=> edit('Name')}>
-                    <SvgXml style = {styles.triangle} xml = {arrow}/>
-                </TouchableOpacity>
-            </View>
-        </View>
-      </View> */}
-
-      {/* <View style = {styles.seperator}>
-        <Text style = {styles.feildName}>Password</Text>
-        <View style = {styles.feildAndArrowContainter}>
-            <Text style = {styles.feild}> {sex}</Text>
-            <View style = {{justifyContent:'center'}}>
-                <TouchableOpacity style= {{paddingLeft:10}} onPress = {()=> edit('Name')}>
-                    <SvgXml style = {styles.triangle} xml = {arrow}/>
-                </TouchableOpacity>
-            </View>
-        </View>
-      </View> */}
+      {
+        <NewSettingsEntry name = "Name" value = {name} target = "Name" edit = {edit}/>
+      }
 
       <SettingsEntry name = "Log out" current = "" openable = {false} onPress = {()=>{
             async function logOut(){

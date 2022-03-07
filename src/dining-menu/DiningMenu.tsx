@@ -114,6 +114,7 @@ const STATIONS = Object.keys(STATION)
 const DiningMenu = ({navigation,route})=> {
     const auth = useRecoilValue(authAtom)
     useLogin(navigation)
+    const userActions = useUserActions()
 
     // const [currentStation,setCurrentStation] = useState(STATION.A);
     const currentStation = route?.params?.station ?? STATION.A
@@ -122,7 +123,6 @@ const DiningMenu = ({navigation,route})=> {
     const currentState = useRecoilValue(dashboardState);
     const {currentDate,currentMeal} = currentState
     const timeInfo : TimeInfo = { date: dateToString(currentDate), meal: currentMeal}
-    const userActions = useUserActions()
     const [loading,setLoading] = useState(false) 
     const [noMealInfo,setNoMealInfo] = useState(null as {message: string})
     async function fetchMeals(){

@@ -59,7 +59,9 @@ const BaseHeader = (props : {options?: any, overlayComponents?, children?,naviga
                 outputRange : [0,height+inset.top],
                 extrapolate: "clamp"
             }), }],
-        }}>
+        }}
+            pointerEvents = "box-none"
+        >
             <Text>
                 Network connectivity limited or unavailable.
                 {/* {JSON.stringify(netInfo)} */}

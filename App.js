@@ -24,6 +24,8 @@ import { Welcome1, Welcome10, Welcome2, Welcome3, Welcome4, Welcome5, Welcome6, 
 import DiningMenuHeader from "./src/dining-menu/DiningMenuHeader";
 import EditInfo from "./src/settings/EditInfo";
 import Splash from "./src/splash/Splash";
+import FeedbackThankYou from "./src/feedback/FeedbackThankYou";
+import FeedbackForms from "./src/feedback/FeedbackForms";
 
 const Stack = createNativeStackNavigator()
 const Drawer = createDrawerNavigator();
@@ -57,6 +59,15 @@ const SidebarNavigable = ()=>{
         <Drawer.Screen
             name = "Feedback"
             component = {Feedback}
+            options = {{
+                header: (props) =>  <BaseHeader {...props}/>,
+                headerTransparent: true,
+                headerTitleStyle: {opacity: 0, color: "white"}
+            }}
+        />
+        <Drawer.Screen
+            name = "FeedbackThankYou"
+            component = {FeedbackThankYou}
             options = {{
                 header: (props) =>  <BaseHeader {...props}/>,
                 headerTransparent: true,
@@ -104,6 +115,10 @@ const BaseApp = ()=>{
             <Stack.Screen
                 name = "Survey"
                 component={Survey}
+            />
+            <Stack.Screen 
+                name = "FeedbackForms"
+                component = {FeedbackForms}
             />
             <Stack.Screen
                 name = "Welcome1"

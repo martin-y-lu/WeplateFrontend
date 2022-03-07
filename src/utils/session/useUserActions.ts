@@ -217,8 +217,8 @@ function useUserActions () {
         const version = Constants.manifest.version
         const defaultResp = {
             backend_version: version,
-            compatible: false,
-            handling_update: 'recommend'
+            compatible: true,
+            handling_update: 'none',
         } as APIVersionResponse
         const endpoint = `${baseUrl}/api/version/?version=${encodeURIComponent(version)}/`
         try{

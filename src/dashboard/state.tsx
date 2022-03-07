@@ -20,7 +20,6 @@ export function stringToDate(string: string){
 
 export function getTimeInfoOfNow(){
     const date = new Date()
-    console.log(dateToString(date))
     const date_string = dateToString(date)
     const hour = date.getHours();
     let currentMeal = MEALS.Lunch

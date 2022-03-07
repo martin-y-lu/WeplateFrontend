@@ -566,8 +566,7 @@ const EditHeight = () => {
 }
 
 const EditName = () => {
-    const infoStates = useRecoilValue(infoState);
-    const [text, onChangeText] = useState(infoStates.name);
+    const [text, onChangeText] = useRecoilState(Rname);
     return(
         <View style={styles.innerContainer} > 
             <Text style={styles.header}>Name</Text>
@@ -656,6 +655,9 @@ const EditInfo = ({navigation,route})=>{
             break
         case "Height": 
             PageComponent = EditHeight
+            break
+        case "Name": 
+            PageComponent = EditName
             break
     }
 
