@@ -258,10 +258,10 @@ export const NutritionFacts = (props) =>{
                 <DataRow height = {30} name = "    Trans Fat" bold = {false}unit = "g" color = "#A6A6A6" mealState = {mealState} selector = {(dish:Dish)=> dish.nutritionSummary.transFat*nutrientScale(dish)}  />
                 <DataRow height = {30} name = "Cholesterol" unit = "mg" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.cholesterol*nutrientScale(dish)}  />
                 <DataRow height = {30} name = "Sodium" unit = "mg" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.sodium*nutrientScale(dish)}  />
-                <DataRow height = {30} name = "Carbohydrates" unit = "mg" mealState = {mealState} selector = {(dish:Dish)=> dish.nutritionSummary.carbohydrates*nutrientScale(dish)}  />
+                <DataRow height = {30} name = "Carbohydrates" unit = "g" mealState = {mealState} selector = {(dish:Dish)=> dish.nutritionSummary.carbohydrates*nutrientScale(dish)}  />
                 <DataRow height = {30} name = "    Dietary Fiber" bold = {false}unit = "g" color = "#A6A6A6" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.dietaryFiber*nutrientScale(dish)}  />
                 <DataRow height = {30} name = "    Total Sugar" bold = {false}unit = "g" color = "#A6A6A6" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.sugar*nutrientScale(dish)}  />
-                <DataRow height = {30} name = "Protein" unit = "mg" mealState = {mealState} selector = {(dish:Dish)=> dish.nutritionSummary.protein*nutrientScale(dish)}  />
+                <DataRow height = {30} name = "Protein" unit = "g" mealState = {mealState} selector = {(dish:Dish)=> dish.nutritionSummary.protein*nutrientScale(dish)}  />
                 <DataRow height = {30} name = "Potassium" unit = "mg" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.potassium*nutrientScale(dish)}  />
                 <DataRow height = {30} name = "Calcium" unit = "mg" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.calcium*nutrientScale(dish)}  />
                 <DataRow height = {30} name = "Iron" unit = "mg" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.iron*nutrientScale(dish)}  />

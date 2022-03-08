@@ -167,6 +167,7 @@ const Login = ({navigation})=>{
       email: email.toLowerCase(),
       password,
       doOnboarding:true,
+      register: true,
     })
 
     _setUser({

@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react"
+import React, { useEffect, useState, useCallback } from 'react';
 import { View,Text,Button } from "react-native"
 import { useValue } from "react-native-reanimated";
 import { useRecoilState, useRecoilValue } from "recoil"
 import { usersAtom, useUserActions } from "./useUserActions"
 import {  usePersistentAtom } from '../state/userState';
 import { authAtom } from './useFetchWrapper';
+import { useFocusEffect } from "@react-navigation/native";
 
 export function useLogin(navigation){
     const userActions = useUserActions()
@@ -12,10 +13,11 @@ export function useLogin(navigation){
     const [loading,setLoading] = useState(false);
     const auth = useRecoilValue(authAtom)
     useEffect(()=>{
+
         const login  = (async ()=>{
-            if(persistentState.loaded && !loading){
+            if(persistentState.loaded && ! persistentState?.register && !loading){
                 if(persistentState.email === null || persistentState.password == null){
-                    console.log("Navigating to email because persistent state info is null:",persistentState)
+                    console.error("Navigating to email because persistent state info is null:",persistentState)
                     navigation.navigate("Login")
                 }else{
                     try{
@@ -26,6 +28,8 @@ export function useLogin(navigation){
                             ...persistentState,
                             email: null,
                             password: null,
+                            loaded: false,
+                            register: false
                         })
                         navigation.navigate("Login")
                     }
@@ -39,8 +43,8 @@ export function useLogin(navigation){
             }
             // userActions.login("2021090@appleby.on.ca","goodpassword123") 
         })
-        if(!auth){
+        if(!auth && navigation.isFocused()){
             login()
         }
-    },[persistentState])
+    },[persistentState,navigation.isFocused()]);
 }

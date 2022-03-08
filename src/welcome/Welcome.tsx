@@ -530,6 +530,10 @@ export const Welcome10 = ({navigation})=>{
                             password: persistentState.password,
                         })
                         console.log({res})
+                        await setPersistentState({
+                            ...persistentState,
+                            register: false
+                        })
                         navigation.navigate("SidebarNavigable",{screen:"Dashboard"})
                     }catch(e){
                         console.log(e)

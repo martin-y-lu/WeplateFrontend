@@ -14,5 +14,5 @@ export function closest(val,vals){
 }
 
 export function formatNumber(num:number){
-    return num.toFixed(0)
+    return num?.toFixed(0)
 }
