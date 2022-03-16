@@ -33,7 +33,7 @@ const TrayItem = ( props : {isTop ?: boolean, number: number,portion: Portion, d
         async function castVote(positive:boolean){
             swipeableRef.current.close()
             const resp = await userActions.postAnalyticsMealItemVote(dish.id,positive)
-            console.log(resp)
+            console.log("Vote resp: ",resp)
             //todo: somehow give more feedback that your vote did something
         }
         const RightActions = ()=>{

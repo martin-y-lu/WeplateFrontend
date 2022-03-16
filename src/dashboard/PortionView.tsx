@@ -40,7 +40,6 @@ import { degToRad, interp, lerp } from '../utils/math';
 import { FOOD_CATEGORY, MEALS } from './typeUtil';
 import { colorOfCategory } from './NutritionFacts';
 
-console.log(Quaternion)
 if (!global.btoa) {
   global.btoa = encode;
 }

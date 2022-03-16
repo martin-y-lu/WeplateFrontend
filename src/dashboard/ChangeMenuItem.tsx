@@ -29,8 +29,8 @@ import { LoadingIcon } from "../utils/Loading";
 
 
 
-const ChangeMenuItem = (props : {modalOpen: Portion,setModalOpen?: (Portion) => void, mealState: MealState, setMealState: (MealState) => void ,setMealDishes : (newDishA: Dish, newDishB: Dish, newDishC: Dish) => Promise<void>}) =>{
-    const {modalOpen, setModalOpen, mealState, setMealState,setMealDishes} = props
+const ChangeMenuItem = (props : {modalOpen: Portion,setModalOpen?: (Portion) => void, mealState: MealState,setMealDishes : (newDishA: Dish, newDishB: Dish, newDishC: Dish) => Promise<void>}) =>{
+    const {modalOpen, setModalOpen, mealState,setMealDishes} = props
     const [selectedDish,setSelectedDish] = useState(null);
     const portion = modalOpen
     const dishes = getRecommendationsByPortion(mealState,portion)

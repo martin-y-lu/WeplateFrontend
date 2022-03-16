@@ -517,30 +517,92 @@ export const Welcome10 = ({navigation})=>{
     const userActions = useUserActions()
     const [user,_setUser] = useRecoilState(usersAtom)
     const [persistentState,setPersistentState,fetchPersistentState] = usePersistentAtom() as any
+    useEffect(()=>{
+        if(navigation.isFocused()){
+            const register = (async ()=>{
+                console.log({user})
+                try{
+                    console.log("registering");
+                    const res  = await userActions.registerUser({
+                        ...user,
+                        username: persistentState.email,
+                        password: persistentState.password,
+                    })
+                    console.log({res})
+                    await setPersistentState({
+                        ...persistentState,
+                        register: false
+                    })
+                    await userActions.login(persistentState.email,persistentState.password) 
+                    console.log("sending verification email")
+                    userActions.verifyEmail(persistentState.email);
+                }catch(e){
+                    console.log(e)
+                    await userActions.logout()
+                    navigation.navigate("Login")
+                }
+            })
+            register();
+        }       
+    },[navigation.isFocused()]);
+    const [failMessage, setFailMessage] = useState("");
+    return <BaseWelcome>
+        <Text style={styles.title}>Verify Your Email</Text>
+        <Text style={styles.text}> We sent an email to {persistentState.email} to verify your email address and activate your account.
+         </Text>
+         <Text style = {[styles.text, { 
+            marginTop: 30,
+         }]}>
+            Continue after you activated your account.
+         </Text>
+         <Text style = {[styles.text, { 
+            marginTop: 30,
+            color: "red"
+         }]}>
+            {failMessage}
+         </Text>
+        <WelcomeButton onPress = {()=>{
+                const checkVerify = (async ()=>{
+                    const isVerified = await userActions.isVerified()
+                    console.log({isVerified})
+                    if(isVerified){
+                        navigation.navigate("Welcome11");
+                    }else{
+                        setFailMessage("Open the link sent in the email to verify your account.")
+                    }
+                })
+                checkVerify()
+            }}> Continue </WelcomeButton>
+    </BaseWelcome>
+}
+export const Welcome11 = ({navigation})=>{
+    const userActions = useUserActions()
+    const [user,_setUser] = useRecoilState(usersAtom)
+    const [persistentState,setPersistentState,fetchPersistentState] = usePersistentAtom() as any
     return <BaseWelcome>
         <Text style={styles.title}>Finished!</Text>
         <Text style={styles.text}>We will use this information to craft a well balanced diet, tailored towards your needs.</Text>
         <WelcomeButton onPress = {()=>{
-                const register = (async ()=>{
-                    console.log({user})
-                    try{
-                        const res  = await userActions.registerUser({
-                            ...user,
-                            username: persistentState.email,
-                            password: persistentState.password,
-                        })
-                        console.log({res})
-                        await setPersistentState({
-                            ...persistentState,
-                            register: false
-                        })
-                        navigation.navigate("SidebarNavigable",{screen:"Dashboard"})
-                    }catch(e){
-                        console.log(e)
-                        navigation.navigate("Login")
-                    }
-                })
-                register()
+                // const register = (async ()=>{
+                //     console.log({user})
+                //     try{
+                //         const res  = await userActions.registerUser({
+                //             ...user,
+                //             username: persistentState.email,
+                //             password: persistentState.password,
+                //         })
+                //         console.log({res})
+                //         await setPersistentState({
+                //             ...persistentState,
+                //             register: false
+                //         })
+                //     }catch(e){
+                    //         console.log(e)
+                    //         navigation.navigate("Login")
+                    //     }
+                    // })
+                    // register()
+                navigation.navigate("SidebarNavigable",{screen:"Dashboard"})
             }}> Continue </WelcomeButton>
     </BaseWelcome>
 }

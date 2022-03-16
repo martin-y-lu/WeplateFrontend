@@ -60,73 +60,12 @@ function BaseButton(props){
     </TouchableOpacity>
 }
 
-const WalkableView = walkthroughable(View)
-const WalkableTrayItem = walkthroughable(TrayItem)
-const WalkableNutritionFacts = walkthroughable(NutritionFacts)
-const Dashboard = (props)=>{
-    const {route,navigation,copilotEvents} = props
-    const auth = useRecoilValue(authAtom)
-    useLogin(navigation)
-
-    const {start} = props // Copilot: Start onboarding
-
-    const [currentState,setCurrentState] = useRecoilState(dashboardState);
-    useEffect(()=>{
-        if(currentState.currentDate == null || currentState.currentMeal == null){
-            const timeInfoNow = getTimeInfoOfNow()
-            // console.log({timeInfoNow})
-            setCurrentState({
-                ...currentState,
-                currentDate: stringToDate(timeInfoNow.date),
-                currentMeal: timeInfoNow.meal,
-            })
-        }
-    },[currentState])
-    const {currentDate,currentMeal} = currentState
-    const timeInfo = useMemo(()=>{
-        const {currentDate,currentMeal} = currentState
-        return route?.params?.timeInfo ?? { date: dateToString(currentDate), meal: currentMeal}
-    },[route?.params,currentState])
-
-    
-    const [persistentState,setPersistentState,fetchPersistentState,dangerouslySetPersistentState] = usePersistentAtom() as any
-
-    const doOnboarding :boolean = route?.params?.doOnboarding ?? persistentState.doOnboarding ?? false
-
-    let isPresent = false
-    let isPast = false
-    let isFuture = false
-    
-    if(currentDate > stringToDate(timeInfo.date)){
-        isPast = true;
-    }else if(currentDate < stringToDate(timeInfo.date)){
-        isFuture = true;
-    }else if(dateToString(currentDate) === timeInfo.date){
-        const difference = getMealsIndex(currentMeal) - getMealsIndex(timeInfo.meal)
-        if(difference>0){
-            isPast = true;
-        }else if(difference< 0 ){
-            isFuture = true;
-        }else if(difference == 0){
-            isPresent = true;
-        }
-    }
-
-    
+function useMealFeatures({userActions,timeInfo,persistentState,auth,isFuture,onLoad}){
     const [mealState, setMealState] : [MealState,(MealState) => void]= useRecoilState(mealStateFromTimeInfo(timeInfo))
-    
-    const [modalOpen,setModalOpen] = useState<Portion>(null)
-    const userActions = useUserActions()
-    const [viewingPortions,setViewingPortions] = useState(false);
+    const [loading,setLoading] = useState(false)
     const [noMeal,setNoMeal] = useState<{message: string}>(null);
 
-
-    const onLoad = ()=>{
-        // console.log({doOnboarding})
-        if(doOnboarding){
-            start()
-        }
-    }
+    
     //Fetch meals 
     const setMealDishes = useCallback(
         async (newDishA:Dish,newDishB:Dish,newDishC:Dish)=>{
@@ -134,7 +73,7 @@ const Dashboard = (props)=>{
                 return;
             }else{
                 const portions = await userActions.portionSuggestionByItemID(newDishA.id,newDishB.id,newDishC.id);
-                console.log({portions})
+                console.log("Portions: " + {portions})
                 const dishAPortion = getPortionInfoFromAPIPortionInfo(newDishA,portions.small1,Portion.A);
                 const dishA= {...newDishA ,portion: dishAPortion}
                 const dishBPortion = getPortionInfoFromAPIPortionInfo(newDishB,portions.small2,Portion.B);
@@ -160,10 +99,14 @@ const Dashboard = (props)=>{
         },
         [mealState],
     )
-    const [loading,setLoading] = useState(false)
+    
+
     async function fetchMeal(){
         console.log("try fetching.")
-        if(persistentState.loaded == false) return
+        if(persistentState.loaded == false){ 
+            console.log("Persistent state not loaded")    
+            return
+        }
         if(timeInfo?.date == null || timeInfo?.meal == null) return
         if(auth === null) return
         // console.log("Fetching meal!")
@@ -314,6 +257,266 @@ const Dashboard = (props)=>{
         }
     },[auth,timeInfo,loading])
 
+    return {mealState,loading,noMeal,setMealDishes}
+}
+
+const WalkableView = walkthroughable(View)
+const WalkableTrayItem = walkthroughable(TrayItem)
+const WalkableNutritionFacts = walkthroughable(NutritionFacts)
+const Dashboard = (props)=>{
+    const {route,navigation,copilotEvents} = props
+    const auth = useRecoilValue(authAtom)
+    useLogin(navigation)
+
+    const {start} = props // Copilot: Start onboarding
+
+    const [currentState,setCurrentState] = useRecoilState(dashboardState);
+    useEffect(()=>{
+        if(currentState.currentDate == null || currentState.currentMeal == null){
+            const timeInfoNow = getTimeInfoOfNow()
+            // console.log({timeInfoNow})
+            setCurrentState({
+                ...currentState,
+                currentDate: stringToDate(timeInfoNow.date),
+                currentMeal: timeInfoNow.meal,
+            })
+        }
+    },[currentState])
+    const {currentDate,currentMeal} = currentState
+    const timeInfo = useMemo(()=>{
+        const {currentDate,currentMeal} = currentState
+        return route?.params?.timeInfo ?? { date: dateToString(currentDate), meal: currentMeal}
+    },[route?.params,currentState])
+
+    
+    const [persistentState,setPersistentState,fetchPersistentState,dangerouslySetPersistentState] = usePersistentAtom() as any
+
+    const doOnboarding :boolean = route?.params?.doOnboarding ?? persistentState.doOnboarding ?? false
+
+    let isPresent = false
+    let isPast = false
+    let isFuture = false
+    
+    if(currentDate > stringToDate(timeInfo.date)){
+        isPast = true;
+    }else if(currentDate < stringToDate(timeInfo.date)){
+        isFuture = true;
+    }else if(dateToString(currentDate) === timeInfo.date){
+        const difference = getMealsIndex(currentMeal) - getMealsIndex(timeInfo.meal)
+        if(difference>0){
+            isPast = true;
+        }else if(difference< 0 ){
+            isFuture = true;
+        }else if(difference == 0){
+            isPresent = true;
+        }
+    }
+    const [modalOpen,setModalOpen] = useState<Portion>(null)
+    const [viewingPortions,setViewingPortions] = useState(false);
+
+    const userActions = useUserActions()
+    
+    const onLoad = ()=>{
+        // console.log({doOnboarding})
+        if(doOnboarding){
+            start()
+        }
+    }
+
+    const {mealState,loading,noMeal,setMealDishes} = useMealFeatures({userActions,timeInfo,persistentState,auth, isFuture,onLoad})
+    // const [mealState, setMealState] : [MealState,(MealState) => void]= useRecoilState(mealStateFromTimeInfo(timeInfo))
+    // const [loading,setLoading] = useState(false)
+    // const [noMeal,setNoMeal] = useState<{message: string}>(null);
+
+    
+    // //Fetch meals 
+    // const setMealDishes = useCallback(
+    //     async (newDishA:Dish,newDishB:Dish,newDishC:Dish)=>{
+    //         if(mealState.dishA.id == newDishA.id && mealState.dishB.id === newDishB.id && mealState.dishC.id === newDishC.id){
+    //             return;
+    //         }else{
+    //             const portions = await userActions.portionSuggestionByItemID(newDishA.id,newDishB.id,newDishC.id);
+    //             console.log({portions})
+    //             const dishAPortion = getPortionInfoFromAPIPortionInfo(newDishA,portions.small1,Portion.A);
+    //             const dishA= {...newDishA ,portion: dishAPortion}
+    //             const dishBPortion = getPortionInfoFromAPIPortionInfo(newDishB,portions.small2,Portion.B);
+    //             const dishB= {...newDishB ,portion: dishBPortion}
+    //             const dishCPortion = getPortionInfoFromAPIPortionInfo(newDishC,portions.large,Portion.C);
+    //             const dishC = {...newDishC,portion: dishCPortion}
+                
+    //             const newMealState :MealState = {
+    //                 ... mealState,
+    //                 dishA,
+    //                 dishB,
+    //                 dishC,
+    //             }
+    //             setMealState(newMealState)
+
+    //             try{
+    //                 const postResp = await userActions.postAnalyticsMealChoices(newMealState)
+    //                 // console.log({postResp})
+    //             }catch(e){
+    //                 // console.log(e)
+    //             }
+    //         }   
+    //     },
+    //     [mealState],
+    // )
+    
+
+    // async function fetchMeal(){
+    //     console.log("try fetching.")
+    //     if(persistentState.loaded == false) return
+    //     if(timeInfo?.date == null || timeInfo?.meal == null) return
+    //     if(auth === null) return
+    //     // console.log("Fetching meal!")
+    //     setLoading(true)
+    //     const data :APIMealByTimePayload = await userActions.mealsByTime(timeInfo)
+    //     if(data.length == 0 ){
+    //         // console.log("Nomeal")
+    //         let message = "No meals at this time!";
+    //         if(isFuture){
+    //             message = "Menu coming soon..."
+    //         }
+    //         setNoMeal({message})
+    //     }else{
+    //         const mealID = data[0].id as number;
+    //         console.log("MealID:",mealID)
+    //         //TODONE make fetches concurrent
+    //         // const mealEvent = await userActions.mealById(mealID);
+    //         // const suggestion = await userActions.suggestionByMealId(mealID);
+    //         // const prevChoices = await userActions.getAnalyticsMealChoices(mealID);
+
+    //         const [mealEvent,suggestion,prevChoices] = await Promise.all([userActions.mealById(mealID),userActions.suggestionByMealId(mealID),userActions.getAnalyticsMealChoices(mealID)])
+    //         // console.log({suggestion})
+    //         // console.log({mealEvent,suggestion})
+    //         // console.log({mealEvent})
+    //         // debug purposes
+    //         const dishes = mealEvent.items.map(convertAPIItemToDish)
+    //         if(dishes.length === 0){
+    //             setNoMeal({message:"Mo meals at this time!"})
+    //             return;
+    //         }
+    //         console.log("Dishes: ",dishes.length)
+    //         function getDishByIdFromList(list:Dish[],id:number){
+    //             const dish = list.filter(dish=> dish.id === id)
+    //             if(dish.length === 1){
+    //                 return dish[0]
+    //             }else{
+    //                 return null;
+    //             }
+    //         }
+    //         function getDishById(id:number) {
+    //             return getDishByIdFromList(dishes,id)
+    //         }
+    //         function idsOfList(list:Dish[]){
+    //             return list.map(dish=> dish.id)
+    //         }
+    //         function makeRecommendationList(items:Array<number>,category:FOOD_CATEGORY){
+    //             // console.log({category})
+    //             const list = items.map(getDishById).filter(dish=> dish !== null)
+    //             let ids = []
+    //             let norepList = [] as Array<Dish>
+    //             list.forEach((_dish:Dish)=>{
+    //                 const dish = JSON.parse(JSON.stringify(_dish))
+    //                 if(!ids.includes(dish.id)){
+    //                     dish.category = category
+    //                     norepList.push(dish)
+    //                     ids.push(dish.id)
+    //                 }
+    //             })
+    //             // console.log({norepList})
+    //             return norepList
+    //         }
+    //         function makeRecommendation(entry: APIMealSuggestEntry){
+    //             // console.log({entryCategory: entry.category})
+    //             return makeRecommendationList(entry.items as Array<number>,FoodCategoryFromAPIFoodCategory(entry.category))
+    //         }
+    //         console.log("Suggestion:",suggestion)            
+    //         const recommendationA = makeRecommendation(suggestion.small1)
+    //         const recommendationB = makeRecommendation(suggestion.small2)
+    //         const recommendationC = makeRecommendation(suggestion.large)
+
+    //         if (recommendationA.length == 0 || recommendationB.length == 0 || recommendationC.length == 0 ){
+    //             setNoMeal({message: "WePlate couldn't find any suggestions 😐"})
+    //             return
+    //             // throw new Error("Issue with suggestions!")
+    //         } 
+
+    //         // get lateset
+    //         let dishA = null;
+    //         let dishB = null;
+    //         let dishC = null;
+
+    //         if(prevChoices.length == 0){
+    //             // if no choice has been made yet, default to first
+    //             dishA = recommendationA[0]
+    //             dishB = recommendationB[0]
+    //             dishC = recommendationC[0]
+    //         }else{
+    //             const recentEntry = prevChoices[0]
+    //             // console.log({recentEntry, idsA: idsOfList(recommendationA),idsB: idsOfList(recommendationB), idsC: idsOfList(recommendationC)})
+    //             dishA = getDishByIdFromList(recommendationA,recentEntry.small1)
+    //             // recBIds = 
+    //             dishB = getDishByIdFromList(recommendationB,recentEntry.small2)
+    //             dishC = getDishByIdFromList(recommendationC,recentEntry.large)
+    //         }
+            
+    //         if(dishA === null || dishB === null || dishC == null){
+    //             // console.log("issue with prevEntries, failing gracefully")
+    //             dishA = recommendationA[0]
+    //             dishB = recommendationB[0]
+    //             dishC = recommendationC[0] 
+    //         }
+            
+            
+    //         console.log("DISHA :",dishA)
+    //         console.log("DISHB :",dishB)
+    //         console.log("DISHC :",dishC)
+    //         console.log(dishA?.portion,dishB?.portion,dishC?.portion)
+    //         if(dishA?.portion === undefined || dishB?.portion === undefined || dishC?.portion === undefined){
+    //             // console.log("FETCHING SIZES")
+    //             // setMealDishes(dishA,dishB,dishC)
+    //             const portions = await userActions.portionSuggestionByItemID(dishA.id,dishB.id,dishC.id);
+    //             dishA.portion = getPortionInfoFromAPIPortionInfo(dishA, portions.small1,Portion.A);
+    //             dishB.portion = getPortionInfoFromAPIPortionInfo(dishB,portions.small2,Portion.B);
+    //             dishC.portion = getPortionInfoFromAPIPortionInfo(dishC,portions.large,Portion.C);
+    //         }
+            
+    //         // console.log(dishes)
+    //         const newState : MealState = {
+    //             mealID: mealEvent.id,
+    //             recommendationA,
+    //             recommendationB,
+    //             recommendationC,
+    //             dishA,
+    //             dishB,
+    //             dishC,
+    //         }
+    //         // console.log({newState})
+    //         setMealState(newState)
+    //         setLoading(false)
+    //         //start onboarding
+    //         onLoad()
+    //     }
+    // }
+
+    // useEffect(()=>{
+    //     setLoading(false)
+    // },[timeInfo])
+    // useEffect( ()=>{
+    //     setNoMeal(null);
+    //     if(mealState.dishA == null && !loading){
+    //         try{
+    //             fetchMeal()
+    //         }catch(e){
+    //             console.error(e)
+    //         }
+    //     }else{
+    //         onLoad()
+    //     }
+    // },[auth,timeInfo,loading])
+
     // copilot events
     // const [currentStepName,setCurrentStepName] = useState(null);
     // copilotEvents.on("stepChange",(arg)=>{
@@ -391,7 +594,7 @@ const Dashboard = (props)=>{
     },[mealState])
 
     function onPortionViewPress(){
-        console.log(viewingPortions)
+        // console.log(viewingPortions)
         if(viewingPortions){
             animateCentralize(1,{duration:900})
             portionAnimationState.doesInactivityTimer.current = true
@@ -474,7 +677,7 @@ const Dashboard = (props)=>{
                 alignItems: 'stretch',
                 // justifyContent: 'center'
             }}>
-                <ChangeMenuItem modalOpen = {modalOpen} setModalOpen = {setModalOpen} mealState = {mealState} setMealState = {setMealState} setMealDishes = {setMealDishes}/>
+                <ChangeMenuItem modalOpen = {modalOpen} setModalOpen = {setModalOpen} mealState = {mealState} setMealDishes = {setMealDishes}/>
             </View>
         </Modal> 
         {content}

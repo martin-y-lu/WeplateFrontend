@@ -118,7 +118,7 @@ const DiningMenu = ({navigation,route})=> {
 
     // const [currentStation,setCurrentStation] = useState(STATION.A);
     const currentStation = route?.params?.station ?? STATION.A
-    console.log(route.params)
+
     const [diningState,setDiningState] = useRecoilState(diningMenuState)
     const currentState = useRecoilValue(dashboardState);
     const {currentDate,currentMeal} = currentState

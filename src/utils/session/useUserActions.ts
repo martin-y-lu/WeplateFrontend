@@ -54,6 +54,8 @@ function useUserActions () {
         registerUser,
         checkEmail,
         checkVersion,
+        verifyEmail,
+        isVerified,
     }
    
 
@@ -75,14 +77,14 @@ function useUserActions () {
             username: email.toLowerCase(),
             password,
         }
-        // console.log("LOGIN!",data)
+        console.log("LOGIN!",data)
 
         // if(auth?.token !== null) return
         try{
             const _auth = await fetchWrapper.post(`${baseUrl}/api/token_auth/`, data)
         
             if(!("token" in _auth)) throw new Error("Invalid auth" + password +" "+email)
-            // console.log({_auth})
+            console.log({_auth})
             
             setAuth(_auth)
 
@@ -93,7 +95,7 @@ function useUserActions () {
                 height: CmToInch(userInfo?.height),
             }
             setUsers(fixedUserInfo)
-            // console.log({userInfo})
+            console.log({userInfo})
             // get return url from location state or default to home page
             // const { from } = history.location.state || { from: { pathname: '/' } };
             // history.push(from);
@@ -233,6 +235,25 @@ function useUserActions () {
         }
     }
 
+    async function verifyEmail(email:string){
+        const endpoint = `${baseUrl}/api/verify_email/`
+        const resp = await fetchWrapper.post(endpoint,{email})
+        return resp;
+    }
+    async function isVerified(){
+       try{
+        const userInfo : APIUserSettings = await fetchWrapper.get(`${baseUrl}/api/settings/`)
+        const detail = userInfo?.is_verified;
+        console.log({userInfo,detail})
+        if(!!detail){
+            return true;
+        }else{
+            return false;
+        }
+       }catch(e){
+           return false
+       } 
+    }
 
     async function logout() {
         // remove user from local storage, set auth state to null and redirect to login page

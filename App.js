@@ -20,7 +20,7 @@ import Feedback from "./src/feedback/Feedback";
 import { RecoilRoot } from "recoil";
 import BaseHeader from "./src/utils/BaseHeader";
 import { CustomDrawerContent } from "./src/utils/DrawerContent";
-import { Welcome1, Welcome10, Welcome2, Welcome3, Welcome4, Welcome5, Welcome6, Welcome7, Welcome8, Welcome9 } from "./src/welcome/Welcome";
+import { Welcome1, Welcome10, Welcome11, Welcome2, Welcome3, Welcome4, Welcome5, Welcome6, Welcome7, Welcome8, Welcome9 } from "./src/welcome/Welcome";
 import DiningMenuHeader from "./src/dining-menu/DiningMenuHeader";
 import EditInfo from "./src/settings/EditInfo";
 import Splash from "./src/splash/Splash";
@@ -159,6 +159,10 @@ const BaseApp = ()=>{
             <Stack.Screen
                 name = "Welcome10"
                 component={Welcome10}
+            />
+            <Stack.Screen
+                name = "Welcome11"
+                component={Welcome11}
             />
             <Stack.Screen
                 name = "SidebarNavigable"

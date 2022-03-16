@@ -51,7 +51,6 @@ const Feedback = ({navigation})=>{
             setFeedback({})
         }
         const feedbacksList = [FeedbackTypes.COOKING_FOOD_PREP,FeedbackTypes.DINING_HALL_MANAGEMENT,FeedbackTypes.REQUEST_APP_FEATURES].filter(el=> selFeedbackTypes?.[el])
-        console.log(feedbacksList)
         navigation.navigate("FeedbackForms",{feedbacksList})
 
     }}>

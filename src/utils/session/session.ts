@@ -15,13 +15,16 @@ export function useLogin(navigation){
     useEffect(()=>{
 
         const login  = (async ()=>{
-            if(persistentState.loaded && ! persistentState?.register && !loading){
+            // console.log("Attempt login", persistentState,loading)
+            if(persistentState.loaded && !loading){
+                console.log({persistentState})
                 if(persistentState.email === null || persistentState.password == null){
                     console.error("Navigating to email because persistent state info is null:",persistentState)
                     navigation.navigate("Login")
                 }else{
                     try{
                         await userActions.login(persistentState.email,persistentState.password) 
+                        // console.log("Succesfully logged in")
                     }catch(e){
                         // console.log()
                         await setPersistentState({
@@ -35,9 +38,12 @@ export function useLogin(navigation){
                     }
                 }
             }else{
+                // console.log("persistentState not loaded");
                 if(!loading){
                     setLoading(true);
+                    // console.log("Fetching persistent state")
                     await fetchPersistentState()
+                    // console.log("Fetched Persistent state")
                     setLoading(false)
                 }
             }

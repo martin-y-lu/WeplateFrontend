@@ -46,8 +46,8 @@ export function usePersistentAtom(){
             ...value
         }
         console.log({newPers})
+        setPers(newPers)
         await AsyncStorage.setItem("persist",JSON.stringify(newPers))
-        await setPers(newPers)
     }
     const dangerouslySetPersistentAtom = setPers
     return [pers,setPersistentAtom,fetchPersistentAtom,dangerouslySetPersistentAtom]

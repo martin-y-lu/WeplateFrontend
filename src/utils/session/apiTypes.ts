@@ -142,6 +142,7 @@ export function getAPIEveryMealName(meal: APIEveryMeal){
 
 export interface APIUserSettings{
     id: APIKey,
+    is_verified: boolean,
     ban: APIUserItemPref[],
     favor: APIUserItemPref[],
     dietary_restrictions: APIDietaryRestriction[]
