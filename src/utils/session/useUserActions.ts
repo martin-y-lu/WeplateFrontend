@@ -1,3 +1,4 @@
+
 import { atom, useSetRecoilState, useRecoilState } from 'recoil';
 import { TimeInfo } from '../../dashboard/state';
 import { mealToAPIForm, MealState } from '../../dashboard/typeUtil';
@@ -6,6 +7,8 @@ import { APIMealSuggest, APIPortionInfo, APIPortionSuggest, APIMealEvent, APIMea
 import { usePersistentAtom } from '../state/userState';
 import {useEffect} from 'react';
 import Constants from "expo-constants"
+
+import Login from '../../login/Login';
 
 export const usersAtom = atom({
     key: "usersAtom",
@@ -21,10 +24,26 @@ export const ingredientsAtom = atom({
     }[]
 })
 
+function Err(val){
+    return {
+        err: true,
+        ok: false,
+        val
+    }
+}
+function Ok(val){
+    return {
+        ok: true,
+        err: false,
+        val
+    }
+}
+
 export { useUserActions };
 const LB_PER_KG = 2.2046 
 const CM_PER_INCH =2.54
-
+export const UNVERFIED_USER_ERROR_MESSAGE = "User is not verified."
+export type LoginError = "User is not verified." | "General error"
 function useUserActions () {
     const baseUrl = "https://weplate-backend.nn.r.appspot.com";
     // const baseUrl = "https://mosesxu.ca/weplate";
@@ -90,6 +109,12 @@ function useUserActions () {
             setAuth(_auth)
 
             const userInfo : APIUserSettings = await fetchWrapper.get(`${baseUrl}/api/settings/`,null,_auth)
+            console.log({userInfo})
+            if(userInfo?.is_verified == null){
+                console.log("unverified!")
+                return Err(UNVERFIED_USER_ERROR_MESSAGE as LoginError)
+            }
+
             const fixedUserInfo : APIUserSettings = {
                 ... userInfo,
                 weight: kgToLbs(userInfo?.weight),
@@ -101,9 +126,9 @@ function useUserActions () {
             // const { from } = history.location.state || { from: { pathname: '/' } };
             // history.push(from);
 
-            return _auth;
+            return Ok(_auth);
         }catch(e){
-            throw e;
+            return Err("General Error" as LoginError)
         }
     }
     async function mealsByTime(timeInfo:TimeInfo){

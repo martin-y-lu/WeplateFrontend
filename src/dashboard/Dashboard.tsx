@@ -265,6 +265,7 @@ const WalkableTrayItem = walkthroughable(TrayItem)
 const WalkableNutritionFacts = walkthroughable(NutritionFacts)
 const Dashboard = (props)=>{
     const {route,navigation,copilotEvents} = props
+    const [persistentState,setPersistentState,fetchPersistentState,dangerouslySetPersistentState] = usePersistentAtom() as any
     const auth = useRecoilValue(authAtom)
     useLogin(navigation)
 
@@ -289,7 +290,6 @@ const Dashboard = (props)=>{
     },[route?.params,currentState])
 
     
-    const [persistentState,setPersistentState,fetchPersistentState,dangerouslySetPersistentState] = usePersistentAtom() as any
 
     const doOnboarding :boolean = route?.params?.doOnboarding ?? persistentState.doOnboarding ?? false
 

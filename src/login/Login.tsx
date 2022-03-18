@@ -104,18 +104,21 @@ const Login = ({navigation})=>{
       return
     }
 
-    try{
-      await userActions.login(email.toLowerCase(),password) 
+    const res = await userActions.login(email.toLowerCase(),password)
+    console.log({res}) 
+    if(res.ok){
       setMessage("")
       await setPersistentState({
         email : email.toLowerCase(),
         password,
       })
-      navigation.navigate("SidebarNavigable",{screen:"Dashboard"})
-    }catch(e){
-      console.log(e)
-      setMessage("Invalid email or password")
-      return;
+      navigation.navigate("SidebarNavigable",{screen:"Dashboard"}) 
+    }else if(res.err){
+      if(res.val == "User is not verified."){
+        navigation.navigate("VerifyAccount")
+      }else if(res.val == "General error"){
+        setMessage("Invalid email or password")
+      }
     }
     // navigation.navigate("SidebarNavigable",{screen:"--DEBUG--"})
   }
@@ -187,6 +190,7 @@ const Login = ({navigation})=>{
       activity_level: null,
       grad_year: null,
       id: null,
+      is_verified: false,
     } as APIUserSettings)
 
     navigation.navigate("Welcome1")

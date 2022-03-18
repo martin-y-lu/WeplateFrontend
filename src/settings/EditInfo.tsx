@@ -9,7 +9,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { dateToString, stringToDate } from "../dashboard/state";
 import { ingredientsAtom, usersAtom, useUserActions } from "../utils/session/useUserActions";
 import NumberPlease from "react-native-number-please";
-import { baseAllergens, dietaryRestrictions, getAPIBaseAllergenName, APIDietaryRestriction, getAPIDietaryRestrictionName } from '../utils/session/apiTypes';
+import { baseAllergens, dietaryRestrictions, getAPIBaseAllergenName, APIDietaryRestriction, getAPIDietaryRestrictionName, APIBaseAllergen } from '../utils/session/apiTypes';
 import {authAtom} from '../utils/session/useFetchWrapper'
 import { useLogin } from '../utils/session/session'
 import { SHADOW_STYLE } from '../utils/Loading';
@@ -252,7 +252,7 @@ const EditDietaryRestrictions = () => {
     )
 }
 
-const EditFoodAllergies = () => {
+const EditFoodAllergies = ({navigation}) => {
     const checkmark = `<svg width="17" height="18" viewBox="0 0 17 18" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M6.0331 12.3893C6.26619 12.6194 6.65382 12.5669 6.81744 12.2832L13.621 0.487082C13.7706 0.227812 14.1128 0.157117 14.3529 0.33593L16.2254 1.73096C16.4306 1.88387 16.4872 2.16711 16.3566 2.3872L7.40846 17.4565C7.24372 17.7339 6.86325 17.785 6.63117 17.5609L0.325091 11.4698C0.140486 11.2915 0.120868 11.0024 0.279695 10.8008L1.7462 8.93922C1.93073 8.70499 2.27795 8.6833 2.49019 8.89276L6.0331 12.3893Z" fill="#DDDDDD"/>
     </svg>
@@ -293,7 +293,6 @@ const EditFoodAllergies = () => {
                         <Text style = {styles.feildName}>Peanuts</Text>
                     </TouchableOpacity>
                 </View> */}
-
                 {baseAllergens.map(((allergen:APIBaseAllergen)=>{
                 return  <View key = {allergen} style={styles.checkboxSeperator}>
                         <TouchableOpacity style = {{flexDirection:'row'}} onPress = {()=>toggle(allergen)}>
@@ -582,13 +581,26 @@ const EditName = () => {
         </View>
     )
 }
-const EditPassword = () => {
+const EditPassword = ({navigation}) => {
     const userActions = useUserActions()
     const [persistentState,setPersistentState,fetchPersistentState] = usePersistentAtom()
 
     const [newPassword, setNewPassword] = useState("")
     const [confirmPassword, setConfirmPassword] = useState("")
     const [errorText,setErrorText] = useState("");
+
+    const [emailSent,setEmailSent] = useState(false)
+    useEffect(()=>{
+        const unsub = navigation.addListener("focus",()=>{
+            console.log("Cleared")
+            setNewPassword("");
+            setConfirmPassword("")
+            setErrorText("")
+            setEmailSent(false)
+        })
+        return unsub
+    },[navigation])
+
     return(
         <View style={styles.innerContainer} > 
             <Text style={styles.header}> Create New Password</Text>
@@ -615,42 +627,58 @@ const EditPassword = () => {
                 {errorText}
             </Text>
             }
-            <TouchableOpacity style = {{
-                ...SHADOW_STYLE,
-               borderRadius: 5,
-               marginTop:15,
-               alignSelf:"center",
-               paddingHorizontal: 20,
-               paddingVertical: 10,
-               width: 120,
-               justifyContent: "center",
-               alignItems: "center",
-            }}
-                onPress = {()=>{
-                    if(newPassword.length == 0){
-                        setErrorText("Enter a new password");
-                        return
-                    }
-                    if(newPassword.length < MIN_PASSWORD_LENGTH){
-                        setErrorText("Password is too short");
-                        return
-                    }
-                    if(newPassword != confirmPassword){
-                        setErrorText("Passwords do not match")
-                        setConfirmPassword("");
-                        return
-                    }
-                    setErrorText("");
-                    userActions.resetPassword(persistentState.email,newPassword)
-                }} 
-            >
-                <Text style={{
+            {
+                emailSent ? 
+                <Text style = {{
+                    marginTop: 15,
+                    marginLeft: 40,
                     color: '#A6A6A6',
-                    fontSize: 20,
+                    fontSize: 16, 
                 }}>
-                    Submit
-                </Text>
-            </TouchableOpacity>
+                    An email has been sent to {persistentState.email} to confirm the password change.
+                </Text> : 
+                <TouchableOpacity style = {{
+                    ...SHADOW_STYLE,
+                borderRadius: 5,
+                marginTop:15,
+                alignSelf:"center",
+                paddingHorizontal: 20,
+                paddingVertical: 10,
+                width: 120,
+                justifyContent: "center",
+                alignItems: "center",
+                }}
+                    onPress = {async ()=>{
+                        if(newPassword.length == 0){
+                            setErrorText("Enter a new password");
+                            return
+                        }
+                        if(newPassword.length < MIN_PASSWORD_LENGTH){
+                            setErrorText("Password is too short");
+                            return
+                        }
+                        if(newPassword != confirmPassword){
+                            setErrorText("Passwords do not match")
+                            setConfirmPassword("");
+                            return
+                        }
+                        setErrorText("");
+                        await userActions.resetPassword(persistentState.email,newPassword)
+                        await setPersistentState({
+                            ...persistentState,
+                            alternativePasswords: [newPassword,...persistentState?.alternativePasswords ?? []]
+                        })
+                        setEmailSent(true);
+                    }} 
+                >
+                    <Text style={{
+                        color: '#A6A6A6',
+                        fontSize: 20,
+                    }}>
+                        Submit
+                    </Text>
+                </TouchableOpacity>
+            }
         </View>
     )
 }
@@ -670,6 +698,7 @@ const EditInfo = ({navigation,route})=>{
         }
         getIngredients()
     },[auth])
+
 
     const name = useRecoilValue(Rname)
     const dietGoals = useRecoilValue(RdietGoals)
@@ -744,7 +773,7 @@ const EditInfo = ({navigation,route})=>{
                     <SvgXml style = {styles.backArrow} xml = {backArrow}/>
                 </TouchableOpacity>
             </View>
-        <PageComponent/>
+        <PageComponent navigation = {navigation} />
     </SafeAreaView>
 }
 

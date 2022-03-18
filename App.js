@@ -26,6 +26,7 @@ import EditInfo from "./src/settings/EditInfo";
 import Splash from "./src/splash/Splash";
 import FeedbackThankYou from "./src/feedback/FeedbackThankYou";
 import FeedbackForms from "./src/feedback/FeedbackForms";
+import { VerifyAccount } from "./src/verify-account/VerifyAccount";
 
 const Stack = createNativeStackNavigator()
 const Drawer = createDrawerNavigator();
@@ -163,6 +164,10 @@ const BaseApp = ()=>{
             <Stack.Screen
                 name = "Welcome11"
                 component={Welcome11}
+            />
+            <Stack.Screen
+                name = "VerifyAccount"
+                component = {VerifyAccount}
             />
             <Stack.Screen
                 name = "SidebarNavigable"

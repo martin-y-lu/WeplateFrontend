@@ -23,7 +23,7 @@ export const selected_icon_svg = `<svg width="19" height="19" viewBox="0 0 19 19
 </svg>
 `
 
-function BaseWelcome(props){
+export function BaseWelcome(props){
    return <View style={{ flex: 1, alignItems: 'center', backgroundColor: '#ff7474', justifyContent: 'center' }}>
    <View style={{alignItems: 'left', margin: 15,paddingLeft:20,}}>
         {props.children}
@@ -42,7 +42,7 @@ function BaseWelcome(props){
 
 </View> 
 }
-const WelcomeButton = (props)=>{
+export const WelcomeButton = (props)=>{
     return <TouchableOpacity style = {{
         marginTop:30,
         marginLeft:"50%",
@@ -583,25 +583,6 @@ export const Welcome11 = ({navigation})=>{
         <Text style={styles.title}>Finished!</Text>
         <Text style={styles.text}>We will use this information to craft a well balanced diet, tailored towards your needs.</Text>
         <WelcomeButton onPress = {()=>{
-                // const register = (async ()=>{
-                //     console.log({user})
-                //     try{
-                //         const res  = await userActions.registerUser({
-                //             ...user,
-                //             username: persistentState.email,
-                //             password: persistentState.password,
-                //         })
-                //         console.log({res})
-                //         await setPersistentState({
-                //             ...persistentState,
-                //             register: false
-                //         })
-                //     }catch(e){
-                    //         console.log(e)
-                    //         navigation.navigate("Login")
-                    //     }
-                    // })
-                    // register()
                 navigation.navigate("SidebarNavigable",{screen:"Dashboard"})
             }}> Continue </WelcomeButton>
     </BaseWelcome>

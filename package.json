@@ -50,6 +50,7 @@
     "recoil": "^0.6.1",
     "recoil-persist": "^4.0.0",
     "three": "^0.137.5",
+    "tslib": "^2.3.1",
     "uri-scheme": "^1.0.112",
     "whatwg-fetch": "^3.6.2"
   },
