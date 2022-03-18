@@ -34,6 +34,7 @@ const log_in_button = `<svg width="315" height="40" viewBox="0 0 315 40" fill="n
 <rect width="315" height="40" rx="10" fill="#434343"/>
 </svg>
 `
+export const MIN_PASSWORD_LENGTH = 5;
 const windowHeight = Dimensions.get('window').height;
 const unfocused_textbox_background_color = '#E8E8E8'
 const focused_textbox_background_color = 'white'
@@ -141,7 +142,7 @@ const Login = ({navigation})=>{
       setMessage("Missing password.")
       return
     }
-    if(password.length<5){
+    if(password.length<MIN_PASSWORD_LENGTH){
       setMessage("Password too short.")
       return
     }

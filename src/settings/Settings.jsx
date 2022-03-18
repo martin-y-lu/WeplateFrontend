@@ -142,6 +142,9 @@ const Settings = ({navigation})=>{
       {
         <NewSettingsEntry name = "Name" value = {name} target = "Name" edit = {edit}/>
       }
+      {
+        <NewSettingsEntry name = "Change Password" value = {null} target = "Password" edit = {edit}/>
+      }
 
       <SettingsEntry name = "Log out" current = "" openable = {false} onPress = {()=>{
             async function logOut(){

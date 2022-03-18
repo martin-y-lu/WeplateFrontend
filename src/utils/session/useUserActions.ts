@@ -56,6 +56,7 @@ function useUserActions () {
         checkVersion,
         verifyEmail,
         isVerified,
+        resetPassword,
     }
    
 
@@ -253,6 +254,13 @@ function useUserActions () {
        }catch(e){
            return false
        } 
+    }
+    async function resetPassword(email:string,newPassword:string){
+        const endpoint = `${baseUrl}/api/reset_password/`
+        const resp = await fetchWrapper.post(endpoint,{email,password:newPassword})
+        if(resp?.detail != "ok"){
+            throw new Error("failed to reset password");
+        }
     }
 
     async function logout() {

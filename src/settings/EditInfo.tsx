@@ -12,6 +12,9 @@ import NumberPlease from "react-native-number-please";
 import { baseAllergens, dietaryRestrictions, getAPIBaseAllergenName, APIDietaryRestriction, getAPIDietaryRestrictionName } from '../utils/session/apiTypes';
 import {authAtom} from '../utils/session/useFetchWrapper'
 import { useLogin } from '../utils/session/session'
+import { SHADOW_STYLE } from '../utils/Loading';
+import { MIN_PASSWORD_LENGTH } from '../login/Login';
+import { usePersistentAtom } from '../utils/state/userState'
 
 
 
@@ -579,6 +582,78 @@ const EditName = () => {
         </View>
     )
 }
+const EditPassword = () => {
+    const userActions = useUserActions()
+    const [persistentState,setPersistentState,fetchPersistentState] = usePersistentAtom()
+
+    const [newPassword, setNewPassword] = useState("")
+    const [confirmPassword, setConfirmPassword] = useState("")
+    const [errorText,setErrorText] = useState("");
+    return(
+        <View style={styles.innerContainer} > 
+            <Text style={styles.header}> Create New Password</Text>
+            <TextInput
+                secureTextEntry
+                style={styles.textInput}
+                onChangeText={setNewPassword}
+                value={newPassword}
+            />
+            <Text style={styles.header}> Confirm Password</Text>
+            <TextInput
+                secureTextEntry
+                style={styles.textInput}
+                onChangeText={setConfirmPassword}
+                value={confirmPassword}
+            />
+            { errorText.length> 0 &&
+            <Text style= {{
+                    marginTop: 15,
+                    marginLeft: 40,
+                    color: '#A6A6A6',
+                    fontSize: 16,
+                }}>
+                {errorText}
+            </Text>
+            }
+            <TouchableOpacity style = {{
+                ...SHADOW_STYLE,
+               borderRadius: 5,
+               marginTop:15,
+               alignSelf:"center",
+               paddingHorizontal: 20,
+               paddingVertical: 10,
+               width: 120,
+               justifyContent: "center",
+               alignItems: "center",
+            }}
+                onPress = {()=>{
+                    if(newPassword.length == 0){
+                        setErrorText("Enter a new password");
+                        return
+                    }
+                    if(newPassword.length < MIN_PASSWORD_LENGTH){
+                        setErrorText("Password is too short");
+                        return
+                    }
+                    if(newPassword != confirmPassword){
+                        setErrorText("Passwords do not match")
+                        setConfirmPassword("");
+                        return
+                    }
+                    setErrorText("");
+                    userActions.resetPassword(persistentState.email,newPassword)
+                }} 
+            >
+                <Text style={{
+                    color: '#A6A6A6',
+                    fontSize: 20,
+                }}>
+                    Submit
+                </Text>
+            </TouchableOpacity>
+        </View>
+    )
+}
 
 const EditInfo = ({navigation,route})=>{
     const page = route?.params.page ?? "Diet Goals"
@@ -659,6 +734,8 @@ const EditInfo = ({navigation,route})=>{
         case "Name": 
             PageComponent = EditName
             break
+        case "Password":
+            PageComponent = EditPassword
     }
 
     return <SafeAreaView style = {{height: '100%',backgroundColor:'white'}}>

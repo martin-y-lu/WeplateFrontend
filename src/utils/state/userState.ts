@@ -1,15 +1,17 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useEffect } from 'react'
-import {atom, useRecoilState, } from 'recoil'
-
+import {atom, SetterOrUpdater, useRecoilState, } from 'recoil'
+const defaultPersist = {
+    loaded: false,
+    doOnboarding: true,
+    email: null as string,
+    password: null as string,
+    alternativePasswords: [] as string[],
+}
+type defaultPersistType = typeof defaultPersist
 const persistentAtom = atom({
     key: "persistentAtom",
-    default: {
-        loaded: false,
-        doOnboarding: true,
-        email: null,
-        password: null,
-    },
+    default: defaultPersist,
 })
 
 export function usePersistentAtom(){
@@ -50,6 +52,8 @@ export function usePersistentAtom(){
         await AsyncStorage.setItem("persist",JSON.stringify(newPers))
     }
     const dangerouslySetPersistentAtom = setPers
-    return [pers,setPersistentAtom,fetchPersistentAtom,dangerouslySetPersistentAtom]
+    const ret : [ defaultPersistType , SetterOrUpdater<defaultPersistType>, any , any] = [pers,setPersistentAtom,fetchPersistentAtom,dangerouslySetPersistentAtom] 
+    
+    return ret
 
 }
