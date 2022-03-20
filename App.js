@@ -38,7 +38,8 @@ const SidebarNavigable = ()=>{
     return  <Drawer.Navigator
         drawerContent={ (props)=> <CustomDrawerContent {...props}/>}
         screenOptions={{
-            headerShown: SHOW_NAV_HEADER
+            headerShown: SHOW_NAV_HEADER,
+            drawerPosition: "right"
         }}
         initialRouteName = "Dashboard"
         >

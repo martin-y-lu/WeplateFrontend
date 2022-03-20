@@ -13,6 +13,14 @@ export const defaultDesignScheme = {
         grayscale2: "#606060" as Color, 
         grayscale3: "#585656" as Color,
         grayscale4: "#E9E8E8" as Color,
+        grayscale5: "#FFFFFF" as Color,
+    },
+    fontFamilies: {
+        main: "Avenir",
+        black: "Avenir-Black",
+        heavy: "Avenir-Heavy",
+        medium: "Avenir-Medium",
+        roman: "Avenir-Roman",
     }
 }
 

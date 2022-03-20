@@ -485,7 +485,7 @@ const Dashboard = (props)=>{
         <View>
             <PortionView style = {{ marginTop:10}} animationState = {portionAnimationState}/>
         </View>
-        { !! noMeal || 
+        {/* { !! noMeal || 
         <CopilotStep text = {"When you’re satisfied with your intake, generate portions and visualize what you need to eat!"}
             order = {4} name = "test:4">
             <WalkableView style = {{
@@ -501,10 +501,9 @@ const Dashboard = (props)=>{
                             {viewingPortions ? "Hide Portions" : "View Portions"}
                     </Text> 
                 </BaseButton>
-                {/* <View style = {{height: 20}}/> */}
             </WalkableView>
         </CopilotStep>
-        }
+        } */}
         <CopilotStep text = {"After you are satisfied with your food selections, you can view the nutritional information of your meal based on its optimal combination!"} 
             order = {3} name = "test:3">
                 <WalkableView style = {{
