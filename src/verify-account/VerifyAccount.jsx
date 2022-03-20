@@ -47,6 +47,10 @@ export const VerifyAccount = ({navigation})=>{
                     const isVerified = await userActions.isVerified()
                     console.log({isVerified})
                     if(isVerified){
+                        setPersistentState({
+                            ...persistentState,
+                            verified: true,
+                        })
                         navigation.navigate("SidebarNavigable",{screen:"Dashboard"})
                     }else{
                         setFailMessage("Open the link sent in the email to verify your account.")

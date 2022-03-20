@@ -95,7 +95,12 @@ function Splash({navigation}){
         const fetchedState = await getPersistentState()
         await leaveSplashAnimation()
         if(fetchedState.password !== null && fetchedState.email !== null){
-            navigation.navigate("SidebarNavigable",{screen:"Dashboard"})
+            if(fetchedState?.verified){
+                navigation.navigate("SidebarNavigable",{screen:"Dashboard"})
+            }else{
+                navigation.navigate("VerifyAccount")
+            }
+
         }else{
             navigation.navigate("Login")
         }
@@ -111,30 +116,6 @@ function Splash({navigation}){
         }
         handleSplash()
     },[]) 
-    // useEffect(()=>{
-    //     console.log(persistentState)
-    //     async function checkState(){
-    //         if(!loading){
-    //             if(persistentState.loaded){
-    //                 setPersistentStateChecked(true)
-    //                 await leaveSplashAnimation()
-    //                 if(persistentState.password !== null && persistentState.email !== null && !persistentStateChecked){
-    //                     navigation.navigate("SidebarNavigable",{screen:"Dashboard"})
-    //                 }else{
-    //                     navigation.navigate("Login")
-    //                 }
-    //             }else{
-    //                 console.log("fetching persistent state",persistentState)
-    //                 setLoading(true)
-    //                 await fetchPersistentState()
-    //                 setLoading(false)
-    //             }
-    //         }
-    //     }
-    //     if(!persistentStateChecked){
-    //         checkState()
-    //     }
-    // },[persistentState,loading]) 
     const shift = {x: -5, y: -20}
     return <View style={{ flex: 1, backgroundColor: '#FF3939', justifyContent: 'center' }}>
         <View style = {{

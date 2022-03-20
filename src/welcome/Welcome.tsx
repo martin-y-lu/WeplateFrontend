@@ -566,6 +566,10 @@ export const Welcome10 = ({navigation})=>{
                     const isVerified = await userActions.isVerified()
                     console.log({isVerified})
                     if(isVerified){
+                        await setPersistentState({
+                            ...persistentState,
+                            verified: true,
+                        })
                         navigation.navigate("Welcome11");
                     }else{
                         setFailMessage("Open the link sent in the email to verify your account.")
