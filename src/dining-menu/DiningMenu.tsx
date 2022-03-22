@@ -4,13 +4,14 @@ import { useRecoilState, useRecoilValue } from "recoil";
 import { STATION, getNameOfStation, convertAPIItemToDish, FOOD_CATEGORY, Dish } from '../dashboard/typeUtil';
 import { diningMenuState } from './state';
 import {useEffect, useState} from 'react';
-import { dashboardState, dateToString, TimeInfo } from '../dashboard/state';
+import { dashboardStateAtom, dateToString, TimeInfo } from '../dashboard/state';
 import { APIMealByTimeEvent, APIMealByTimePayload } from '../utils/session/apiTypes';
 import { useUserActions } from '../utils/session/useUserActions';
 import { authAtom } from '../utils/session/useFetchWrapper';
 import { formatNumber } from '../utils/math';
 import { LoadingIcon } from '../utils/Loading';
 import { useLogin } from '../utils/session/session';
+import { useDashboardState, useMealFeatures } from '../dashboard/Dashboard';
 
 export const BASE_PORTION_FILL_FRACTION = 0.7
 
@@ -119,46 +120,42 @@ const DiningMenu = ({navigation,route})=> {
     // const [currentStation,setCurrentStation] = useState(STATION.A);
     const currentStation = route?.params?.station ?? STATION.A
 
-    const [diningState,setDiningState] = useRecoilState(diningMenuState)
-    const currentState = useRecoilValue(dashboardState);
-    const {currentDate,currentMeal} = currentState
-    const timeInfo : TimeInfo = { date: dateToString(currentDate), meal: currentMeal}
-    const [loading,setLoading] = useState(false) 
-    const [noMealInfo,setNoMealInfo] = useState(null as {message: string})
-    async function fetchMeals(){
-        if(auth === null) return
-        if(loading) return
-        const data :APIMealByTimePayload = await userActions.mealsByTime(timeInfo)
-        setLoading(true)
-        if(data.length === 0){
-            console.log("no data for today")
-            setNoMealInfo({message:"No menu for today."})
-            setLoading(false)
-        }else{
-            const mealID = data[0].id as number;
-            const mealEvent = await userActions.mealById(mealID)
-            const dishes = mealEvent.items.map(convertAPIItemToDish)
-            console.log("Dishes Loaded,",dishes.length)
-            setDiningState({
-                dishes,
-                timeInfo: timeInfo
-            });
-            setLoading(false)
-        }
-    }
+    const {timeInfo} = useDashboardState()
+    const {mealState,loading,noMeal,setMealDishes, isPast, isPresent, isFuture} = useMealFeatures({timeInfo,onLoad: ()=>{},doFetchMeal: false})
+    // async function fetchMeals(){
+    //     if(auth === null) return
+    //     if(loading) return
+    //     const data :APIMealByTimePayload = await userActions.mealsByTime(timeInfo)
+    //     setLoading(true)
+    //     if(data.length === 0){
+    //         console.log("no data for today")
+    //         setNoMealInfo({message:"No menu for today."})
+    //         setLoading(false)
+    //     }else{
+    //         const mealID = data[0].id as number;
+    //         const mealEvent = await userActions.mealById(mealID)
+    //         const dishes = mealEvent.items.map(convertAPIItemToDish)
+    //         console.log("Dishes Loaded,",dishes.length)
+    //         setDiningState({
+    //             dishes,
+    //             timeInfo: timeInfo
+    //         });
+    //         setLoading(false)
+    //     }
+    // }
 
-    useEffect(()=>{
-        if(diningState.dishes === null && !loading && noMealInfo == null){
-            fetchMeals()
-        }
-    },[auth,timeInfo])
+    // useEffect(()=>{
+    //     if(diningState.dishes === null && !loading && noMealInfo == null){
+    //         fetchMeals()
+    //     }
+    // },[auth,timeInfo])
 
     const [foods,setFoods] = useState([])
     useEffect(()=>{
         // console.log(currentStation)
-        if(diningState?.dishes){
+        if(mealState?.menu?.dishes){
             
-            const newFoods = diningState.dishes
+            const newFoods = mealState.menu.dishes
                                 .filter(dish => dish.station === currentStation)
                                 // .map( dish => {return {
                                 //     foodName: dish.name,
@@ -170,7 +167,7 @@ const DiningMenu = ({navigation,route})=> {
             setFoods(newFoods)
         }
 
-    },[diningState,currentStation])
+    },[mealState,currentStation])
 
 
   
@@ -179,11 +176,11 @@ const DiningMenu = ({navigation,route})=> {
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
             {loading ? 
                 <LoadingIcon/> 
-            : noMealInfo != null ? 
+            :noMeal? 
                 <Text style = {{
                     fontSize:20, color : "#606060"
                 }}>
-                    {noMealInfo.message}    
+                    {noMeal.message}    
                 </Text> 
             :
             <FlatList 

@@ -1,8 +1,8 @@
-import { memo, useMemo } from 'react';
-import {atom, useRecoilState, } from 'recoil'
+import { memo, useCallback, useMemo } from 'react';
+import {atom, selector, selectorFamily, SetterOrUpdater, useRecoilState, } from 'recoil'
 import { lerp } from '../utils/math';
 import { useUserActions } from '../utils/session/useUserActions';
-import { FOOD_CATEGORY, MEALS, STATION, MealState, Dish, NutritionInfo, NutritionSummaryInfo, convertAPIItemToDish } from './typeUtil';
+import { FOOD_CATEGORY, MEAL, STATION, MealState, Dish, NutritionInfo, NutritionSummaryInfo, convertAPIItemToDish } from './typeUtil';
 export function dateToString(date){
     if(date == null) return null
     try{
@@ -22,12 +22,12 @@ export function getTimeInfoOfNow(){
     const date = new Date()
     const date_string = dateToString(date)
     const hour = date.getHours();
-    let currentMeal = MEALS.Lunch
+    let currentMeal = MEAL.Lunch
     if(hour < 11){
-        currentMeal = MEALS.Breakfast
+        currentMeal = MEAL.Breakfast
     }
     if(hour > 12+4){
-        currentMeal = MEALS.Dinner
+        currentMeal = MEAL.Dinner
     }
     return {
         date: date_string,
@@ -35,12 +35,14 @@ export function getTimeInfoOfNow(){
     } as TimeInfo
 }
 
-export const dashboardState = atom({
+export const dashboardStateAtom = atom({
     key: "dashboardState",
     
     default: {
         currentDate: null,
         currentMeal: null,
+        viewingDate: null,
+        viewingMeal: null,
         // currentDate: stringToDate("2022-02-27"),
         // currentMeal: MEALS.Dinner,
         streakLength: 12
@@ -48,7 +50,7 @@ export const dashboardState = atom({
 })
 export interface TimeInfo{
     date: string,
-    meal: MEALS,
+    meal: MEAL,
 }
 
 function randomSelect(...items){
@@ -106,43 +108,76 @@ function randomDish(){
         }
     } as Dish
 }
-const memoMealState = {}
-export const mealStateWithDateMeal =  (date: Date,meal: MEALS) => {
-    const key = `mealState:${dateToString(date)}:${meal}`
-    if(key in memoMealState) return memoMealState[key]
-    const NUM_PER_REC = 5
-    function makeRecommendationList(){
-        let list = []
-        for(let i =0 ; i< NUM_PER_REC;i++){
-            list.push(randomDish() as Dish)
-        }
-        return list as Array<Dish>
-    }
-    //todo: fetch defaults and stuff
+export const mealStatesAtom = atom({
+    key: "mealStateKeys",
+    default: {}
+})
 
-    const recA = makeRecommendationList()
-    const recB = makeRecommendationList()
-    const recC = makeRecommendationList()
-    const state : MealState = {
-        mealID: null,
-        recommendationA: null,
-        dishA: null,
-        recommendationB: null,
-        dishB: null,
-        recommendationC: recC,
-        dishC: null,
-        // recommendationA: recA,
-        // dishA: randomSelect(...recA),
-        // recommendationB: recB,
-        // dishB: randomSelect(...recB),
-        // recommendationC: recC,
-        // dishC: randomSelect(...recC),
-    }
-    const mealState =  atom({
-        key,
-        default: state
-    })
-    memoMealState[key] = mealState
-    return mealState
+export function timeInfoOf(date:Date,meal: MEAL){
+    return {date: dateToString(date), meal: meal} as TimeInfo
 }
-export const mealStateFromTimeInfo = (timeInfo:TimeInfo) => mealStateWithDateMeal( stringToDate(timeInfo.date), timeInfo.meal)
+
+export const mealStateSelector = selectorFamily<MealState,{date:string,meal:string}>({
+    key: "mealStateSelector",
+    get: (timeInfo:TimeInfo) => ({get})=>{
+        const date = stringToDate(timeInfo.date)
+        const meal = timeInfo.meal
+        const key = `mealState:${dateToString(date)}:${meal}`
+        return get(mealStatesAtom)?.[key]
+    },
+    set: (timeInfo: TimeInfo) => ({get,set},newState)=>{
+        const date = stringToDate(timeInfo.date)
+        const meal = timeInfo.meal
+        const key = `mealState:${dateToString(date)}:${meal}`
+        set(mealStatesAtom, {
+            ... get(mealStatesAtom),
+            [key]: newState
+        })
+    }
+})
+
+export function useMealStateUtils(){
+    
+    const [mealStates,setMealStates] = useRecoilState(mealStatesAtom)
+    const getMealState = useCallback( (timeInfo:TimeInfo) => {
+        const [mealState,setMealState] = useRecoilState(mealStateSelector(timeInfo))
+       
+        if(mealState != null) return [mealState,setMealState]  as [MealState,SetterOrUpdater<MealState>]
+        const NUM_PER_REC = 5
+        function makeRecommendationList(){
+            let list = []
+            for(let i =0 ; i< NUM_PER_REC;i++){
+                list.push(randomDish() as Dish)
+            }
+            return list as Array<Dish>
+        }
+        //todo: fetch defaults and stuff
+
+        const recA = makeRecommendationList()
+        const recB = makeRecommendationList()
+        const recC = makeRecommendationList()
+        const state : MealState = {
+            time: timeInfo,
+            mealID: null,
+            recommendationA: null,
+            dishA: null,
+            recommendationB: null,
+            dishB: null,
+            recommendationC: recC,
+            dishC: null,
+            // recommendationA: recA,
+            // dishA: randomSelect(...recA),
+            // recommendationB: recB,
+            // dishB: randomSelect(...recB),
+            // recommendationC: recC,
+            // dishC: randomSelect(...recC),
+        }
+        setMealState(state)
+        return [state,setMealState] as [MealState,SetterOrUpdater<MealState>]
+    }, [mealStates])
+    return {getMealState}
+
+}
+// export const mealStateFromTimeInfo = (timeInfo:TimeInfo) => mealStateWithDateMeal( )
+
+// export const useMealState = ()

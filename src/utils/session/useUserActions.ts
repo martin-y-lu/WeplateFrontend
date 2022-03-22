@@ -104,7 +104,7 @@ function useUserActions () {
             const _auth = await fetchWrapper.post(`${baseUrl}/api/token_auth/`, data)
         
             if(!("token" in _auth)) throw new Error("Invalid auth" + password +" "+email)
-            console.log({_auth})
+            // console.log({_auth})
             
             setAuth(_auth)
 

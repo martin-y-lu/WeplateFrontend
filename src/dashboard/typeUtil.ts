@@ -1,9 +1,19 @@
 import { APIFoodCategory, APIPortionInfo, APIItem, APITimestamp, APIStation } from '../utils/session/apiTypes';
+import { TimeInfo } from './state';
 export enum FOOD_CATEGORY{Carbohydrates = "Carbohydrates",Protein = "Protein", Vegetable = "Vegetable"}
-export enum MEALS{Breakfast = "Breakfast", Lunch = "Lunch",Dinner = "Dinner"}
+export enum MEAL{Breakfast = "Breakfast", Lunch = "Lunch",Dinner = "Dinner"}
+export const MEALS = [MEAL.Breakfast,MEAL.Lunch, MEAL.Dinner]
 
 export enum STATION{A = "A", B = "B", C = "C", D = "D", E = "E",F = "F"}
 // export enum STATION{A = "A", B = "B", C = "C", D = "D", E = "E", F = "F", G = "G", H = "H", I = "I"}
+
+export function getFoodCategoryDescription(fc: FOOD_CATEGORY){
+    switch(fc){
+        case(FOOD_CATEGORY.Carbohydrates): return "Grains"
+        case(FOOD_CATEGORY.Protein): return "Proteins"
+        case(FOOD_CATEGORY.Vegetable): return "Produce"
+    }
+}
 
 export function getNameOfStation( station: STATION){
     return {A: "Homestyle",
@@ -15,11 +25,11 @@ export function getNameOfStation( station: STATION){
             }[station] ?? null
 }
 
-export function getMealsIndex(meal:MEALS){
+export function getMealsIndex(meal:MEAL){
     switch(meal){
-        case(MEALS.Breakfast): return 0 
-        case(MEALS.Lunch): return 1 
-        case(MEALS.Dinner): return 2 
+        case(MEAL.Breakfast): return 0 
+        case(MEAL.Lunch): return 1 
+        case(MEAL.Dinner): return 2 
     }
 }
 export interface NutritionInfo{
@@ -66,13 +76,17 @@ export interface Dish{
     portion?: PortionInfo,
 }
 export interface MealState {
+    time: TimeInfo,
     mealID: number,
-    recommendationA: Array<Dish>,
-    dishA: Dish,
-    recommendationB: Array<Dish>,
-    dishB: Dish,
-    recommendationC: Array<Dish>,
-    dishC: Dish,
+    recommendationA?: Array<Dish>,
+    dishA?: Dish,
+    recommendationB?: Array<Dish>,
+    dishB?: Dish,
+    recommendationC?: Array<Dish>,
+    dishC?: Dish,
+    menu?: {
+        dishes : Dish[]
+    }
 }
 function getCategoryOfAPIItem(item:APIItem){
     return FoodCategoryFromAPIFoodCategory(item.category)
@@ -143,7 +157,7 @@ export function parseAPITimestamp(date:APITimestamp){
     return new Date()
 }
 
-export function mealToAPIForm(meal:MEALS){
+export function mealToAPIForm(meal:MEAL){
     return meal.toLowerCase();
 }
 

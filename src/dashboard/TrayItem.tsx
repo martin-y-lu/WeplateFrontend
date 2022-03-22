@@ -74,7 +74,6 @@ const TrayItem = ( props : {isTop ?: boolean, number: number,portion: Portion, d
             }}>
 
             <View style = {{
-                marginLeft: 25,
                 width: 30,
                 height: 30,
                 borderStyle: 'solid',

@@ -37,7 +37,7 @@ const BaseHeader = (props : {options?: any, overlayComponents?, children?,naviga
         }
     },[netInfo])
     const {options} = props
-    const {opacity,color } = options?.headerTitleStyle ??  {opacity: 1, color: ds.colors.grayscale5}
+    let {opacity,color,backgroundColor } = options?.headerTitleStyle ??  {opacity: 1, color: ds.colors.grayscale5}
     const height = options?.height ?? 120
 
     const showInverseBorders = true
@@ -49,7 +49,8 @@ const BaseHeader = (props : {options?: any, overlayComponents?, children?,naviga
                                 height: height+inset.top,
                             }
 
-    const backgroundColor = ds.colors.accent2;
+    // const backgroundColor = ds.colors.accent2;
+    backgroundColor ??= ds.colors.accent2 
     const backgroundRGB = hexToRgb(backgroundColor);
     const opacityBGC = `rgba(${backgroundRGB.r},${backgroundRGB.g},${backgroundRGB.b},${Math.floor(opacity ?? 1 *255)})`
 //     {

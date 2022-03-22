@@ -1,4 +1,5 @@
 import {atom, selector} from 'recoil'
+import { invalidateMealStates, mealStateKeysAtom, mealStatesAtom } from '../dashboard/state'
 import { ingredientsAtom, usersAtom } from '../utils/session/useUserActions'
 
 export const Rname = selector({
@@ -130,6 +131,8 @@ function setInfoState({get,set},newInfoState){
         sex: newInfoState.sex,
     }
     console.log(newUser)
+    // invalidate meal states
+    set(mealStatesAtom,{})
     set(usersAtom,newUser)
 }
 export const infoState = selector({

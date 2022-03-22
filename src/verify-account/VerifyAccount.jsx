@@ -41,23 +41,23 @@ export const VerifyAccount = ({navigation})=>{
          }]}>
             {failMessage}
          </Text>
-        <WelcomeButton onPress = {()=>{
-                console.log("Huh")
-                const checkVerify = (async ()=>{
-                    const isVerified = await userActions.isVerified()
-                    console.log({isVerified})
-                    if(isVerified){
-                        setPersistentState({
-                            ...persistentState,
-                            verified: true,
-                        })
-                        navigation.navigate("SidebarNavigable",{screen:"Dashboard"})
-                    }else{
-                        setFailMessage("Open the link sent in the email to verify your account.")
-                    }
-                })
-                checkVerify()
-            }}> Continue </WelcomeButton>
+        <WelcomeButton onPress = {async ()=>{
+            console.log("Huh")
+            const checkVerify = (async ()=>{
+                const isVerified = await userActions.isVerified()
+                console.log({isVerified})
+                if(isVerified){
+                    await setPersistentState({
+                        ...persistentState,
+                        verified: true,
+                    })
+                    navigation.navigate("SidebarNavigable",{screen:"Dashboard"})
+                }else{
+                    setFailMessage("Open the link sent in the email to verify your account.")
+                }
+            })
+            checkVerify()
+        }}> Continue </WelcomeButton>
     </BaseWelcome>
 }
 const styles = StyleSheet.create({

@@ -2,6 +2,13 @@ import * as React from "react"
 import {NavigationContainer} from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import {createDrawerNavigator, DrawerContent} from '@react-navigation/drawer'
+import {
+    useQuery,
+    useMutation,
+    useQueryClient,
+    QueryClient,
+    QueryClientProvider,
+  } from 'react-query'
 
 import {setCustomText} from 'react-native-global-props'
 setCustomText({style:{
@@ -27,6 +34,7 @@ import Splash from "./src/splash/Splash";
 import FeedbackThankYou from "./src/feedback/FeedbackThankYou";
 import FeedbackForms from "./src/feedback/FeedbackForms";
 import { VerifyAccount } from "./src/verify-account/VerifyAccount";
+import { useDesignScheme } from "./src/design/designScheme";
 
 const Stack = createNativeStackNavigator()
 const Drawer = createDrawerNavigator();
@@ -35,6 +43,8 @@ const Drawer = createDrawerNavigator();
 // https://reactnavigation.org/docs/nesting-navigators/#navigator-specific-methods-are-available-in-the-navigators-nested-inside
 const SHOW_NAV_HEADER = true
 const SidebarNavigable = ()=>{
+    const ds = useDesignScheme()
+
     return  <Drawer.Navigator
         drawerContent={ (props)=> <CustomDrawerContent {...props}/>}
         screenOptions={{
@@ -55,7 +65,9 @@ const SidebarNavigable = ()=>{
             name = "Dining Menu"
             component = {DiningMenu}
             options = {{
-                header: (props) =>  <DiningMenuHeader {...props}/>,
+                // header: (props) =>  <DiningMenuHeader {...props}/>,
+                header: (props) =>  <DashboardHeader {...props}/>,
+                headerTitleStyle: {opacity: 1, color: ds.colors.grayscale2, theme : "light" , backgroundColor: ds.colors.grayscale5}
             }}
         />
         <Drawer.Screen
@@ -185,9 +197,14 @@ const BaseApp = ()=>{
 }
 
 //Setting up recoil based state management
+//Setting up react query
+
+const queryClient = new QueryClient()
 const App = ()=>{
     return <RecoilRoot>
-        <BaseApp/> 
+        <QueryClientProvider client={ queryClient}>
+            <BaseApp/> 
+        </QueryClientProvider>
     </RecoilRoot> 
 }
 

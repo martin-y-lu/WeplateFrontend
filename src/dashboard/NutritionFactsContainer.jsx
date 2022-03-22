@@ -46,7 +46,7 @@ const NutritionFactsContainer = (props) =>{
         // console.log(nativeEvent)
         if(ALLOW_OPEN){
             yValue.stopAnimation()
-            yValue.setValue(nativeEvent.absoluteY-60)
+            yValue.setValue(nativeEvent.absoluteY-120-20)
             setUserSliding(true)
         }
     }

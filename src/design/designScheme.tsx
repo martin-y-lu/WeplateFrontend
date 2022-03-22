@@ -12,6 +12,7 @@ export const defaultDesignScheme = {
         grayscale1: "#302F2F" as Color,
         grayscale2: "#606060" as Color, 
         grayscale3: "#585656" as Color,
+        grayscale3_4: "#A4A4A4" as Color,
         grayscale4: "#E9E8E8" as Color,
         grayscale5: "#FFFFFF" as Color,
     },

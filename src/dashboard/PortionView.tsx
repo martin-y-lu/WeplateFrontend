@@ -37,7 +37,7 @@ import proteinIconImage from './assets/icons_text/protein_icon_with_text_centere
 
 import {OBJLoader} from 'three/examples/jsm/loaders/OBJLoader'
 import { degToRad, interp, lerp } from '../utils/math';
-import { FOOD_CATEGORY, MEALS } from './typeUtil';
+import { FOOD_CATEGORY, MEAL } from './typeUtil';
 import { colorOfCategory } from './NutritionFacts';
 
 if (!global.btoa) {
@@ -107,10 +107,10 @@ export function useTrackedStateAnimation(init_value,valueListener = (val)=>{}){
 
 export function usePortionViewAnimationState(){
   //default resting transformation of displayGroup, when centralized
-  const DEFAULT_TRANSFORM = new Quaternion().setFromAxisAngle(new Vector3(1,0,0),Math.PI/2);
+  const DEFAULT_TRANSFORM = new Quaternion().setFromAxisAngle(new Vector3(1,0,0),Math.PI*0.3);
   // quaternions to keep track of orbit view
-  const initialRotation = useRef(new Quaternion())
-  const rotation = useRef(new Quaternion())
+  const initialRotation = useRef(DEFAULT_TRANSFORM.clone())
+  const rotation = useRef(DEFAULT_TRANSFORM.clone())
   
   function setRotation(quat){
     rotation.current = quat.clone()
@@ -164,7 +164,7 @@ const PortionView = (props)=>{
   const {style} = props
   //size of graphics window (square)
   const size = Dimensions.get('window').width
-  const aspect = 0.7
+  const aspect = 0.55
 
   //three.js camera
   const perspectiveCamera = useRef(null)
@@ -251,7 +251,7 @@ const PortionView = (props)=>{
 
 
   //Timer to re centralise after a certain period of no interaction
-  const INACTIVITY_TIMER_LENGTH = 400;
+  const INACTIVITY_TIMER_LENGTH = 1400;
   const inactivityTimer = useRef(null) 
 
   function startInactivityTimer(){
@@ -386,19 +386,25 @@ const PortionView = (props)=>{
     const render = ()=>{
 
       //interpolate light intensities such that when the it is centralized, only the ambient light is on
+      // from pure ambient
+      // ambientLight.intensity = lerp(3,4,centralizeValue.current)
+      // pointLight.intensity = lerp(2,0,centralizeValue.current)
+      
       ambientLight.intensity = lerp(3,4,centralizeValue.current)
-      pointLight.intensity = lerp(2,0,centralizeValue.current)
+      pointLight.intensity = lerp(2,0.5,centralizeValue.current)
+      // flattened 2d view
+      // const usePerspective = centralizeValue.current !== 1      
+            // const fov1 = 0.21
+            // const dist1 = 420
+      const usePerspective = true
+      const fov1 = 50
+      const dist1 = 2.5
 
-      const usePerspective = centralizeValue.current !== 1
-      // const usePerspective = true
-      const fov1 = 0.21
-      const dist1 = 420
-
-      const fov2 = 60
-      const dist2 = 2.8
+      const fov2 = 40
+      const dist2 = 4.2
       if(usePerspective){      
         //interpolate fov such that when centralised, the projection is almost orthographic
-        const fov = lerp(75,8,centralizeValue.current)
+        const fov = lerp(fov2,fov1,centralizeValue.current)
         _perspectiveCamera.fov = fov
 
         //interpolate distance of camera in order to have smooth fov change
@@ -429,7 +435,8 @@ const PortionView = (props)=>{
       }
     
       //lerp opacity of box
-      components.current["PlateBody"].material.opacity = lerp(0.3,0,centralizeValue.current)
+      components.current["PlateBody"].material.opacity = 0.3
+      // components.current["PlateBody"].material.opacity = lerp(0.3,0,centralizeValue.current)
 
       components.current["Right"].material.opacity= rightSizeTarg.current == 0 ? 0 : lerp(0.93,1,centralizeValue.current)
       components.current["TopLeft"].material.opacity = topLeftSizeTarg.current == 0 ? 0:  lerp(0.93,1,centralizeValue.current)
@@ -437,17 +444,31 @@ const PortionView = (props)=>{
 
       const WALL_HEIGHT = 1.2
       //set sizes of components
-      let rightScale = lerp(rightSizeValue.current,1,centralizeValue.current)
+      // let rightScale = lerp(rightSizeValue.current,1,centralizeValue.current)
+      // if(rightScale == 0) rightScale = 0.01 // prevent z fight
+      // components.current["Right"].scale.set(1,rightScale,1)
+      // _rightSquare.position.set(0.6,WALL_HEIGHT/2*rightScale - 0.2 +0.01,0)
+
+      // let topScale = lerp(topLeftSizeValue.current,1,centralizeValue.current)
+      // if(topScale == 0) topScale = 0.01
+      // components.current["TopLeft"].scale.set(1,topScale,1)
+      // _topSquare.position.set(-0.6,WALL_HEIGHT/2*topScale - 0.2 +0.01,-0.4)
+
+      // let bottomScale = lerp(bottomLeftSizeValue.current,1,centralizeValue.current);
+      // if(bottomScale == 0 ) bottomScale = 0.01
+      // components.current["BottomLeft"].scale.set(1,bottomScale,1)
+      // _bottomSquare.position.set(-0.6,WALL_HEIGHT/2*bottomScale - 0.2 +0.01,0.4)
+      let rightScale = rightSizeValue.current
       if(rightScale == 0) rightScale = 0.01 // prevent z fight
       components.current["Right"].scale.set(1,rightScale,1)
       _rightSquare.position.set(0.6,WALL_HEIGHT/2*rightScale - 0.2 +0.01,0)
 
-      let topScale = lerp(topLeftSizeValue.current,1,centralizeValue.current)
+      let topScale = topLeftSizeValue.current
       if(topScale == 0) topScale = 0.01
       components.current["TopLeft"].scale.set(1,topScale,1)
       _topSquare.position.set(-0.6,WALL_HEIGHT/2*topScale - 0.2 +0.01,-0.4)
 
-      let bottomScale = lerp(bottomLeftSizeValue.current,1,centralizeValue.current);
+      let bottomScale = bottomLeftSizeValue.current
       if(bottomScale == 0 ) bottomScale = 0.01
       components.current["BottomLeft"].scale.set(1,bottomScale,1)
       _bottomSquare.position.set(-0.6,WALL_HEIGHT/2*bottomScale - 0.2 +0.01,0.4)
