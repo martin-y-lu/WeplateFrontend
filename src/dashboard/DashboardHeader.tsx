@@ -296,7 +296,7 @@ const DashboardHeader = (props) =>{
                     })
                 }
                 {
-                    dateToString(currentDate) != dateToString(viewingDate) &&
+                    ((dateToString(currentDate) != dateToString(viewingDate)) || (currentMeal != viewingMeal)) &&
                     <TouchableOpacity style = {{
                         marginBottom: 5,
                         padding: 5,
@@ -309,7 +309,8 @@ const DashboardHeader = (props) =>{
                         setShowingDatePick(false)
                         setDashboardState({
                             ...state,
-                            viewingDate: new Date(state.currentDate)
+                            viewingDate: new Date(state.currentDate),
+                            viewingMeal: state.currentMeal,
                         })
                     }}
                     >

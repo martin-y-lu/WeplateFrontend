@@ -25,6 +25,7 @@ export const selected_icon_svg = `<svg width="19" height="19" viewBox="0 0 19 19
 
 export function BaseWelcome(props){
    return <View style={{ flex: 1, alignItems: 'center', backgroundColor: '#ff7474', justifyContent: 'center' }}>
+    {props?.body}
    <View style={{alignItems: 'left', margin: 15,paddingLeft:20,}}>
         {props.children}
 

@@ -1,11 +1,17 @@
 import { useEffect, useState } from "react";
-import { StyleSheet, Text, TextInput } from "react-native";
+import { StyleSheet, Text, TextInput, KeyboardAvoidingView, Keyboard, TouchableOpacity } from 'react-native';
+import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import { useRecoilState } from "recoil";
 import { usersAtom, useUserActions } from "../utils/session/useUserActions";
 import { usePersistentAtom } from "../utils/state/userState";
 import { BaseWelcome, WelcomeButton } from "../welcome/Welcome";
-export const ChangePassword = ({navigation})=>{
+import { MIN_PASSWORD_LENGTH } from '../login/Login';
+import { useDesignScheme } from '../design/designScheme';
+import { SvgXml } from "react-native-svg";
+import { back_icon_svg } from "../individual-item/IndividualItem";
+export const ChangePassword = ({navigation,route})=>{
     const userActions = useUserActions()
+    const {email} = route.params
     const [user,_setUser] = useRecoilState(usersAtom)
     const [persistentState,setPersistentState,fetchPersistentState] = usePersistentAtom()
 
@@ -25,22 +31,60 @@ export const ChangePassword = ({navigation})=>{
         }       
     },[navigation.isFocused()]);
     const [failMessage, setFailMessage] = useState("");
-    return <BaseWelcome>
-        <Text style={[styles.title,{fontSize: 40}]}>Create New Password</Text>
-        <TextInput
+    const ds = useDesignScheme()
+
+    return <BaseWelcome body = { 
+        <TouchableOpacity style = {{
+            position: 'absolute',
+            top: 30,
+            left: 20,
+            width: "40%",
+            height: "20%",
+        }} onPress = {()=>{
+                navigation.navigate("Login")
+            }
+        }>
+            <SvgXml xml = {back_icon_svg} stroke = {ds.colors.grayscale5}/>
+        </TouchableOpacity> 
+    }>
+
+    <TouchableWithoutFeedback onPress = {Keyboard.dismiss}>
+                
+    {
+                emailSent ? 
+                <>
+                    <Text style = {{
+                        marginTop: 15,
+                        marginLeft: 40,
+                        color: '#A6A6A6',
+                        fontSize: 16, 
+                    }}>
+                        An email has been sent to {persistentState.email} to confirm the password change.
+                    </Text>
+                    <WelcomeButton onPress = {async ()=>{
+                            navigation.navigate("Login")
+                    }}> Continue </WelcomeButton>
+
+                </>
+                 :<>
+                 
+            <Text style={[styles.title,{fontSize: 40}]}>Create New Password</Text>
+            <Text style={styles.text}> New password for {email}</Text>
+        <KeyboardAvoidingView  behavior = 'position'>
+            
+            <TextInput
                 secureTextEntry
                 style={{
                     marginVertical: 10,
-                    minWidth: "50%",
+                    minWidth: "100%",
                     borderRadius: 10,
-                    padding: 20,
+                    paddingLeft: 10,
                     backgroundColor: "white",
                     borderColor: '#EDEDED',
                     borderWidth: 1,
                     borderLeftWidth:0,
                     borderRightWidth:0,
                     height: 40,
-                    color: 'black',
                     fontSize: 18,
                     marginLeft:10,
                     marginRight: 10,
@@ -51,7 +95,21 @@ export const ChangePassword = ({navigation})=>{
             <Text style={styles.text}> Confirm Password</Text>
             <TextInput
                 secureTextEntry
-                style={styles.textInput}
+                style={{
+                    marginVertical: 10,
+                    minWidth: "100%",
+                    paddingLeft: 10,
+                    borderRadius: 10,
+                    backgroundColor: "white",
+                    borderColor: '#EDEDED',
+                    borderWidth: 1,
+                    borderLeftWidth:0,
+                    borderRightWidth:0,
+                    height: 40,
+                    fontSize: 18,
+                    marginLeft:10,
+                    marginRight: 10,
+                }}
                 onChangeText={setConfirmPassword}
                 value={confirmPassword}
             />
@@ -59,15 +117,44 @@ export const ChangePassword = ({navigation})=>{
             <Text style= {{
                     marginTop: 15,
                     marginLeft: 40,
-                    color: '#A6A6A6',
+                    color: ds.colors.accent1,
                     fontSize: 16,
                 }}>
                 {errorText}
             </Text>
             }
-        <WelcomeButton onPress = {async ()=>{
-            
-        }}> Continue </WelcomeButton>
+            <WelcomeButton onPress = {async ()=>{
+                if(newPassword.length == 0){
+                    setErrorText("Enter a new password");
+                    return
+                }
+                if(newPassword.length < MIN_PASSWORD_LENGTH){
+                    setErrorText("Password is too short");
+                    return
+                }
+                if(newPassword != confirmPassword){
+                    setErrorText("Passwords do not match")
+                    setConfirmPassword("");
+                    return
+                }
+                setErrorText("");
+                try{
+                    await userActions.resetPassword(persistentState.email,newPassword)
+                }catch(e){
+                    navigation.navigate("Login")
+                }
+                await setPersistentState({
+                    ...persistentState,
+                    alternativePasswords: [newPassword,...persistentState?.alternativePasswords ?? []]
+                })
+                setEmailSent(true);
+            }}> Submit </WelcomeButton>
+        </KeyboardAvoidingView>
+        </>}
+
+        
+        </TouchableWithoutFeedback>
+       
     </BaseWelcome>
 }
 const styles = StyleSheet.create({

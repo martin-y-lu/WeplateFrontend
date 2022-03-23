@@ -504,9 +504,16 @@ const Login = ({navigation})=>{
                     <Text style = {{color:'#B1B1B1', paddingVertical:10, marginHorizontal:20, fontSize: 15}}>Create a new account</Text>
                   </TouchableOpacity>
                   { validateEmail(email) &&
-                    <TouchableOpacity style= {{marginBottom:10}} onPress={ () =>{ 
+                    <TouchableOpacity style= {{marginBottom:10}} onPress={ async () =>{ 
+                          const res = await userActions.checkEmail(email);
+                          console.log({res})
+                          if(res.detail == "Email already taken"){
                             navigation.navigate("ChangePassword",{email})
-                        } }>
+                          }else{
+                            setState(1); setMessage("Create new account") 
+                          }
+                        } 
+                      }>
                       <Text style = {{color:'#B1B1B1', paddingVertical:5, marginHorizontal:20, fontSize: 15}}> Forgot password?</Text>
                     </TouchableOpacity>
                   }

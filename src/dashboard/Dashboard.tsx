@@ -462,7 +462,7 @@ const Dashboard = (props)=>{
                 }}>
                     {noMeal.message}    
                 </Text> 
-                <BaseButton style = {{
+                {/* <BaseButton style = {{
                         marginTop:20,
                         width: "100%",
                         paddingLeft:50,
@@ -477,7 +477,7 @@ const Dashboard = (props)=>{
                         }}>
                             Return to present
                     </Text> 
-                </BaseButton>
+                </BaseButton> */}
             </View>
             <View style = {{height: 1000}}/>
          </>

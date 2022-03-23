@@ -16,7 +16,7 @@ import { colorOfCategory } from '../dashboard/NutritionFacts';
 import { formatNumber } from '../utils/math';
 export const IMAGE_ASPECT_RATIO = 1.4;
 
-const back_icon_svg = `<svg width="18" height="27" viewBox="0 0 18 27" fill="none" xmlns="http://www.w3.org/2000/svg">
+export const back_icon_svg = `<svg width="18" height="27" viewBox="0 0 18 27" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M16 2L4.10542 11.1192C2.53914 12.32 2.53914 14.68 4.10542 15.8808L16 25" stroke-width="4"/>
 </svg>
 `

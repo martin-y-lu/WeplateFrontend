@@ -282,8 +282,10 @@ function useUserActions () {
     }
     async function resetPassword(email:string,newPassword:string){
         const endpoint = `${baseUrl}/api/reset_password/`
+        console.log({endpoint})
         const resp = await fetchWrapper.post(endpoint,{email,password:newPassword})
         if(resp?.detail != "ok"){
+            console.log({resp})
             throw new Error("failed to reset password");
         }
     }
