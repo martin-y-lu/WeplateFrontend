@@ -5,6 +5,7 @@ import { SvgXml } from "react-native-svg"
 import { APIVersionResponse, APIHandleUpdateStrategies } from '../utils/session/apiTypes';
 import { useUserActions } from "../utils/session/useUserActions";
 import { usePersistentAtom } from '../utils/state/userState';
+import { useDesignScheme } from '../design/designScheme';
 const logo_svg =   `<svg width="65" height="46" viewBox="0 0 65 46" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M32.4725 3.90527H61.3254V42.3758H32.4725M32.4725 3.90527H3.61963V23.1405M32.4725 3.90527V23.1405M32.4725 42.3758H3.61963V23.1405M32.4725 42.3758V23.1405M32.4725 23.1405H3.61963" stroke="white" stroke-width="6.33166" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
@@ -117,7 +118,9 @@ function Splash({navigation}){
         handleSplash()
     },[]) 
     const shift = {x: -5, y: -20}
-    return <View style={{ flex: 1, backgroundColor: '#FF3939', justifyContent: 'center' }}>
+
+    const ds = useDesignScheme()
+    return <View style={{ flex: 1, backgroundColor: ds.colors.accent2, justifyContent: 'center' }}>
         <View style = {{
             width: "100%",
             alignItems:"center",
@@ -149,7 +152,23 @@ function Splash({navigation}){
             </View>
         </View>
     </View>
-    { updateRequired != "none" && 
+    {
+        (updateRequired == "maintenance") &&  <Animated.View style = {{
+            position: "absolute",
+            left: 0,
+            top: height*0.7,
+            alignItems:'center',
+            width: "100%",
+        }}>
+            <Text style = {{
+                color: "white",
+                fontSize: 20,
+            }}>
+                Weplate is down for maintenance
+            </Text>
+        </Animated.View> 
+    }
+    { (updateRequired == "force" || updateRequired == "recommend") && 
         <Animated.View style = {{
             position: "absolute",
             left: 0,
@@ -183,12 +202,13 @@ function Splash({navigation}){
                     }}
                 >   
                     <Text  style = {{
-                        color: '#FF3939'
+                        fontSize:20,
+                        color: ds.colors.accent2
                     }}>
                         Get update
                     </Text>
                 </TouchableOpacity>
-                { updateRequired != "force" &&
+                { updateRequired == "recommend" &&
                     <TouchableOpacity style = {{
                         backgroundColor: "white",
                         padding: 10,
@@ -203,7 +223,8 @@ function Splash({navigation}){
                         }}
                     >
                         <Text style = {{
-                            color: '#FF3939'
+                            fontSize:20,
+                            color: ds.colors.accent2
                         }}>
                             Continue to app
                         </Text>

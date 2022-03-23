@@ -179,7 +179,7 @@ export interface APIRegisterSettings{
     password : string, 
 }
 
-export type APIHandleUpdateStrategies = "none" | "force" | "recommend"
+export type APIHandleUpdateStrategies = "none" | "force" | "recommend" | "maintenance"
 export interface APIVersionResponse{
     backend_version: string,
     compatible: boolean,

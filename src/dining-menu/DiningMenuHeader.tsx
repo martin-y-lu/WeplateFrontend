@@ -1,4 +1,4 @@
-import { View,Text, TouchableOpacity, Dimensions } from "react-native"
+import { View,Text, TouchableOpacity, Dimensions ,Image} from "react-native"
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SvgXml } from "react-native-svg"
 import { getNameOfStation, STATION } from "../dashboard/typeUtil"

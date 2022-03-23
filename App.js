@@ -35,6 +35,8 @@ import FeedbackThankYou from "./src/feedback/FeedbackThankYou";
 import FeedbackForms from "./src/feedback/FeedbackForms";
 import { VerifyAccount } from "./src/verify-account/VerifyAccount";
 import { useDesignScheme } from "./src/design/designScheme";
+import IndividualItem from "./src/individual-item/IndividualItem";
+import { ChangePassword } from "./src/change-password/ChangePassword";
 
 const Stack = createNativeStackNavigator()
 const Drawer = createDrawerNavigator();
@@ -92,7 +94,9 @@ const SidebarNavigable = ()=>{
             name = "Settings"
             component = {Settings}
             options = {{
+                headerTransparent: true,
                 header: (props) =>  <BaseHeader {...props}/>,
+                headerTitleStyle: {opacity: 0, color: ds.colors.grayscale2}
             }}
         />
         <Drawer.Screen
@@ -106,7 +110,7 @@ const SidebarNavigable = ()=>{
             options = {{
                 header: (props) =>  <BaseHeader {...props}/>,
                 headerTransparent: true,
-                headerTitleStyle: {opacity: 0}
+                headerTitleStyle: {opacity: 0, color: ds.colors.grayscale2}
             }}
         />
     </Drawer.Navigator>
@@ -181,6 +185,14 @@ const BaseApp = ()=>{
             <Stack.Screen
                 name = "VerifyAccount"
                 component = {VerifyAccount}
+            />
+            <Stack.Screen
+                name = "ChangePassword"
+                component = {ChangePassword}    
+            />
+            <Stack.Screen
+                name = "IndividualItem"
+                component = {IndividualItem}
             />
             <Stack.Screen
                 name = "SidebarNavigable"

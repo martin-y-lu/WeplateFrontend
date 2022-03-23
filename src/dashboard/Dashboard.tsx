@@ -591,9 +591,7 @@ const Dashboard = (props)=>{
             </View>
         </Modal> 
         {content}
-        <View>
-            <PortionView style = {{ marginTop:10}} animationState = {portionAnimationState}/>
-        </View>
+        <PortionView style = {{ marginTop:10}} animationState = {portionAnimationState}/>
         <CopilotStep text = {"After you are satisfied with your food selections, you can view the nutritional information of your meal based on its optimal combination!"} 
             order = {3} name = "test:3">
                 <WalkableView style = {{

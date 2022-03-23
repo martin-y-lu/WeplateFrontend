@@ -8,9 +8,10 @@ import { setTextRange } from 'typescript';
 import { authAtom } from '../utils/session/useFetchWrapper';
 import { useUserActions } from '../utils/session/useUserActions';
 import { MealState } from "../dashboard/typeUtil";
-import { getTimeInfoOfNow, mealStateFromTimeInfo } from '../dashboard/state';
+import { getTimeInfoOfNow} from '../dashboard/state';
 import { useLogin } from "../utils/session/session";
 import { LoadingIcon } from "../utils/Loading";
+import { useMealFeatures } from '../dashboard/Dashboard';
 
 const FeedbackForms = ({navigation,route}) => {
     const auth = useRecoilValue(authAtom)
@@ -85,8 +86,9 @@ const FeedbackForms = ({navigation,route}) => {
 
 function FeedbackCookingFoodPrep(props: {continueToNext: ()=> void}){
     const [feedback,setFeedback] = useRecoilState(feedbackAtom)
-    const mealState : MealState= useRecoilValue(mealStateFromTimeInfo(getTimeInfoOfNow()))
-    // console.log(mealState)
+    const timeInfo = getTimeInfoOfNow()
+    const {mealState,loading,noMeal,setMealDishes, isPast, isPresent, isFuture} = useMealFeatures({timeInfo,onLoad: ()=>{},doFetchMeal: false})
+
     const dishNames = [mealState?.dishA?.name,mealState.dishB?.name,mealState.dishC?.name,"Other"].filter(el=> !! el);
 
     const [selDishNames, setSelDishNames] = useState({})

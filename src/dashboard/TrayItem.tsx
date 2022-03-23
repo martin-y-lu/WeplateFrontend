@@ -1,11 +1,12 @@
-import { View,Text, StyleSheet,TouchableOpacity, Dimensions,Animated, Modal, FlatList } from "react-native"
+import { View,Text, StyleSheet,TouchableOpacity, Dimensions,Animated, Modal, FlatList, Image } from "react-native"
 import { colorOfCategory, iconOfCategory, NutritionFacts } from "./NutritionFacts"
-import { Dish, Portion, getNameOfStation } from './typeUtil';
+import { Dish, Portion, getNameOfStation, FOOD_CATEGORY } from './typeUtil';
 import { Swipeable } from "react-native-gesture-handler"
 import { SvgXml } from "react-native-svg"
 import { useRef } from "react"
 import { useUserActions } from "../utils/session/useUserActions"
-import { BASE_PORTION_FILL_FRACTION } from "../dining-menu/DiningMenu";
+import { BASE_PORTION_FILL_FRACTION, leaf_xml, bread_xml, meat_xml } from '../dining-menu/DiningMenu';
+import { useDesignScheme } from '../design/designScheme';
 
 const thumbs_down_xml = `<svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
 <rect x="21.5312" y="1.4375" width="5.5625" height="12.125" rx="1" fill="white"/>
@@ -17,12 +18,20 @@ const thumbs_up_xml = `<svg width="27" height="28" viewBox="0 0 27 28" fill="non
 <path d="M17.343 27.1521C13.1245 27.1521 9.85346 26.2563 7.21805 25.8083L7.21805 15.058L7.81197 15.058C9.12199 15.058 10.4008 12.5988 10.8096 11.8126L10.812 11.808C11.2182 11.0268 11.9682 9.12054 12.2182 8.71429C12.4682 8.30804 13.1245 7.99554 13.6557 7.55804C14.187 7.12054 14.7495 6.43304 15.312 4.96429C15.8745 3.49554 15.6245 1.65179 15.7808 1.40179C15.937 1.15179 16.1245 0.933038 16.437 0.933038C16.7495 0.933038 17.3431 0.964288 18.187 1.40179C19.0309 1.83929 19.6245 3.52679 19.6245 4.58929C19.6245 5.65179 19.5307 7.49554 18.3745 8.71429C17.4495 9.68929 17.5099 10.8705 17.6557 11.3393C19.1245 11.3914 22.1622 11.3393 23.562 11.3393C25.3118 11.3393 26.0932 12.558 26.3118 12.808C26.5304 13.058 26.9057 13.5268 26.9057 14.1518C26.9057 14.7768 25.9995 15.3076 25.937 15.7764C25.8745 16.2451 26.8744 17.3705 26.9057 17.808C26.9369 18.2455 25.6871 19.1514 25.6558 19.5576C25.6246 19.9639 26.4368 21.0268 26.3118 21.6205C26.1868 22.2143 24.8433 23.1826 24.687 23.4951C24.5308 23.8076 25.2805 24.4026 23.8118 25.9641C22.3426 27.5262 19.5618 27.1521 17.343 27.1521Z" fill="white"/>
 </svg>
 `
+
+const kebab_xml = `<svg width="4" height="13" viewBox="0 0 4 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+<circle r="1.61086" transform="matrix(0 -1 -1 0 1.83262 11.276)" fill="#C4C4C4"/>
+<circle r="1.61086" transform="matrix(0 -1 -1 0 1.83262 6.44346)" fill="#C4C4C4"/>
+<circle r="1.61086" transform="matrix(0 -1 -1 0 1.83262 1.61082)" fill="#C4C4C4"/>
+</svg>
+`
 const TrayItem = ( props : {isTop ?: boolean, number: number,portion: Portion, dish: Dish, modalOpen, disabled:boolean, ref?}) => {
     const userActions = useUserActions()
     const {isTop, number, dish, disabled} = props
     let body = <></>
-    
+
     const swipeableRef = useRef(null)
+    const ds = useDesignScheme()
     if(dish!= null){
         const dishName = dish.name
         const station = dish.station
@@ -30,6 +39,8 @@ const TrayItem = ( props : {isTop ?: boolean, number: number,portion: Portion, d
         const fillFraction = dish?.portion?.fillFraction ?? BASE_PORTION_FILL_FRACTION 
         const calories = dish.nutritionSummary.calories *( dish?.portion?.nutrientFraction ?? BASE_PORTION_FILL_FRACTION)
         const color = colorOfCategory(dish.category)
+        const graphic = dish?.graphic
+        const type = dish.category
         async function castVote(positive:boolean){
             swipeableRef.current.close()
             const resp = await userActions.postAnalyticsMealItemVote(dish.id,positive)
@@ -72,8 +83,40 @@ const TrayItem = ( props : {isTop ?: boolean, number: number,portion: Portion, d
                 alignSelf: "flex-start",
                 backgroundColor:"white",
             }}>
-
+            <SvgXml xml = {kebab_xml}/>
             <View style = {{
+                padding: 5,
+                // backgroundColor: "orange"
+            }}>
+
+            
+            <View style = {{height: "100%",
+                            justifyContent: "center",
+                            alignItems:"center", 
+                            backgroundColor: ds.colors.grayscale4, 
+                            aspectRatio: 1.2, 
+                            borderRadius: 5, 
+                            marginVertical: 15, 
+                            overflow:"hidden"}}>
+            {graphic ? 
+                <Image style = {{ flex:1,aspectRatio:1.2}} source = {{uri: graphic}}/>
+                :(
+                    type == FOOD_CATEGORY.Vegetable ?
+
+                    <SvgXml  stroke = "#C0C0C0" xml={leaf_xml} /> 
+                    
+                : type == FOOD_CATEGORY.Carbohydrates ? 
+                    
+                    <SvgXml stroke = "#C0C0C0" xml={bread_xml}/>
+                    
+                :
+                    <SvgXml  stroke = "#C0C0C0" xml={meat_xml} />
+                        )
+            }
+            </View>
+            </View>
+
+            {/* <View style = {{
                 width: 30,
                 height: 30,
                 borderStyle: 'solid',
@@ -85,7 +128,7 @@ const TrayItem = ( props : {isTop ?: boolean, number: number,portion: Portion, d
                 <Text style = {{color: "white"}}>
                     {number}
                 </Text>
-            </View> 
+            </View>  */}
             <TouchableOpacity disabled = {disabled} style = {{
                 marginLeft: 10,
                 flexDirection: 'column',

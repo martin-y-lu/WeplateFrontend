@@ -34,6 +34,12 @@ const log_in_button = `<svg width="315" height="40" viewBox="0 0 315 40" fill="n
 <rect width="315" height="40" rx="10" fill="#434343"/>
 </svg>
 `
+
+const validateEmail = (email) => {
+  return email?.match(
+    /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+  );
+};
 export const MIN_PASSWORD_LENGTH = 5;
 const windowHeight = Dimensions.get('window').height;
 const unfocused_textbox_background_color = '#E8E8E8'
@@ -80,11 +86,7 @@ const Login = ({navigation})=>{
 
   const [message,setMessage] = useState("");
 
-  const validateEmail = (email) => {
-    return email.match(
-      /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-    );
-  };
+  
   const onLoginPress = async ()=>{
     setMessage("")
     console.log({
@@ -105,7 +107,7 @@ const Login = ({navigation})=>{
     }
 
     const res = await userActions.login(email.toLowerCase(),password)
-    console.log({res}) 
+    console.log("Login: " ,{res}) 
     if(res.ok){
       setMessage("")
       await setPersistentState({
@@ -116,7 +118,8 @@ const Login = ({navigation})=>{
     }else if(res.err){
       if(res.val == "User is not verified."){
         navigation.navigate("VerifyAccount")
-      }else if(res.val == "General error"){
+      }else if(res.val == "General Error"){
+        console.log("Setting message invalid email or password")
         setMessage("Invalid email or password")
       }
     }
@@ -493,10 +496,21 @@ const Login = ({navigation})=>{
                 />
                 {/* </KeyboardAvoidingView> */}
                 <View>
-                <View flexDirection = 'row' style = {{height: '30%'}}> 
+                <View flexDirection = 'row' style = {{height: '30%', alignItems: "center"}}> 
+                <View style = {{
+                  flexDirection: "column",
+                }}>
                   <TouchableOpacity style= {{marginBottom:10}} onPress={ () =>{ setState(1); setMessage("")} }>
                     <Text style = {{color:'#B1B1B1', paddingVertical:10, marginHorizontal:20, fontSize: 15}}>Create a new account</Text>
                   </TouchableOpacity>
+                  { validateEmail(email) &&
+                    <TouchableOpacity style= {{marginBottom:10}} onPress={ () =>{ 
+                            navigation.navigate("ChangePassword",{email})
+                        } }>
+                      <Text style = {{color:'#B1B1B1', paddingVertical:5, marginHorizontal:20, fontSize: 15}}> Forgot password?</Text>
+                    </TouchableOpacity>
+                  }
+                </View>
                   <TouchableOpacity style = {styles.continue_button}  onPress = {onLoginPress}>
                     <View style = {{backgroundColor:'#FF3939', borderRadius: 5}}>
                       <Text style = {styles.buttonText}>Log In</Text>

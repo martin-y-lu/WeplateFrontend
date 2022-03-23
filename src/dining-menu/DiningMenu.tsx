@@ -1,4 +1,4 @@
-import { View, Text, Button, ScrollView, FlatList, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Text, Button, ScrollView, FlatList, StyleSheet, TouchableOpacity, Image, Dimensions } from 'react-native';
 import { SvgXml } from "react-native-svg"
 import { useRecoilState, useRecoilValue } from "recoil";
 import { STATION, getNameOfStation, convertAPIItemToDish, FOOD_CATEGORY, Dish } from '../dashboard/typeUtil';
@@ -12,6 +12,8 @@ import { formatNumber } from '../utils/math';
 import { LoadingIcon } from '../utils/Loading';
 import { useLogin } from '../utils/session/session';
 import { useDashboardState, useMealFeatures } from '../dashboard/Dashboard';
+import { useDesignScheme } from '../design/designScheme';
+import { colorOfCategory } from '../dashboard/NutritionFacts';
 
 export const BASE_PORTION_FILL_FRACTION = 0.7
 
@@ -33,47 +35,67 @@ export const meat_xml = `<svg width="53" height="53" viewBox="0 0 53 53" fill="n
 <ellipse cx="36.5649" cy="17.4382" rx="5.52339" ry="3.68226" transform="rotate(42.2057 36.5649 17.4382)" stroke-width="3"/>
 </svg>
 `
-const NutritionInfoEntry = ({name, value, unit})=>{
-    return   <View style = {{flexDirection: "row"}}>
-                    <Text style = {{ color: "#747474"}}>
-                        {name}
-                    </Text>
-                    <Text style = {{ color: "#515151", marginLeft: "auto"}}>
-                        {isFinite(value) && `${formatNumber(value)}${unit}` }
-                    </Text>
-                </View>
-}
-const FoodItem = ({dish} :{dish: Dish}) => {
-    const [open,setOpen] = useState(false)
+
+const right_arrow_svg = `<svg width="9" height="23" viewBox="0 0 9 23" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M1 22L6.8906 13.1641C7.5624 12.1564 7.5624 10.8436 6.8906 9.8359L1 1" stroke="#A4A4A4" stroke-width="2"/>
+</svg>
+`
+
+const FoodItem = ({dish,timeInfo, navigation} :{dish: Dish,timeInfo: TimeInfo,navigation}) => {
+   
+    // const [open,setOpen] = useState(false)
     const foodName= dish.name
     const type= dish.category
     const calorieCount= dish.nutritionSummary.calories
     const station= dish.station
     const stationName = getNameOfStation(station);
-    const fontSize =   foodName.length> 20? 18: 20
+    const fontSize =   foodName.length> 30?15: foodName.length> 20? 18: 20
+
+    const ds = useDesignScheme()
+    const graphic = dish?.graphic
+    // `https://imagesvc.meredithcorp.io/v3/mm/image?url=https%3A%2F%2Fstatic.onecms.io%2Fwp-content%2Fuploads%2Fsites%2F19%2F2014%2F07%2F10%2Fpepperoni-pizza-ck-x.jpg&q=60`
     // const fontSize =  foodName.length > 45? 10: foodName.length > 35 ? 12: foodName.length> 20? 15: 20
-    return <View style = {{backgroundColor: '#D3D3D3', marginTop: 20, marginLeft: 20, marginRight:20, borderRadius: 12}}>
-        <TouchableOpacity style={styles.foodItem} onPress = {()=>{setOpen(!open)}}>
-            <View>
-                <Text style={[styles.foodName,{fontSize,marginRight:60}]}>{foodName}</Text>
-                {station ? <Text style={styles.calorieCount}>{ stationName.length <= 2 ?"Station " : null}{stationName}<Text/><Text style={{color: 'black', fontWeight: '600'}}> | </Text>{formatNumber(calorieCount)} Calories</Text> 
-                : <Text style={styles.calorieCount}>{formatNumber(calorieCount)} Calories</Text> }
-            </View>
-            
-            { type == FOOD_CATEGORY.Vegetable ?
+    return  <TouchableOpacity style={{
+        height: 70,
+        backgroundColor: 'white',
+        paddingVertical: 10,
+        marginBottom: 0,
+        borderTopWidth: 1,
+        borderBottomWidth: 1,
+        borderColor: ds.colors.grayscale4,
 
-                <SvgXml style={{marginLeft: 'auto'}} stroke = "#C0C0C0" xml={leaf_xml} height="100%"/> 
-                
-            : type == FOOD_CATEGORY.Carbohydrates ? 
-                
-                <SvgXml style={{marginLeft: 'auto'}} stroke = "#C0C0C0" xml={bread_xml} height="100%"/>
-                
-            :
-                <SvgXml style={{marginLeft: 'auto'}} stroke = "#C0C0C0" xml={meat_xml} height="100%"/>
+        alignItems:"center",
+        flexDirection: 'row',
+    }} onPress = {()=>{
+        navigation.navigate("IndividualItem", {timeInfo,itemId: dish.id})
+    }}>
+        <View style = {{height: "100%", justifyContent: "center", alignItems:"center", backgroundColor: ds.colors.grayscale4, aspectRatio: 1.2, borderRadius: 5, marginRight: 15, overflow:"hidden"}}>
+            {graphic ? 
+                <Image style = {{ flex:1,aspectRatio:1}} source = {{uri: graphic}}/>
+                :(
+                    type == FOOD_CATEGORY.Vegetable ?
+
+                    <SvgXml  stroke = "#C0C0C0" xml={leaf_xml} /> 
+                    
+                : type == FOOD_CATEGORY.Carbohydrates ? 
+                    
+                    <SvgXml stroke = "#C0C0C0" xml={bread_xml}/>
+                    
+                :
+                    <SvgXml  stroke = "#C0C0C0" xml={meat_xml} />
+                        )
             }
-
-        </TouchableOpacity>
-        {open && <View style = {{flexDirection:"column"}}>
+        </View>
+        <View>
+            <Text style={[styles.foodName,{fontSize, color: colorOfCategory(type),marginRight:60}]}>{foodName}</Text>
+            {station ? <Text style={styles.calorieCount}>{ stationName.length <= 2 ?"Station " : null}{stationName}<Text/><Text style={{color: 'black', fontWeight: '600'}}> | </Text>{formatNumber(calorieCount)} Calories</Text> 
+            : <Text style={styles.calorieCount}>{formatNumber(calorieCount)} Calories</Text> }
+        </View>
+        <SvgXml xml= {right_arrow_svg} style = {{marginLeft: "auto"}}/>
+    </TouchableOpacity>
+    // <View style = {{backgroundColor: '#D3D3D3', marginTop: 20, marginLeft: 20, marginRight:20, borderRadius: 12}}>
+       
+        {/* {open && <View style = {{flexDirection:"column"}}>
             {dish?.graphic && 
                 <View style = {{width: "100%",padding:20}}>
                     <Image style = {{ flex:1,aspectRatio:1,borderRadius:20}} source = {{uri: dish.graphic}}/>
@@ -97,19 +119,43 @@ const FoodItem = ({dish} :{dish: Dish}) => {
                     <NutritionInfoEntry name = "Vitamin D" value = {dish.nutrition.vitaminD} unit = "IU"/>
                 </View>
             </View>
-        </View>}
-    </View>
+        </View>} */}
+    {/* </View> */}
 
 };
 
-const renderFood = ({ item}) => {
-    return (
-        <FoodItem 
-            dish = {item}
-            
-        />
-    );
+const BUBBLE_HEIGHT = 30
+function Bubble(props){
+    const text:string = props.text ?? ""
+    const selected = props.selected
+    const onPress = props.onPress ?? (()=>{})
+
+    const ds = useDesignScheme()
+    return <TouchableOpacity style = {{
+        marginLeft: 5,
+        height: BUBBLE_HEIGHT,
+        minWidth:BUBBLE_HEIGHT,
+        borderRadius: BUBBLE_HEIGHT/2,
+        // backgroundColor: color,
+        alignSelf:"center",
+        justifyContent: "center",
+        alignItems: "center",
+        paddingLeft: text.length <= 1? 0:  10 ,
+        paddingRight: text.length <= 1? 0:  10 ,
+    }}
+        onPress = {onPress}
+    >
+        <Text style = {{
+            fontFamily: ds.fontFamilies.medium,
+            color: selected? ds.colors.grayscale1: ds.colors.grayscale3_4 ,
+            fontSize: 18,
+            textDecorationLine: selected ? 'underline' : "none"
+        }}>
+            {text}
+        </Text>
+    </TouchableOpacity>
 }
+
 
 const STATIONS = Object.keys(STATION)
 const DiningMenu = ({navigation,route})=> {
@@ -122,34 +168,6 @@ const DiningMenu = ({navigation,route})=> {
 
     const {timeInfo} = useDashboardState()
     const {mealState,loading,noMeal,setMealDishes, isPast, isPresent, isFuture} = useMealFeatures({timeInfo,onLoad: ()=>{},doFetchMeal: false})
-    // async function fetchMeals(){
-    //     if(auth === null) return
-    //     if(loading) return
-    //     const data :APIMealByTimePayload = await userActions.mealsByTime(timeInfo)
-    //     setLoading(true)
-    //     if(data.length === 0){
-    //         console.log("no data for today")
-    //         setNoMealInfo({message:"No menu for today."})
-    //         setLoading(false)
-    //     }else{
-    //         const mealID = data[0].id as number;
-    //         const mealEvent = await userActions.mealById(mealID)
-    //         const dishes = mealEvent.items.map(convertAPIItemToDish)
-    //         console.log("Dishes Loaded,",dishes.length)
-    //         setDiningState({
-    //             dishes,
-    //             timeInfo: timeInfo
-    //         });
-    //         setLoading(false)
-    //     }
-    // }
-
-    // useEffect(()=>{
-    //     if(diningState.dishes === null && !loading && noMealInfo == null){
-    //         fetchMeals()
-    //     }
-    // },[auth,timeInfo])
-
     const [foods,setFoods] = useState([])
     useEffect(()=>{
         // console.log(currentStation)
@@ -168,12 +186,21 @@ const DiningMenu = ({navigation,route})=> {
         }
 
     },[mealState,currentStation])
+    const renderFood = ({ item}) => {
+        return (
+            <FoodItem 
+                dish = {item}
+                navigation = {navigation}
+                timeInfo = {timeInfo}
+            />
+        );
+    }
 
-
-  
+    const ds = useDesignScheme()
     return (
     
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: ds.colors.grayscale5,paddingHorizontal: 35 }}>
+            
             {loading ? 
                 <LoadingIcon/> 
             :noMeal? 
@@ -183,14 +210,38 @@ const DiningMenu = ({navigation,route})=> {
                     {noMeal.message}    
                 </Text> 
             :
-            <FlatList 
-                data = {foods}
-                showsVerticalScrollIndicator={false}
-                renderItem = {renderFood}
-                contentContainerStyle={{ paddingBottom: 40 }}
-                // keyExtractor={(item) => item.foodName}
-                style={{width: '100%'}}    
-            />
+            <>
+                <View style = {{
+                    flexDirection: "row",
+                    paddingBottom: 5,
+                    marginBottom: 5,
+                    flexWrap:"wrap"
+                }}>
+                    {
+                        STATIONS.filter((station:STATION)=>{
+                            return mealState?.menu?.dishes
+                            ?.filter(dish => dish.station === station)?.length > 0
+                        }).map( (station:STATION, id) => {
+
+                            return <Bubble key = {station} selected = {station === currentStation} text = {  getNameOfStation(station) }
+                                onPress = {()=>{
+                                    // setCurrentStation(station)
+                                    console.log("Station:",station)
+                                    navigation.navigate("SidebarNavigable",{screen: "Dining Menu",params:{station}})
+                                }}
+                            />
+                        })   
+                    }
+                </View>
+                <FlatList 
+                    data = {foods}
+                    showsVerticalScrollIndicator={false}
+                    renderItem = {renderFood}
+                    contentContainerStyle={{ paddingBottom: 40 }}
+                    // keyExtractor={(item) => item.foodName}
+                    style={{width: '100%'}}    
+                    />
+            </>
             }
             
         </View>
@@ -203,26 +254,6 @@ const DiningMenu = ({navigation,route})=> {
 export default DiningMenu
 
 const styles = StyleSheet.create({
-
-    foodItem: {
-
-        backgroundColor: 'white',
-        padding: 20,
-        borderRadius: 10,
-        marginBottom: 0,
-
-        // drop shadow for ios
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.2,
-        shadowRadius: 2,  
-        flexDirection: 'row',
-
-        // drop shadow for android
-        elevation: 5
-
-    },
-
     foodName: {
         fontWeight: "700",
         fontSize: 20

@@ -164,7 +164,7 @@ const PortionView = (props)=>{
   const {style} = props
   //size of graphics window (square)
   const size = Dimensions.get('window').width
-  const aspect = 0.55
+  const aspect = 0.5
 
   //three.js camera
   const perspectiveCamera = useRef(null)
