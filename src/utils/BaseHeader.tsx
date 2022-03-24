@@ -37,8 +37,8 @@ const BaseHeader = (props : {options?: any, overlayComponents?, children?,naviga
         }
     },[netInfo])
     const {options} = props
-    let {opacity,color,backgroundColor } = options?.headerTitleStyle ??  {opacity: 1, color: ds.colors.grayscale5}
-    const height = options?.height ?? 120
+    let {opacity,color,backgroundColor } = options?.headerTitleStyle ??  {opacity: 1, color: ds.colors.grayscale5, backgroundColor:ds.colors.accent2  }
+    const height = (options?.height ?? 120 )
 
     const showInverseBorders = true
     const showDropShadow = false
@@ -49,10 +49,8 @@ const BaseHeader = (props : {options?: any, overlayComponents?, children?,naviga
                                 height: height+inset.top,
                             }
 
-    // const backgroundColor = ds.colors.accent2;
-    backgroundColor ??= ds.colors.accent2 
     const backgroundRGB = hexToRgb(backgroundColor);
-    const opacityBGC = `rgba(${backgroundRGB.r},${backgroundRGB.g},${backgroundRGB.b},${Math.floor(opacity ?? 1 *255)})`
+    const opacityBGC = `rgba(${backgroundRGB?.r ?? 255},${backgroundRGB?.g ?? 255},${backgroundRGB?.b?? 255},${Math.floor(opacity ?? 1 *255)})`
 //     {
 //         width: "100%",
 //         backgroundColor: "#EAEAEA",
@@ -93,13 +91,13 @@ const BaseHeader = (props : {options?: any, overlayComponents?, children?,naviga
             </Text>
         </Animated.View>
             
-        <SafeAreaView forceInset={{ bottom: 'never', vertical: 'never'}} 
-            style = {{ backgroundColor:opacityBGC,
-                ... ( showDropShadow ? dropshadowStyle : {}) 
-
-            }}>
+        <SafeAreaView 
+            style = {  { 
+                backgroundColor:opacityBGC,
+                height: height+inset.top
+            } }>
       
-        <View style = {{flexDirection: 'row', justifyContent: 'center',height}}>
+        <View style = {{flexDirection: 'row', justifyContent: 'center',height: height}}>
             <TouchableOpacity
                 style={{
                     position: "absolute",
@@ -117,11 +115,12 @@ const BaseHeader = (props : {options?: any, overlayComponents?, children?,naviga
                 {props.overlayComponents}
             </TouchableOpacity>
             {props.children}
+        </View>
             {
                 showInverseBorders && <>
                     <View style = {{
                         position: "absolute",
-                        top: height,
+                        top: height+inset.top,
                         left: -6,
                         // backgroundColor: opacityBGC,
                     }}>
@@ -129,7 +128,7 @@ const BaseHeader = (props : {options?: any, overlayComponents?, children?,naviga
                     </View>
                     <View style = {{
                         position: "absolute",
-                        top: height,
+                        top: height+inset.top,
                         right: -6,
                         // backgroundColor: opacityBGC,
                     }}>
@@ -137,7 +136,6 @@ const BaseHeader = (props : {options?: any, overlayComponents?, children?,naviga
                     </View>
                 </>
             }
-        </View>
    
     </SafeAreaView>
     </View>

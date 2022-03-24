@@ -23,7 +23,7 @@ export const back_icon_svg = `<svg width="18" height="27" viewBox="0 0 18 27" fi
 const NutritionInfoEntry = ({name, value, unit})=>{
     const ds = useDesignScheme()
     return   <View style = {{flexDirection: "row",alignItems:"center",marginVertical: 3}}>
-                    <Text style = {{ color: ds.colors.grayscale1,fontFamily: ds.fontFamilies.medium}}>
+                    <Text style = {{ color: ds.colors.grayscale1,fontFamily: ds.fontFamilies.medium,marginRight: 5}}>
                         {name}
                     </Text>
                     <View style = {{
@@ -86,7 +86,7 @@ function IndividualItem(props){
             <Text style = {{fontSize: 18,color: ds.colors.grayscale3_4,marginTop:20,marginBottom:5}}>
                 Nutrition Facts
             </Text>
-            <View style = {{flexDirection:"row", paddingRight: 20, paddingLeft: 0, }}>
+            <View style = {{flexDirection:"row", paddingRight: 0, paddingLeft: 0, }}>
                     <View style = {{flexDirection: "column", flex: 1, paddingRight: 20,}}>
                         <NutritionInfoEntry name = "Total Fats" value = {dish.nutritionSummary.totalFat} unit = "g"/>
                         <NutritionInfoEntry name = "Saturated Fat" value = {dish.nutritionSummary.saturatedFat} unit = "g"/>

@@ -29,7 +29,7 @@ const CALENDAR_ICON_SVG =  `<svg width="21" height="21" viewBox="0 0 21 21" fill
 `
 const BubbleButton = (props) => {
     const ds = useDesignScheme()
-    return <View style = {{opacity: props?.highlighted ? 1.0:  props.theme == "dark" ? 0.5: 0.3,}}>
+    return <View style = {{opacity: props?.highlighted ? 1.0:  (props.theme == "dark" ? 0.5: 0.3),}}>
         <TouchableOpacity disabled = {props?.disabled} style = {{
             backgroundColor: props.theme == "dark" ? ds.colors.grayscale5 : ds.colors.grayscale4,
             height: 30,
@@ -55,7 +55,6 @@ const DashboardHeader = (props) =>{
     const name = useRecoilValue(Rname)
 
     let {theme} : {theme: "light" | "dark" | null} = options?.headerTitleStyle ??  {theme: "dark"}
-    theme ??= "dark"
 
     const insets = useSafeAreaInsets() 
     const {streakLength} = useRecoilValue(dashboardStateAtom)
@@ -341,7 +340,7 @@ const DashboardHeader = (props) =>{
                 alignItems: "center",
             }}>
                 <Text style = {{
-                    fontSize: 32,
+                    fontSize: 30,
                     fontFamily: ds.fontFamilies.black,
                     color: theme == "dark" ? ds.colors.grayscale5 : ds.colors.grayscale1,
 
