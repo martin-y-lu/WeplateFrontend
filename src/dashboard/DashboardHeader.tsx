@@ -152,11 +152,13 @@ const DashboardHeader = (props) =>{
                     flexDirection: "row",
                     width: '100%',
                     alignItems: "center",
-                    justifyContent: "center"
+                    justifyContent: "center",
                 }}>
                     <TouchableOpacity style = {{
                         padding: 2,
-                        paddingHorizontal: 50,
+                        left: 0,
+                        position: "absolute",
+                        paddingLeft: 50
                     }} onPress = {()=>{
                         if(monthSelect>0){
                             setMonthSelect(_m=> _m-1)
@@ -177,7 +179,11 @@ const DashboardHeader = (props) =>{
                     </Text>
                     <TouchableOpacity style = {{
                         padding: 2,
-                        paddingHorizontal: 50,
+                        // paddingHorizontal: 50,
+                        position: "absolute",
+                        paddingRight: 50,
+                        right: 0,
+                        // paddingLeft: "auto",
                     }} onPress = {()=>{
                         if(monthSelect<11){
                             setMonthSelect(_m=> _m+1)
@@ -345,7 +351,7 @@ const DashboardHeader = (props) =>{
                     color: theme == "dark" ? ds.colors.grayscale5 : ds.colors.grayscale1,
 
                 }}>
-                    {date ? `${DAY_NAMES[date.getDay()]} ${date.getDay()}, ${MONTH_FULL[date.getMonth()]} ${date.getDate()}` : "loading" }
+                    {date ? `${DAY_NAMES[date.getDay()]}, ${MONTH_FULL[date.getMonth()]} ${date.getDate()}` : "loading" }
                 </Text>
                 <TouchableOpacity style = {{
                     paddingHorizontal: 14,

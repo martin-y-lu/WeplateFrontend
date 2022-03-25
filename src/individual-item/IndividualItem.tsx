@@ -23,7 +23,7 @@ export const back_icon_svg = `<svg width="18" height="27" viewBox="0 0 18 27" fi
 const NutritionInfoEntry = ({name, value, unit})=>{
     const ds = useDesignScheme()
     return   <View style = {{flexDirection: "row",alignItems:"center",marginVertical: 3}}>
-                    <Text style = {{ color: ds.colors.grayscale1,fontFamily: ds.fontFamilies.medium,marginRight: 5}}>
+                    <Text style = {{ color: ds.colors.grayscale1,fontFamily: ds.fontFamilies.medium,marginRight: 5, fontSize: 13}}>
                         {name}
                     </Text>
                     <View style = {{
@@ -34,7 +34,7 @@ const NutritionInfoEntry = ({name, value, unit})=>{
                         padding: 5,
                     }}>
 
-                        <Text style = {{ color: "#515151",marginLeft: "auto"}}>
+                        <Text style = {{ color: "#515151",marginLeft: "auto",fontSize: 12}}>
                             {isFinite(value) && `${formatNumber(value)}${unit}` }
                         </Text>
                     </View>

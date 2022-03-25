@@ -49,7 +49,7 @@ const FoodItem = ({dish,timeInfo, navigation} :{dish: Dish,timeInfo: TimeInfo,na
     const calorieCount= dish.nutritionSummary.calories
     const station= dish.station
     const stationName = getNameOfStation(station);
-    const fontSize =   foodName.length> 30?12: foodName.length> 20? 16: 18
+    const fontSize =   foodName.length> 30?10: foodName.length> 20? 14: 18
 
     const ds = useDesignScheme()
     const graphic = dish?.graphic
