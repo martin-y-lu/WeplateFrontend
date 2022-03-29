@@ -1,6 +1,7 @@
 import { APIFoodCategory, APIPortionInfo, APIItem, APITimestamp, APIStation } from '../utils/session/apiTypes';
 import { TimeInfo } from './state';
 export enum FOOD_CATEGORY{Carbohydrates = "Carbohydrates",Protein = "Protein", Vegetable = "Vegetable"}
+export const foodCategories = [FOOD_CATEGORY.Carbohydrates,FOOD_CATEGORY.Protein,FOOD_CATEGORY.Vegetable]
 export enum MEAL{Breakfast = "Breakfast", Lunch = "Lunch",Dinner = "Dinner"}
 export const MEALS = [MEAL.Breakfast,MEAL.Lunch, MEAL.Dinner]
 
@@ -75,6 +76,25 @@ export interface Dish{
     portion_volume: number,
     portion?: PortionInfo,
 }
+export interface NutritionalRequirements{
+
+    calories: number,
+    carbohydrate: number,
+    protein: number,
+    total_fat: number,
+    saturated_fat: number,
+    trans_fat: number,
+    sugar: number,
+    cholesterol: number,
+    fiber: number,
+    sodium: number,
+    potassium: number,
+    calcium: number,
+    iron: number,
+    vitamin_a: number,
+    vitamin_c: number,
+    vitamin_d: number,
+}
 export interface MealState {
     time: TimeInfo,
     mealID: number,
@@ -86,14 +106,28 @@ export interface MealState {
     dishC?: Dish,
     menu?: {
         dishes : Dish[]
+    },
+    nutritionRequirements?:NutritionalRequirements
+}
+
+export function getDishesFromMealState(mealState: MealState){
+    return [mealState.dishA,mealState.dishB,mealState.dishC]
+}
+
+export function getDishesFromMealStateByCategory(mealState:MealState){
+    let res = { [FOOD_CATEGORY.Carbohydrates]: [] as Dish[], [FOOD_CATEGORY.Protein]: [] as Dish[], [FOOD_CATEGORY.Vegetable]: []as Dish[]}
+    for(const dish of getDishesFromMealState(mealState)){
+        if(dish?.category){
+            res[dish.category].push(dish)
+        }
     }
+    return res
 }
 function getCategoryOfAPIItem(item:APIItem){
     return FoodCategoryFromAPIFoodCategory(item.category)
 }
-
 function toNum(num){
-    if(isNaN(num)) return 0
+    if(!isFinite(num)) return 0
     return num ?? 0 
 }
 export function convertAPIStationToStation(stat:APIStation){
@@ -118,6 +152,7 @@ export function convertAPIStationToStation(stat:APIStation){
         //     return STATION.I;
     }
 }
+
 export function convertAPIItemToDish(item:APIItem){
     return {
         id: item.id,

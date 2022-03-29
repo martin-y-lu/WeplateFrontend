@@ -61,7 +61,7 @@ function BaseButton(props){
     </TouchableOpacity>
 }
 
-export function useMealFeatures({timeInfo,onLoad, doFetchMeal}){
+export function useMealFeatures({timeInfo,onLoad, doFetchMeal,doFetchNutritionReq}){
     const userActions = useUserActions()
     const auth = useRecoilValue(authAtom)
     const [persistentState,setPersistentState,fetchPersistentState,dangerouslySetPersistentState] = usePersistentAtom() as any
@@ -161,10 +161,12 @@ export function useMealFeatures({timeInfo,onLoad, doFetchMeal}){
                 mealID: mealEvent.id,
                 menu: {
                     dishes
-                }
+                },
             }
             if(doFetchMeal){
-                const [suggestion,prevChoices] = await Promise.all([userActions.suggestionByMealId(mealID),userActions.getAnalyticsMealChoices(mealID)])
+                const [suggestion,prevChoices,nutritional] = await Promise.all([userActions.suggestionByMealId(mealID),userActions.getAnalyticsMealChoices(mealID),userActions.getNutritionalRequirements()])
+                console.log({nutritional})
+                newState.nutritionRequirements = nutritional
                 // console.log({suggestion})
                 // console.log({mealEvent,suggestion})
                 // console.log({mealEvent})

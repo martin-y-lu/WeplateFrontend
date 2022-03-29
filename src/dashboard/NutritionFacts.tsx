@@ -1,6 +1,6 @@
-import { ScrollView, Text, View } from "react-native"
+import { Animated, ScrollView, Text, TouchableOpacity, View } from "react-native"
 import NutritionFactsContainer from "./NutritionFactsContainer"
-import {FOOD_CATEGORY, MEAL, STATION,MealState,Dish,NutritionInfo,NutritionSummaryInfo} from './typeUtil'
+import { FOOD_CATEGORY, MEAL, STATION, MealState, Dish, NutritionInfo, NutritionSummaryInfo, foodCategories, getFoodCategoryDescription, getDishesFromMealState, getDishesFromMealStateByCategory } from './typeUtil';
 
 export const easter_egg_xml = `<svg width="112" height="85" viewBox="0 0 112 85" fill="none" xmlns="http://www.w3.org/2000/svg">
 <rect x="29.0854" y="42.4222" width="10.5854" height="22.3167" transform="rotate(-17.2827 29.0854 42.4222)" fill="#0CCC09" stroke="black" stroke-width="3"/>
@@ -45,9 +45,11 @@ export function colorOfCategory(category: FOOD_CATEGORY){
     return color 
 }
 import {leaf_xml,bread_xml,meat_xml, BASE_PORTION_FILL_FRACTION} from '../dining-menu/DiningMenu'
-import React from "react"
+import React, { useRef, useState } from "react"
 import { formatNumber } from '../utils/math';
 import { SvgXml } from 'react-native-svg';
+import { useDesignScheme } from '../design/designScheme';
+import { SHADOW_STYLE } from '../utils/Loading';
 export function iconOfCategory(category: FOOD_CATEGORY){
     switch(category){
         case(FOOD_CATEGORY.Carbohydrates):
@@ -69,7 +71,8 @@ const NutritionKey = (props) =>{
         flexShrink: 1,
         flexDirection: 'row',
         alignItems: "center",
-        marginBottom: 10
+        marginBottom: 10,
+        
     }}>
         <View style = {{
             marginLeft: 25,
@@ -212,9 +215,241 @@ const DataRow = (props :{height?: number,bold?:boolean,color ?: string, name ?: 
     ]}/>
 }
 
+const PercentIndicator = (props: {name: string, value: string|number, ringColor: string})=>{
+    const {name,value,ringColor} = props
+    const ds = useDesignScheme()
+    return <View style = {{alignItems:"center",width: 100}}>
+        <View style = {{
+            height: 50,
+            width: 50, 
+            borderWidth:4,
+            borderColor: ringColor,
+            borderRadius: 50, 
+            justifyContent: "center",
+            alignItems: "center",
+        }}>
+            <Text style = {{
+                fontFamily: ds.fontFamilies.medium,
+                color: ds.colors.grayscale1,
+            }}>
+                {value}%
+            </Text>
+        </View>
+        <Text style = {{
+            fontSize: 12,
+            fontFamily: ds.fontFamilies.medium,
+            color: ds.colors.grayscale3_4,
+        }}>
+            {name}
+        </Text>
+    </View>
+
+}
+
+const DishInfo = (props: {name: string, value: number, unit: string, cat: FOOD_CATEGORY})=>{
+    const {name,value,unit,cat} = props
+    const ds = useDesignScheme()
+    return <View style = {{
+        flexDirection: "row",
+        width: "100%",
+        height: 30,
+
+        alignItems: "center",
+    }}>
+        <Text style = {{
+            color: colorOfCategory(cat),
+            fontFamily: ds.fontFamilies.heavy,
+            fontSize: 14,
+            // backgroundColor: "orange",
+            maxWidth: "80%",
+        }}
+            numberOfLines = {1}
+            ellipsizeMode = "tail"
+        >
+            {name}
+        </Text>
+
+        <Text style = {{
+            marginLeft: "auto",
+            color:ds.colors.grayscale1,
+            fontFamily: ds.fontFamilies.medium
+        }}>
+            { formatNumber(value)} {unit}
+        </Text>
+    </View>
+}
+const upArrowSvg = `<svg width="7" height="10" viewBox="0 0 7 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M1.07844 4.42113L3.54364 1.39225M6.07847 4.36318L3.54364 1.39225M3.54364 1.39225L3.62492 8.39179" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+</svg>
+`
+const downArrowSvg = `<svg width="8" height="10" viewBox="0 0 8 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M6.68698 5.17259L4.21504 8.19599M1.68683 5.21943L4.21504 8.19599M4.21504 8.19599L4.14933 1.19628" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+</svg>
+`
+
+const ButtonRow = (props :{height?: number,bold?:boolean,color ?: string, name ?: string, selector : (arg0:Dish)=> number,  mealState:MealState, unit?:string, opacity?: number, requirement: number}) =>{
+    let {height,color,bold, name, selector, mealState, unit, opacity,requirement} = props
+    const oValue = useRef(new Animated.Value(0))
+    const [open, setOpen] = useState(false);
+
+    opacity = opacity ?? 1.0
+    bold = bold ?? true
+    const ds = useDesignScheme()
+    const total = totalBy(selector,mealState)
+    const dishesByCat = getDishesFromMealStateByCategory(mealState)
+
+    const RANGE = 1.2
+    const isOver = isFinite(requirement) && isFinite(total) && total > requirement* RANGE
+    const isUnder = isFinite(requirement) && isFinite(total) && total < requirement/ RANGE
+    const iconColor = isOver ? ds.colors.brand3 :  ( isUnder? ds.colors.accent1:  ds.colors.grayscale4 )
+
+
+    return   <View style = {{ opacity, borderTopColor: "#D1D1D1", borderTopWidth: bold? 0.5: 0}}>
+
+
+        <TouchableOpacity style = {{}} onPress = {()=>{
+            setOpen( op => !op)
+            Animated.timing(oValue.current, {toValue: (!open) ? 1: 0, duration: 200, useNativeDriver: false}).start()
+        }}>
+            <Animated.View style = {{
+                    height: oValue.current.interpolate({inputRange: [0,1],outputRange: [ 50, 220]}),
+                    margin: oValue.current.interpolate({inputRange: [0,1],outputRange: [ 0,10]}),
+                    borderRadius: 5,
+                    backgroundColor:"white",
+                    shadowColor:"black",
+                    shadowRadius:5,
+                    shadowOpacity:oValue.current.interpolate({inputRange: [0,1],outputRange: [ 0, 0.2]}),
+                    shadowOffset:{width:0,height:0},
+
+                    
+                }}>
+
+            
+                <Animated.View style = {{flexDirection: "row",alignItems:"center", width: "100%",  
+                                    height: oValue.current.interpolate({
+                                        inputRange: [0,1],
+                                        outputRange: [50,35]
+                                    }),
+                                    borderTopRightRadius: 5,
+                                    borderTopLeftRadius: 5,
+                                    paddingLeft: 10,
+                                    backgroundColor: oValue.current.interpolate({
+                                        inputRange: [0,1],
+                                        outputRange: ["white",ds.colors.accent2]
+                                    })}}>
+                    <Animated.Text style = {{ 
+                        color: oValue.current.interpolate({
+                                inputRange: [0,1],
+                                outputRange: [ bold ? ds.colors.grayscale1 : ds.colors.grayscale2,"white"]
+                            })
+                            
+                            ,fontFamily: ds.fontFamilies.heavy
+                        
+                        ,marginRight: 5, fontSize: 16}}>
+                        {name}
+                    </Animated.Text>
+                    <Animated.View style = {{
+                        backgroundColor: 
+                        oValue.current.interpolate({
+                            inputRange: [0,1],
+                            outputRange: [iconColor,ds.colors.accent2]
+                        }),
+                        minWidth: 90,
+                        borderRadius: 5,
+                        marginLeft: "auto",
+                        padding: 5,
+
+                    
+                        flexDirection: "row",
+                        alignItems: "center",
+                    }}>
+
+                        <Animated.Text style = {{ color: oValue.current.interpolate({
+                                inputRange: [0,1],
+                                outputRange: [ isOver || isUnder ? "white" : "#515151","white"]
+                            })
+                            
+                            ,marginLeft: "auto",fontSize: 16}}>
+                            {isFinite(total) && `${formatNumber(total)}` }
+                        </Animated.Text>
+                        <View style = {{
+                            flexDirection: "row",
+                            width: 30,
+                            justifyContent: "center",
+                        }}>
+
+                        <Animated.Text style = {{ color: 
+                            oValue.current.interpolate({
+                                inputRange: [0,1],
+                                outputRange: [ isOver || isUnder ? "white" : ds.colors.grayscale3_4,"white"]
+                            })
+                            , fontSize: 12}}>
+                            {unit}
+                        </Animated.Text>
+                        {
+                            isOver && <SvgXml xml = {upArrowSvg}/>
+                        }
+                        {
+                            isUnder && <SvgXml xml = {downArrowSvg}/>
+                        }
+                        </View>
+                    </Animated.View>
+                </Animated.View>
+
+                {
+                open && <View style ={{paddingHorizontal: 20,}}>
+                    <View style = {{
+                        alignSelf: "center",
+                        width: "80%",
+                        paddingTop: 10,
+                        marginBottom: 10,
+                        flexDirection: "row",
+                        justifyContent: "space-evenly",
+                        
+                    }}>
+                        { foodCategories.map(cat=>{
+                            const totalInCategory = totalBy((dish: Dish) =>( dish.category == cat)? selector(dish): 0, mealState)
+                            const fract = Math.round(100*totalInCategory/total)
+                            return <PercentIndicator key = {cat} name = { getFoodCategoryDescription(cat)} ringColor={colorOfCategory(cat)} value = {isFinite(fract) ? fract : 0}/>
+                        })}
+                        
+                    </View>
+                    <View style = {{ borderColor: "#D1D1D1", borderTopWidth: 0.5}}>
+                    {
+                         dishesByCat.Carbohydrates.map( dish =>{
+                            
+                            return <DishInfo key ={dish.id} name = {dish?.name} value = {selector(dish)} unit = {unit} cat = {dish?.category}/>
+                        })
+                    }
+                    </View>
+                    <View style = {{ borderColor: "#D1D1D1", borderTopWidth: 0.5}}>
+                    {
+                        dishesByCat.Protein.map( dish =>{
+                            
+                            return <DishInfo key ={dish.id} name = {dish?.name} value = {selector(dish)} unit = {unit} cat = {dish?.category}/>
+                        })
+                    }
+                    </View>
+                    <View style = {{ borderColor: "#D1D1D1", borderTopWidth: 0.5,borderBottomWidth: 0.5}}>
+                    {
+                        dishesByCat.Vegetable.map( dish =>{
+                            
+                            return <DishInfo key ={dish?.id} name = {dish?.name} value = {selector(dish)} unit = {unit} cat = {dish?.category}/>
+                        })
+                    }
+                    </View>
+                    
+                </View>
+            }
+            </Animated.View>
+           
+        </TouchableOpacity>
+    </View>
+}
+
 function totalBy(func: (Dish)=>number,mealState:MealState){
     let total = 0;
-    [mealState.dishA,mealState.dishB,mealState.dishC].filter(el => el != null).forEach((arg)=>{
+    getDishesFromMealState(mealState).filter(el => el != null).forEach((arg)=>{
         total += func(arg) ??0
     })
     return total
@@ -222,8 +457,55 @@ function totalBy(func: (Dish)=>number,mealState:MealState){
 export const NutritionFacts = (props) =>{
     const {mealState} : {mealState: MealState} = props 
     const nutrientScale = (dish:Dish)=> (dish?.portion?.nutrientFraction ?? BASE_PORTION_FILL_FRACTION) 
+    const nutReq = mealState?.nutritionRequirements
     return <NutritionFactsContainer disabled = {props?.disabled ?? false}> 
     <View style = {{
+        flex: 1,
+        width : "100%",
+        // height: "100%",
+        flexDirection: "column",
+        alignItems:"flex-start",
+        justifyContent: "flex-start",
+    }}>
+        <View style = {{
+            flex: 1,
+            width: "100%",
+            // height: "100%", 
+            paddingVertical: 30,
+            paddingLeft: 33,
+            alignSelf:"flex-start",
+        }}> 
+            <ScrollView style = {{
+                flex:1,
+                flexGrow:1,
+                minHeight:300,
+                paddingRight: 33
+                // maxHeight:500,
+            }}>
+                <ButtonRow height = {30} name = "Calories" requirement = { nutReq?.calories} unit = "Kcal" mealState = {mealState} selector = {(dish:Dish)=> (dish.nutritionSummary.calories*nutrientScale(dish))}  />
+                <ButtonRow height = {30} name = "Total Fat" requirement = { nutReq?.total_fat} unit = "g" mealState = {mealState} selector = {(dish:Dish)=> dish.nutritionSummary.totalFat*nutrientScale(dish)}  />
+                <ButtonRow height = {30} name = "    Saturated Fat" requirement = {nutReq?.saturated_fat} bold = {false} unit = "g" color = "#A6A6A6" mealState = {mealState} selector = {(dish:Dish)=> dish.nutritionSummary.saturatedFat*nutrientScale(dish)}  />
+                <ButtonRow height = {30} name = "    Trans Fat" requirement = {nutReq?.trans_fat} bold = {false} unit = "g" color = "#A6A6A6" mealState = {mealState} selector = {(dish:Dish)=> dish.nutritionSummary.transFat*nutrientScale(dish)}  />
+                <ButtonRow height = {30} name = "Cholesterol" requirement = {nutReq?.cholesterol} unit = "mg" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.cholesterol*nutrientScale(dish)}  />
+                <ButtonRow height = {30} name = "Sodium" requirement = {nutReq?.sodium} unit = "mg" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.sodium*nutrientScale(dish)}  />
+                <ButtonRow height = {30} name = "Carbohydrates" requirement = {nutReq?.carbohydrate} unit = "g" mealState = {mealState} selector = {(dish:Dish)=> dish.nutritionSummary.carbohydrates*nutrientScale(dish)}  />
+                <ButtonRow height = {30} name = "    Dietary Fiber" requirement = {nutReq?.fiber} bold = {false}unit = "g" color = "#A6A6A6" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.dietaryFiber*nutrientScale(dish)}  />
+                <ButtonRow height = {30} name = "    Total Sugar" requirement = {nutReq?.sugar} bold = {false} unit = "g" color = "#A6A6A6" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.sugar*nutrientScale(dish)}  />
+                <ButtonRow height = {30} name = "Protein" requirement = {nutReq?.protein} unit = "g" mealState = {mealState} selector = {(dish:Dish)=> dish.nutritionSummary.protein*nutrientScale(dish)}  />
+                <ButtonRow height = {30} name = "Potassium" requirement = {nutReq?.potassium} unit = "mg" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.potassium*nutrientScale(dish)}  />
+                <ButtonRow height = {30} name = "Calcium" requirement = {nutReq?.calcium} unit = "mg" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.calcium*nutrientScale(dish)}  />
+                <ButtonRow height = {30} name = "Iron" requirement = {nutReq?.iron} unit = "mg" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.iron*nutrientScale(dish)}  />
+                <ButtonRow height = {30} name = "Vitamin D" requirement = {nutReq?.vitamin_d} unit = "IU" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.vitaminD*nutrientScale(dish)}  />
+                <ButtonRow height = {30} name = "Vitamin C" requirement = {nutReq?.vitamin_c} unit = "mg" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.vitaminC*nutrientScale(dish)}  />
+                <ButtonRow height = {30} name = "Vitamin A" requirement = {nutReq?.vitamin_a} unit = "IU" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.vitaminA*nutrientScale(dish)}  />
+            </ScrollView>
+        </View>
+    </View> 
+    
+</NutritionFactsContainer>
+}
+
+{/* <View style = {{
         width : "100%",
         height: "100%",
         flexDirection: "column",
@@ -274,12 +556,4 @@ export const NutritionFacts = (props) =>{
 
         <SvgXml  xml = {easter_egg_xml}/>
         </View>
-    </View>
-    
-</NutritionFactsContainer>
-}
-// export class NutritionFacts extends React.Component{
-//     render(){
-//         return <NutritionFactsFunctional {...this.props}/>
-//     }
-// }
+    </View> */}

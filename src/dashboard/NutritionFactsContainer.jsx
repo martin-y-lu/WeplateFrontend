@@ -89,14 +89,17 @@ const NutritionFactsContainer = (props) =>{
         
         <Animated.View style = {{
             width: dim.width,
-            height: dim.height,
-            paddingBottom: TOP_Y,
+            height: dim.height //- TOP_Y - insets.top - 120
+            ,
+            paddingBottom: TOP_Y + insets.top + 120,
             // maxHeight: dim.height-TOP_Y,
             ...SHADOW_STYLE,
             alignItems: 'center',
             position: 'absolute',
            
-            borderRadius:30,
+            // borderRadius:30,
+            borderTopLeftRadius: 30,
+            borderTopLeftRadius: 30,
             transform: [{translateY: yValue}],
         }}>
             <PanGestureHandler activeOffsetY={[-20,20]} onGestureEvent = {onGestureEvent} onEnded = {onEnded}>
@@ -147,7 +150,8 @@ const NutritionFactsContainer = (props) =>{
                 </View>
             </PanGestureHandler>
             <View style = {{
-                alignSelf : "flex-start"
+                flex:1,
+                alignSelf : "flex-start",
             }}>
                 { ( (closest(targetYValue,[TOP_Y,BOTTOM_Y])== TOP_Y) || true) && props.children}
             </View>

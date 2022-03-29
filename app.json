@@ -2,7 +2,7 @@
   "expo": {
     "name": "WePlate",
     "slug": "WePlate",
-    "version": "1.3.3",
+    "version": "1.3.4",
     "orientation":"portrait",
     "icon":"./assets/WePlate_Very_Large_Background_Logo.png",
     "assetBundlePatterns": [

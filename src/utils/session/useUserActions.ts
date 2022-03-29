@@ -1,3 +1,4 @@
+import { NutritionalRequirements } from './../../dashboard/typeUtil';
 
 import { atom, useSetRecoilState, useRecoilState } from 'recoil';
 import { TimeInfo } from '../../dashboard/state';
@@ -70,6 +71,7 @@ function useUserActions () {
         postAnalyticsTextFeedback,
         postUserSettings,
         getIngredients,
+        getNutritionalRequirements,
         registerUser,
         checkEmail,
         checkVersion,
@@ -232,6 +234,12 @@ function useUserActions () {
             name: string,
             school: APIKey,
         }[]
+    }
+
+    async function getNutritionalRequirements(){
+        const endpoint = `${baseUrl}/api/nutritional_requirements/`
+        const resp = await fetchWrapper.get(endpoint)
+        return resp as NutritionalRequirements 
     }
     async function checkEmail(email:string){
         const endpoint = `${baseUrl}/api/register/check_email/${encodeURIComponent(email)}/`
