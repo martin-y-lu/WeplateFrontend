@@ -6,7 +6,12 @@ import { closest, interp } from "../utils/math"
 import { SHADOW_STYLE } from './Dashboard'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-export const ARROW_ICON_SVG = '<svg width="30" height="18" viewBox="0 0 30 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M27.2019 15.101L15.101 3.00003L3.00007 15.101" stroke="#C2C2C2" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+export const ARROW_ICON_SVG = `<svg width="31" height="11" viewBox="0 0 31 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M30 9L16.8042 2.62964C15.9802 2.23184 15.0198 2.23184 14.1958 2.62964L1 9" stroke="#A4A4A4" stroke-width="4"/>
+</svg>
+`
+
+// '<svg width="30" height="18" viewBox="0 0 30 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M27.2019 15.101L15.101 3.00003L3.00007 15.101" stroke="#C2C2C2" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>'
 
 export const NutritionFactsContainerHiddenHeight = 70
 const NutritionFactsContainer = (props) =>{

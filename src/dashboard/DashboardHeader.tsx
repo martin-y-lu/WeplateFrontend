@@ -1,6 +1,6 @@
 import { View,Text, TouchableOpacity, StyleSheet, StyleProp, Touchable, Modal, TouchableWithoutFeedback } from "react-native"
 import { SvgXml } from "react-native-svg"
-import {FOOD_CATEGORY, MEAL, STATION,MealState,Dish,NutritionInfo,NutritionSummaryInfo, MEALS} from './typeUtil'
+import {FOOD_CATEGORY, MEAL, STATION,MealState,Dish,NutritionInfo,NutritionSummaryInfo, MEALS, fullVolumeByPortion} from './typeUtil'
 import { dashboardStateAtom, dateToString, stringToDate, TimeInfo} from "./state"
 import { useRecoilState, useRecoilValue } from "recoil"
 import { ARROW_ICON_SVG } from "./NutritionFactsContainer"
@@ -103,10 +103,9 @@ const DashboardHeader = (props) =>{
     const [showingDatePick,setShowingDatePick] = useState(false)
     const [monthSelect,setMonthSelect] = useState(date?.getMonth())
     const calendarInfo = useMemo(()=>{ 
-        let firstDayOfMonth = new Date(date)
-        firstDayOfMonth.setMonth(monthSelect)
+        let firstDayOfMonth = new Date(date?.getFullYear(),monthSelect)
         firstDayOfMonth.setDate(1)
-        let lastDayOfMonth = new Date(date)
+        let lastDayOfMonth =  new Date(date?.getFullYear(),date?.getMonth())
         lastDayOfMonth.setMonth(monthSelect+1)
         lastDayOfMonth.setDate(0)
 
@@ -161,7 +160,7 @@ const DashboardHeader = (props) =>{
                         paddingLeft: 50
                     }} onPress = {()=>{
                         if(monthSelect>0){
-                            setMonthSelect(_m=> _m-1)
+                            setMonthSelect(monthSelect-1)
                         }
                     }}>
                         <Text style = {{
@@ -186,7 +185,7 @@ const DashboardHeader = (props) =>{
                         // paddingLeft: "auto",
                     }} onPress = {()=>{
                         if(monthSelect<11){
-                            setMonthSelect(_m=> _m+1)
+                            setMonthSelect(monthSelect+1)
                         }
                     }}>
                         <Text style = {{
@@ -264,9 +263,7 @@ const DashboardHeader = (props) =>{
                                         if(dateIsInRange){
                                             setShowingDatePick(false)
                                             if(!dateMatches){
-                                                const newDate = new Date(date)
-                                                newDate.setMonth(monthSelect)
-                                                newDate.setDate(dateInMonth+1)
+                                                const newDate = new Date(date?.getFullYear(),monthSelect,dateInMonth+1)
                                                 console.log("NEWDATE:",dateToString(newDate))
                                                 setDashboardState({
                                                     ...state,
@@ -324,6 +321,9 @@ const DashboardHeader = (props) =>{
                         </Text>
                     </TouchableOpacity>
                 }
+                {/* <Text>
+                    {calendarInfo.firstDayOfMonth.toDateString()}
+                </Text> */}
             </View>
     </Modal>
 

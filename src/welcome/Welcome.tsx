@@ -223,6 +223,12 @@ export const Welcome2 = ({navigation})=>{
             <View style = {{
                 width: width,
                 height: 50,
+                marginLeft: 20,
+                backgroundColor:"white",
+                marginTop:6,
+                // height: 40,
+                borderRadius: 5,
+                paddingLeft:10,
             }}>
                 <DateTimePicker style = {{
                     height: 50,
@@ -240,20 +246,43 @@ export const Welcome2 = ({navigation})=>{
             }}/>
         </DropButton> */}
         <DropButton name = "Height" value = {height ? ( inchesToFeet(height)[0] + '\''+ Math.floor(inchesToFeet(height)[1])+'\"') : null}>         
+        <View style = {{
+                width: width,
+                // height: 50,
+                marginLeft: 20,
+                backgroundColor:"white",
+                marginTop:6,
+                // height: 40,
+                borderRadius: 5,
+                paddingLeft: "20%",
+            }}>
+
             <NumberPlease pickerStyle={{ width: "50%"}} 
                             digits = {heightEntry} values = {heightValue} onChange= {(values)=>{
-                            setHeightValue(values)
-                            setHeight(feetToInches(values[0].value, values[1].value))
-                        }}/>
+                                setHeightValue(values)
+                                setHeight(feetToInches(values[0].value, values[1].value))
+                            }}/>
+                            </View>
         </DropButton>
         
-        <DropButton name = "Weight" value = {weight ? weight + " lbs" : null}>         
+        <DropButton name = "Weight" value = {weight ? weight + " lbs" : null}>   
+        <View style = {{
+                width: width,
+                // height: 50,
+                marginLeft: 20,
+                backgroundColor:"white",
+                marginTop:6,
+                // height: 40,
+                borderRadius: 5,
+                paddingLeft: "20%",
+            }}>
             <NumberPlease pickerStyle={{
-                    width: "100%",    
-                }} 
+                width: "100%",    
+            }} 
                 digits = {[{id:"weight", label: "lbs",min: 0,max:1000}]} values = {[{id: "weight" ,value:weight ?? 140}]} onChange= {(values)=>{
                     setWeight(values[0].value)
-            }}/>
+                }}/>
+            </View>      
         </DropButton>
 
         {   sex!== null && birthdate !== null && height !== null && weight != null &&
@@ -300,7 +329,7 @@ function RadioButton(props){
         <Text style = {{
             color: "white",
             marginLeft: "auto",
-            fontSize : condensed? 14 : 16,
+            fontSize : condensed? 12 : 16,
         }}>
             {props.desc}
         </Text>
@@ -558,7 +587,9 @@ export const Welcome10 = ({navigation})=>{
          </Text>
          <Text style = {[styles.text, { 
             marginTop: 30,
-            color: "red"
+            color: "white",
+            fontWeight:"bold",
+            fontStyle: "italic",
          }]}>
             {failMessage}
          </Text>

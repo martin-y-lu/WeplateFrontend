@@ -714,9 +714,14 @@ const EditInfo = ({navigation,route})=>{
     <path d="M12.5 7.13397C13.1667 7.51888 13.1667 8.48112 12.5 8.86602L2 14.9282C1.33333 15.3131 0.499999 14.832 0.499999 14.0622L0.5 1.93782C0.5 1.16802 1.33333 0.686896 2 1.0718L12.5 7.13397Z" fill="#DDDDDD"/>
     </svg>
     `
-    const backArrow = `<svg width="19" height="29" viewBox="0 0 19 29" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M8.17044 14.4243C8.02856 14.6022 8.02473 14.8535 8.16112 15.0357L17.8882 28.0273C18.1371 28.3598 17.8956 28.8332 17.4803 28.8269L10.9852 28.7283C10.8303 28.7259 10.6853 28.6519 10.5925 28.528L0.402676 14.9175C0.266292 14.7353 0.270122 14.484 0.411996 14.3061L11.0122 1.01214C11.1088 0.891069 11.256 0.821559 11.4108 0.823916L17.9056 0.922844C18.3209 0.92917 18.5478 1.40976 18.2889 1.7345L8.17044 14.4243Z" fill="#A4A4A4"/>
-    </svg>`
+    const backArrow =`<svg width="18" height="27" viewBox="0 0 18 27" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M16 2L4.10542 11.1192C2.53914 12.32 2.53914 14.68 4.10542 15.8808L16 25" stroke="#A4A4A4" stroke-width="4"/>
+    </svg>
+    `
+    
+    // `<svg width="19" height="29" viewBox="0 0 19 29" fill="none" xmlns="http://www.w3.org/2000/svg">
+    // <path d="M8.17044 14.4243C8.02856 14.6022 8.02473 14.8535 8.16112 15.0357L17.8882 28.0273C18.1371 28.3598 17.8956 28.8332 17.4803 28.8269L10.9852 28.7283C10.8303 28.7259 10.6853 28.6519 10.5925 28.528L0.402676 14.9175C0.266292 14.7353 0.270122 14.484 0.411996 14.3061L11.0122 1.01214C11.1088 0.891069 11.256 0.821559 11.4108 0.823916L17.9056 0.922844C18.3209 0.92917 18.5478 1.40976 18.2889 1.7345L8.17044 14.4243Z" fill="#A4A4A4"/>
+    // </svg>`
 
   
 
@@ -768,12 +773,14 @@ const EditInfo = ({navigation,route})=>{
     }
 
     return <SafeAreaView style = {{height: '100%',backgroundColor:'white'}}>
-                    <View style = {styles.headerView}>
-                <TouchableOpacity style = {{paddingTop: 10,paddingBottom: 10,paddingRight:30}} onPress = { submit}>
-                    <SvgXml style = {styles.backArrow} xml = {backArrow}/>
-                </TouchableOpacity>
-            </View>
-        <PageComponent navigation = {navigation} />
+        <View style = {styles.headerView}>
+            <TouchableOpacity style = {{paddingTop: 10,paddingBottom: 10,paddingRight:30}} onPress = { submit}>
+                <SvgXml style = {styles.backArrow} xml = {backArrow}/>
+            </TouchableOpacity>
+        </View>
+        <View style = {{ paddingHorizontal: 30}}>
+            <PageComponent navigation = {navigation} />
+        </View>
     </SafeAreaView>
 }
 

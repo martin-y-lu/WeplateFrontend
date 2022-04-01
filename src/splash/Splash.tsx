@@ -33,6 +33,7 @@ function Splash({navigation}){
     const [persistentState,setPersistentState,fetchPersistentState] = usePersistentAtom() as any
     const [persistentStateChecked,setPersistentStateChecked] = useState(false);
     async function getPersistentState(){
+
         if(persistentState.loaded){
             return persistentState;
         }
@@ -96,10 +97,13 @@ function Splash({navigation}){
         const fetchedState = await getPersistentState()
         await leaveSplashAnimation()
         if(fetchedState.password !== null && fetchedState.email !== null){
-            if(fetchedState?.verified){
-                navigation.navigate("SidebarNavigable",{screen:"Dashboard"})
-            }else{
+            const res = await userActions.login(fetchedState.email,fetchedState.password)
+            if(!fetchedState?.verified){
                 navigation.navigate("VerifyAccount")
+            }else if(res.err){
+                navigation.navigate("Login")
+            }else{
+                navigation.navigate("SidebarNavigable",{screen:"Dashboard"})
             }
 
         }else{

@@ -20,7 +20,7 @@ export const back_icon_svg = `<svg width="18" height="27" viewBox="0 0 18 27" fi
 <path d="M16 2L4.10542 11.1192C2.53914 12.32 2.53914 14.68 4.10542 15.8808L16 25" stroke-width="4"/>
 </svg>
 `
-const NutritionInfoEntry = ({name, value, unit})=>{
+export const NutritionInfoEntry = ({name, value, unit})=>{
     const ds = useDesignScheme()
     return   <View style = {{flexDirection: "row",alignItems:"center",marginVertical: 3}}>
                     <Text style = {{ color: ds.colors.grayscale1,fontFamily: ds.fontFamilies.medium,marginRight: 5, fontSize: 13}}>

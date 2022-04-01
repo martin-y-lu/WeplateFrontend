@@ -12,7 +12,7 @@ export function getFoodCategoryDescription(fc: FOOD_CATEGORY){
     switch(fc){
         case(FOOD_CATEGORY.Carbohydrates): return "Grains"
         case(FOOD_CATEGORY.Protein): return "Proteins"
-        case(FOOD_CATEGORY.Vegetable): return "Produce"
+        case(FOOD_CATEGORY.Vegetable): return "Veggies"
     }
 }
 

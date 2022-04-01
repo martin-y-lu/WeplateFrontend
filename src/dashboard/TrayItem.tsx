@@ -90,45 +90,32 @@ const TrayItem = ( props : {isTop ?: boolean, number: number,portion: Portion, d
             }}>
 
             
-            <View style = {{height: "100%",
-                            justifyContent: "center",
-                            alignItems:"center", 
-                            backgroundColor: ds.colors.grayscale4, 
-                            aspectRatio: 1.2, 
-                            borderRadius: 5, 
-                            marginVertical: 15, 
-                            overflow:"hidden"}}>
-            {graphic ? 
-                <Image style = {{ flex:1,aspectRatio:1.2}} source = {{uri: graphic}}/>
-                :(
-                    type == FOOD_CATEGORY.Vegetable ?
+                <View style = {{height: "100%",
+                                justifyContent: "center",
+                                alignItems:"center", 
+                                backgroundColor: ds.colors.grayscale4, 
+                                aspectRatio: 1.2, 
+                                borderRadius: 5, 
+                                marginVertical: 15, 
+                                overflow:"hidden"}}>
+                {graphic ? 
+                    <Image style = {{ flex:1,aspectRatio:1.2}} source = {{uri: graphic}}/>
+                    :(
+                        type == FOOD_CATEGORY.Vegetable ?
 
-                    <SvgXml  stroke = "#C0C0C0" xml={leaf_xml} /> 
-                    
-                : type == FOOD_CATEGORY.Carbohydrates ? 
-                    
-                    <SvgXml stroke = "#C0C0C0" xml={bread_xml}/>
-                    
-                :
-                    <SvgXml  stroke = "#C0C0C0" xml={meat_xml} />
-                        )
-            }
-            </View>
+                        <SvgXml  stroke = "#C0C0C0" xml={leaf_xml} /> 
+                        
+                    : type == FOOD_CATEGORY.Carbohydrates ? 
+                        
+                        <SvgXml stroke = "#C0C0C0" xml={bread_xml}/>
+                        
+                    :
+                        <SvgXml  stroke = "#C0C0C0" xml={meat_xml} />
+                            )
+                }
+                </View>
             </View>
 
-            {/* <View style = {{
-                width: 30,
-                height: 30,
-                borderStyle: 'solid',
-                borderRadius: 15,
-                backgroundColor: color,
-                justifyContent: "center",
-                alignItems: "center",
-            }}>
-                <Text style = {{color: "white"}}>
-                    {number}
-                </Text>
-            </View>  */}
             <TouchableOpacity disabled = {disabled} style = {{
                 marginLeft: 10,
                 flexDirection: 'column',
@@ -138,7 +125,7 @@ const TrayItem = ( props : {isTop ?: boolean, number: number,portion: Portion, d
                 props.modalOpen(props.portion)
             }}>
                 <Text style = {{
-                    fontSize: dishName.length > 30? 15: 20,
+                    fontSize: dishName.length > 25? 15: 20,
                     color: color,
                 }}>
                     {dishName}
@@ -149,7 +136,7 @@ const TrayItem = ( props : {isTop ?: boolean, number: number,portion: Portion, d
                     {station != null &&
                         <View style = {{
                             borderRightWidth: 2,
-                            borderColor: color,
+                            borderColor: "#A4A4A4",
                         }}>
                             <Text style = {{
                                 color : "#A4A4A4",

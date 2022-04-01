@@ -10,6 +10,7 @@ import {useEffect} from 'react';
 import Constants from "expo-constants"
 
 import Login from '../../login/Login';
+import { TEST } from '../../../App';
 
 export const usersAtom = atom({
     key: "usersAtom",
@@ -248,8 +249,6 @@ function useUserActions () {
         return resp
     }
 
-    
-
     async function checkVersion(){
         const version = Constants.manifest.version
         const defaultResp = {
@@ -257,6 +256,9 @@ function useUserActions () {
             compatible: true,
             handling_update: 'none',
         } as APIVersionResponse
+        if(__DEV__|| TEST){
+            return defaultResp;
+        }
         const endpoint = `${baseUrl}/api/version/?version=${encodeURIComponent(version)}/`
         try{
             const resp = await fetchWrapper.get(endpoint)

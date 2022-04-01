@@ -8,9 +8,14 @@ import { capitalizeFirstLetter, getAPIActivityLevelName, getAPIBaseAllergenName,
 import { useState } from "react"
 import { useUserActions } from "../utils/session/useUserActions"
 import { formatNumber } from "../utils/math"
-const arrow_icon = `<svg width="13" height="16" viewBox="0 0 13 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M12.5 7.13397C13.1667 7.51888 13.1667 8.48112 12.5 8.86602L2 14.9282C1.33333 15.3131 0.499999 14.832 0.499999 14.0622L0.5 1.93782C0.5 1.16802 1.33333 0.686896 2 1.0718L12.5 7.13397Z" fill="#DDDDDD"/>
-</svg>`
+const arrow_icon = `<svg width="8" height="15" viewBox="0 0 8 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M1 14L5.63251 9.69838C6.91071 8.51148 6.91071 6.48852 5.63251 5.30162L1 1" stroke="#A4A4A4" stroke-width="2"/>
+</svg>
+`
+
+// `<svg width="13" height="16" viewBox="0 0 13 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+// <path d="M12.5 7.13397C13.1667 7.51888 13.1667 8.48112 12.5 8.86602L2 14.9282C1.33333 15.3131 0.499999 14.832 0.499999 14.0622L0.5 1.93782C0.5 1.16802 1.33333 0.686896 2 1.0718L12.5 7.13397Z" fill="#DDDDDD"/>
+// </svg>`
 
 const empty_avatar_svg = `<svg width="65" height="72" viewBox="0 0 65 72" fill="none" xmlns="http://www.w3.org/2000/svg">
 <circle cx="32.5" cy="32.5391" r="32.5" fill="#A6A6A6"/>
@@ -95,7 +100,9 @@ const Settings = ({navigation})=>{
   }
     const avatarUri = null ;// 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADMAAAAzCAYAAAA6oTAqAAAAEXRFWHRTb2Z0d2FyZQBwbmdjcnVzaEB1SfMAAABQSURBVGje7dSxCQBACARB+2/ab8BEeQNhFi6WSYzYLYudDQYGBgYGBgYGBgYGBgYGBgZmcvDqYGBgmhivGQYGBgYGBgYGBgYGBgYGBgbmQw+P/eMrC5UTVAAAAABJRU5ErkJggg=='
     return <SafeAreaView style={{backgroundColor: 'white' ,flex: 1}}>
-      <ScrollView>
+      <ScrollView style = {{
+        paddingHorizontal: 30
+      }}>
           <View style = {{flexDirection: 'row', marginTop: 50}}>
             {avatarUri ? 
                     <Image
@@ -245,10 +252,10 @@ const styles = StyleSheet.create({
       marginLeft: 20,
     },
     miniHeader: {
-        fontSize:15,
+        fontSize:20,
         marginLeft: 10,
         marginTop: 20,
-        color: "#DDDDDD" 
+        color: "#A4A4A4" 
     },
     seperator:{
         backgroundColor: 'white',

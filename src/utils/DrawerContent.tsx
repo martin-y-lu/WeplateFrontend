@@ -3,6 +3,7 @@ import { useRoute } from "@react-navigation/native";
 import { Text, useWindowDimensions, View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { SvgXml } from 'react-native-svg';
+import { useUserActions } from "./session/useUserActions";
 
 const dashboard_icon_svg = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
 <rect y="8" width="4" height="8" rx="1" />
@@ -72,12 +73,38 @@ function DrawerButton(props){
 
     </TouchableOpacity>
 }
+function DrawerButtonBehaviour(props){
+    const {width,name,icon,onPress} = props
+
+    const dark = false
+    return <TouchableOpacity style = {{
+        backgroundColor: dark ? "#DADADA" : "white",
+        width,
+        flexDirection:"row",
+        height: 50,
+        alignItems:"center",
+        paddingLeft:30,
+    }}
+    onPress = {onPress}
+    >
+        {icon &&
+        <SvgXml fill = {dark ? "white" : "#A4A4A4"} xml = {icon}/>}
+        <Text style = {{
+            fontSize: 22,
+            marginLeft:10,
+            color: dark? "white" : "#C2C2C2"
+        }}>
+            {name}
+        </Text>
+
+    </TouchableOpacity>
+}
 export const CustomDrawerContent = (props) => {
     const {navigation} = props
     const width = useWindowDimensions().width * 0.67;
     const route = useRoute()
     const screenName = (route?.params as any)?.screen;
-
+    const userActions = useUserActions()
     // console.log("NAVSTATE",route)
     return <DrawerContentScrollView {...props} style = {{
         width,
@@ -99,6 +126,15 @@ export const CustomDrawerContent = (props) => {
             <DrawerButton icon = {feedback_icon_svg} width = {width} navigation = {navigation} name = "Feedback" screen = "Feedback" screenName = {screenName}/>
             <DrawerButton icon = {settings_icon_svg} width = {width} navigation = {navigation} name = "Settings" screen = "Settings" screenName = {screenName}/>
             <DrawerButton icon = {about_us_icon_svg} width = {width} navigation = {navigation} name = "About Us" screen = "About Us" screenName = {screenName}/>
+            <DrawerButtonBehaviour icon = {null} width = {width} name = "Log Out" onPress = {()=>{
+                console.log("LOGG OUT")
+                async function logOut(){
+                    console.log("Logging out")
+                    await userActions.logout()
+                    navigation.navigate("Login")
+                }
+                logOut()
+            }}/>
 
             <View style = {{
                 marginTop: 'auto',

@@ -17,7 +17,7 @@ import { useUserActions } from "../utils/session/useUserActions"
 import { authAtom } from "../utils/session/useFetchWrapper"
 import ChangeMenuItem from "./ChangeMenuItem"
 import Tooltip from "./tooltip/components/Tooltip";
-import { APIMealByTimePayload, APIMealSuggest, APIMealSuggestEntry } from '../utils/session/apiTypes';
+import { APIMealByTimePayload, APIMealSuggest, APIMealSuggestEntry, APIPortionSuggest } from '../utils/session/apiTypes';
 import { NutritionFacts } from "./NutritionFacts";
 import { SvgXml } from "react-native-svg";
 import { usePersistentAtom } from "../utils/state/userState";
@@ -253,7 +253,8 @@ export function useMealFeatures({timeInfo,onLoad, doFetchMeal,doFetchNutritionRe
                 if(dishA?.portion === undefined || dishB?.portion === undefined || dishC?.portion === undefined){
                     // console.log("FETCHING SIZES")
                     // setMealDishes(dishA,dishB,dishC)
-                    const portions = await userActions.portionSuggestionByItemID(dishA.id,dishB.id,dishC.id);
+                    
+                    const portions:APIPortionSuggest = await userActions.portionSuggestionByItemID(dishA.id,dishB.id,dishC.id);
                     dishA.portion = getPortionInfoFromAPIPortionInfo(dishA, portions.small1,Portion.A);
                     dishB.portion = getPortionInfoFromAPIPortionInfo(dishB,portions.small2,Portion.B);
                     dishC.portion = getPortionInfoFromAPIPortionInfo(dishC,portions.large,Portion.C);
@@ -512,6 +513,10 @@ const Dashboard = (props)=>{
                     flex: 1,
                     paddingLeft: 25,
                 }}
+                contentContainerStyle = {{
+                    flexGrow:1,
+                    justifyContent:"center",
+                }}
                 pointerEvents = "box-none"
                 scrollEventThrottle  = {100}
                 onScroll={({nativeEvent}) => {
@@ -579,18 +584,26 @@ const Dashboard = (props)=>{
     }
 
     return <View style={{ 
-             alignItems: 'center' ,backgroundColor: 'white',
+             alignItems: 'center' ,
+             justifyContent:"space-evenly",
+             backgroundColor: 'white',
              height:"100%",
         }}>
         <Modal transparent visible = {!!modalOpen} animationType = "fade" >
-            <View style = {{
-                flex: 1,
-                backgroundColor: "rgba(0,0,0,0.3)",
+            <TouchableOpacity style = {{
+                position: "absolute",
+                width:"100%",
+                height: "100%",
+                backgroundColor: "rgba(255,255,255,0.3)",
                 alignItems: 'stretch',
                 // justifyContent: 'center'
-            }}>
-                <ChangeMenuItem modalOpen = {modalOpen} setModalOpen = {setModalOpen} mealState = {mealState} setMealDishes = {setMealDishes}/>
-            </View>
+            }}
+            onPress = {()=>{
+                setModalOpen(null);
+            }}
+            >
+            </TouchableOpacity>
+            <ChangeMenuItem modalOpen = {modalOpen} setModalOpen = {setModalOpen} mealState = {mealState} setMealDishes = {setMealDishes}/>
         </Modal> 
         {content}
         <PortionView style = {{ marginTop:10}} animationState = {portionAnimationState}/>
