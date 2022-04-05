@@ -1,6 +1,6 @@
 import { Animated, ScrollView, Text, TouchableOpacity, View } from "react-native"
 import NutritionFactsContainer from "./NutritionFactsContainer"
-import { FOOD_CATEGORY, MEAL, STATION, MealState, Dish, NutritionInfo, NutritionSummaryInfo, foodCategories, getFoodCategoryDescription, getDishesFromMealState, getDishesFromMealStateByCategory } from './typeUtil';
+import { FOOD_CATEGORY, MEAL, STATION, MealState, Dish, NutritionInfo, NutritionSummaryInfo, foodCategories, getFoodCategoryDescription, getDishesFromMealState, getDishesFromMealStateByCategory, NutritionalRequirements } from './typeUtil';
 
 export const easter_egg_xml = `<svg width="112" height="85" viewBox="0 0 112 85" fill="none" xmlns="http://www.w3.org/2000/svg">
 <rect x="29.0854" y="42.4222" width="10.5854" height="22.3167" transform="rotate(-17.2827 29.0854 42.4222)" fill="#0CCC09" stroke="black" stroke-width="3"/>
@@ -287,8 +287,8 @@ const downArrowSvg = `<svg width="8" height="10" viewBox="0 0 8 10" fill="none" 
 </svg>
 `
 
-const ButtonRow = (props :{height?: number,bold?:boolean,color ?: string, name ?: string, selector : (arg0:Dish)=> number,  mealState:MealState, unit?:string, opacity?: number, requirement: number}) =>{
-    let {height,color,bold, name, selector, mealState, unit, opacity,requirement} = props
+const ButtonRow = (props :{height?: number,bold?:boolean,color ?: string, name ?: string, selector : (arg0:Dish)=> number,  mealState:MealState, unit?:string, opacity?: number, requirementId: string, requirements: NutritionalRequirements}) =>{
+    let {height,color,bold, name, selector, mealState, unit, opacity,requirementId ,requirements} = props
     const oValue = useRef(new Animated.Value(0))
     const [open, setOpen] = useState(false);
 
@@ -298,9 +298,11 @@ const ButtonRow = (props :{height?: number,bold?:boolean,color ?: string, name ?
     const total = totalBy(selector,mealState)
     const dishesByCat = getDishesFromMealStateByCategory(mealState)
 
-    const RANGE = 1.2
-    const isOver = isFinite(requirement) && isFinite(total) && total > requirement* RANGE
-    const isUnder = isFinite(requirement) && isFinite(total) && total < requirement/ RANGE
+    const reqHigh = requirements?.hi?.[requirementId]
+    const reqLow = requirements?.lo?.[requirementId]
+
+    const isOver = isFinite(reqHigh) && isFinite(total) && total > reqHigh
+    const isUnder = isFinite(reqLow) && isFinite(total) && total < reqLow
     const iconColor = isOver ? ds.colors.brand3 :  ( isUnder? ds.colors.accent1:  ds.colors.grayscale4 )
 
 
@@ -467,6 +469,8 @@ export const NutritionFacts = (props) =>{
         alignItems:"flex-start",
         justifyContent: "flex-start",
     }}>
+        {
+            nutReq && 
         <View style = {{
             flex: 1,
             width: "100%",
@@ -482,24 +486,25 @@ export const NutritionFacts = (props) =>{
                 paddingRight: 33
                 // maxHeight:500,
             }}>
-                <ButtonRow height = {30} name = "Calories" requirement = { nutReq?.calories} unit = "Kcal" mealState = {mealState} selector = {(dish:Dish)=> (dish.nutritionSummary.calories*nutrientScale(dish))}  />
-                <ButtonRow height = {30} name = "Total Fat" requirement = { nutReq?.total_fat} unit = "g" mealState = {mealState} selector = {(dish:Dish)=> dish.nutritionSummary.totalFat*nutrientScale(dish)}  />
-                <ButtonRow height = {30} name = "    Saturated Fat" requirement = {nutReq?.saturated_fat} bold = {false} unit = "g" color = "#A6A6A6" mealState = {mealState} selector = {(dish:Dish)=> dish.nutritionSummary.saturatedFat*nutrientScale(dish)}  />
-                <ButtonRow height = {30} name = "    Trans Fat" requirement = {nutReq?.trans_fat} bold = {false} unit = "g" color = "#A6A6A6" mealState = {mealState} selector = {(dish:Dish)=> dish.nutritionSummary.transFat*nutrientScale(dish)}  />
-                <ButtonRow height = {30} name = "Cholesterol" requirement = {nutReq?.cholesterol} unit = "mg" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.cholesterol*nutrientScale(dish)}  />
-                <ButtonRow height = {30} name = "Sodium" requirement = {nutReq?.sodium} unit = "mg" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.sodium*nutrientScale(dish)}  />
-                <ButtonRow height = {30} name = "Carbohydrates" requirement = {nutReq?.carbohydrate} unit = "g" mealState = {mealState} selector = {(dish:Dish)=> dish.nutritionSummary.carbohydrates*nutrientScale(dish)}  />
-                <ButtonRow height = {30} name = "    Dietary Fiber" requirement = {nutReq?.fiber} bold = {false}unit = "g" color = "#A6A6A6" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.dietaryFiber*nutrientScale(dish)}  />
-                <ButtonRow height = {30} name = "    Total Sugar" requirement = {nutReq?.sugar} bold = {false} unit = "g" color = "#A6A6A6" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.sugar*nutrientScale(dish)}  />
-                <ButtonRow height = {30} name = "Protein" requirement = {nutReq?.protein} unit = "g" mealState = {mealState} selector = {(dish:Dish)=> dish.nutritionSummary.protein*nutrientScale(dish)}  />
-                <ButtonRow height = {30} name = "Potassium" requirement = {nutReq?.potassium} unit = "mg" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.potassium*nutrientScale(dish)}  />
-                <ButtonRow height = {30} name = "Calcium" requirement = {nutReq?.calcium} unit = "mg" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.calcium*nutrientScale(dish)}  />
-                <ButtonRow height = {30} name = "Iron" requirement = {nutReq?.iron} unit = "mg" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.iron*nutrientScale(dish)}  />
-                <ButtonRow height = {30} name = "Vitamin D" requirement = {nutReq?.vitamin_d} unit = "IU" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.vitaminD*nutrientScale(dish)}  />
-                <ButtonRow height = {30} name = "Vitamin C" requirement = {nutReq?.vitamin_c} unit = "mg" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.vitaminC*nutrientScale(dish)}  />
-                <ButtonRow height = {30} name = "Vitamin A" requirement = {nutReq?.vitamin_a} unit = "IU" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.vitaminA*nutrientScale(dish)}  />
+                <ButtonRow height = {30} name = "Calories" requirementId = "calories" unit = "Kcal" mealState = {mealState} selector = {(dish:Dish)=> (dish.nutritionSummary.calories*nutrientScale(dish))}  requirements = {nutReq}/>
+                <ButtonRow height = {30} name = "Total Fat" requirementId = "total_fat" unit = "g" mealState = {mealState} selector = {(dish:Dish)=> dish.nutritionSummary.totalFat*nutrientScale(dish)}  requirements = {nutReq}/>
+                <ButtonRow height = {30} name = "    Saturated Fat" requirementId = "saturated_fat" bold = {false} unit = "g" color = "#A6A6A6" mealState = {mealState} selector = {(dish:Dish)=> dish.nutritionSummary.saturatedFat*nutrientScale(dish)}  requirements = {nutReq}/>
+                <ButtonRow height = {30} name = "    Trans Fat" requirementId = "trans_fat" bold = {false} unit = "g" color = "#A6A6A6" mealState = {mealState} selector = {(dish:Dish)=> dish.nutritionSummary.transFat*nutrientScale(dish)} requirements = {nutReq} />
+                <ButtonRow height = {30} name = "Cholesterol" requirementId = "cholesterol" unit = "mg" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.cholesterol*nutrientScale(dish)} requirements = {nutReq} />
+                <ButtonRow height = {30} name = "Sodium" requirementId = "sodium" unit = "mg" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.sodium*nutrientScale(dish)}  requirements = {nutReq}/>
+                <ButtonRow height = {30} name = "Carbohydrates" requirementId = "carbohydrate" unit = "g" mealState = {mealState} selector = {(dish:Dish)=> dish.nutritionSummary.carbohydrates*nutrientScale(dish)}  requirements = {nutReq}/>
+                <ButtonRow height = {30} name = "    Dietary Fiber" requirementId = "fiber" bold = {false}unit = "g" color = "#A6A6A6" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.dietaryFiber*nutrientScale(dish)}  requirements = {nutReq}/>
+                <ButtonRow height = {30} name = "    Total Sugar" requirementId = "sugar" bold = {false} unit = "g" color = "#A6A6A6" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.sugar*nutrientScale(dish)} requirements = {nutReq} />
+                <ButtonRow height = {30} name = "Protein" requirementId = "protein" unit = "g" mealState = {mealState} selector = {(dish:Dish)=> dish.nutritionSummary.protein*nutrientScale(dish)} requirements = {nutReq} />
+                <ButtonRow height = {30} name = "Potassium" requirementId = "potassium" unit = "mg" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.potassium*nutrientScale(dish)} requirements = {nutReq} />
+                <ButtonRow height = {30} name = "Calcium" requirementId = "calcium" unit = "mg" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.calcium*nutrientScale(dish)} requirements = {nutReq} />
+                <ButtonRow height = {30} name = "Iron" requirementId = "iron" unit = "mg" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.iron*nutrientScale(dish)} requirements = {nutReq} />
+                <ButtonRow height = {30} name = "Vitamin D" requirementId = "vitamin_d" unit = "IU" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.vitaminD*nutrientScale(dish)} requirements = {nutReq} />
+                <ButtonRow height = {30} name = "Vitamin C" requirementId = "vitamin_c" unit = "mg" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.vitaminC*nutrientScale(dish)} requirements = {nutReq} />
+                <ButtonRow height = {30} name = "Vitamin A" requirementId = "vitamin_a" unit = "IU" mealState = {mealState} selector = {(dish:Dish)=> dish.nutrition.vitaminA*nutrientScale(dish)} requirements = {nutReq} />
             </ScrollView>
         </View>
+        }
     </View> 
     
 </NutritionFactsContainer>

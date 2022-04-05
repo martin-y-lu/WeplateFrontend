@@ -49,7 +49,7 @@ const FoodItem = ({dish,timeInfo, navigation} :{dish: Dish,timeInfo: TimeInfo,na
     const calorieCount= dish.nutritionSummary.calories
     const station= dish.station
     const stationName = getNameOfStation(station);
-    const fontSize =   foodName.length> 30?10: foodName.length> 20? 14: 18
+    const fontSize =   foodName.length> 30?12: foodName.length> 20? 14: 18
 
     const ds = useDesignScheme()
     const graphic = dish?.graphic
@@ -86,11 +86,32 @@ const FoodItem = ({dish,timeInfo, navigation} :{dish: Dish,timeInfo: TimeInfo,na
                         )
             }
         </View>
-        <View>
+        <View style = {{flexDirection: "column"}}>
             <Text style={[styles.foodName,{fontSize, color: colorOfCategory(type),marginRight:60}]}>{foodName}</Text>
-            {station ? <Text style={styles.calorieCount}>{ stationName.length <= 2 ?"Station " : null}{stationName}<Text/><Text style={{color: 'black', fontWeight: '600'}}> | </Text>{formatNumber(calorieCount)} Calories</Text> 
-            : <Text style={styles.calorieCount}>{formatNumber(calorieCount)} Calories</Text> }
+            <View style = {{flexDirection: "row",alignItems: "center"}}>
+                {station ? <Text style={styles.calorieCount}>{ stationName.length <= 2 ?"Station " : null}{stationName}
+
+                <Text style={{color: 'black', fontWeight: '600'}}> | </Text>
+
+                {formatNumber(calorieCount)} Calories</Text> 
+                : <Text style={styles.calorieCount}>{formatNumber(calorieCount)} Calories
+                </Text> }
+
+
+                {    dish.portionAmount.discrete && 
+                    <Text style = {{
+                        color : ds.colors.grayscale1,
+                        marginLeft: 5,
+                        
+                    }}>
+                        <Text style={{color: 'black', fontWeight: '600'}}> | </Text>
+
+                        {dish.portionAmount.count} { dish.portionAmount.count > 1 ? "pieces" : "piece"}
+                    </Text> 
+            }
+            </View>
         </View>
+        
         <SvgXml xml= {right_arrow_svg} style = {{marginLeft: "auto"}}/>
     </TouchableOpacity>
     // <View style = {{backgroundColor: '#D3D3D3', marginTop: 20, marginLeft: 20, marginRight:20, borderRadius: 12}}>

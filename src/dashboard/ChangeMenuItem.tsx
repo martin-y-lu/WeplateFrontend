@@ -147,7 +147,7 @@ const ChangeMenuItem = (props : {modalOpen: Portion,setModalOpen?: (Portion) => 
                     paddingRight: 20,
                 }}>
                     <Text style = {{
-                        fontSize: dishName.length > 25? 15: 20,
+                        fontSize: dishName.length > 35? 12: dishName.length>20? 16:  20,
                         color: color,
                     }}>
                         {dishName}
@@ -171,9 +171,26 @@ const ChangeMenuItem = (props : {modalOpen: Portion,setModalOpen?: (Portion) => 
                         <Text style = {{
                             color : "#A4A4A4",
                             marginLeft: 5, 
+                            marginRight: 5,
                         }}>
                             {Math.ceil(calories)} calories
                         </Text>
+                        {
+                        dish.portionAmount.discrete && 
+                        <View style = {{
+                            borderLeftWidth: 2,
+                            borderColor: "#A4A4A4", 
+                            marginLeft:5,
+                        }}>
+                            <Text style = {{
+                                color : ds.colors.grayscale1,
+                                marginLeft: 5,
+                                
+                            }}>
+                                {dish.portionAmount.count} { dish.portionAmount.count > 1 ? "pieces" : "piece"}
+                            </Text> 
+                        </View>
+                    }
                         {/* <Text style = {{
                             color : "#A4A4A4",
                             marginLeft: 5, 

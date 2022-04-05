@@ -104,7 +104,7 @@ const NutritionFactsContainer = (props) =>{
            
             // borderRadius:30,
             borderTopLeftRadius: 30,
-            borderTopLeftRadius: 30,
+            borderTopRightRadius: 30,
             transform: [{translateY: yValue}],
         }}>
             <PanGestureHandler activeOffsetY={[-20,20]} onGestureEvent = {onGestureEvent} onEnded = {onEnded}>

@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, Modal, ScrollView, Animated } from "react
 import { useRecoilState, useRecoilValue } from "recoil"
 import { NutritionFactsContainerHiddenHeight } from "./NutritionFactsContainer";
 import PortionView, { usePortionViewAnimationState } from './PortionView'
-import { TimeInfo, dashboardStateAtom, dateToString, stringToDate, getTimeInfoOfNow, useMealState, useMealStateUtils } from './state';
+import { TimeInfo, dashboardStateAtom, dateToString, stringToDate, getTimeInfoOfNow, useMealStateUtils } from './state';
 import { MealState, convertAPIItemToDish, Portion, getPortionInfoFromAPIPortionInfo, Dish, FOOD_CATEGORY, FoodCategoryFromAPIFoodCategory, getMealsIndex, getDishByPortion, getFoodCategoryDescription } from './typeUtil';
 import { copilot,walkthroughable,CopilotStep } from "react-native-copilot"
 import TrayItem from "./TrayItem"
@@ -98,7 +98,7 @@ export function useMealFeatures({timeInfo,onLoad, doFetchMeal,doFetchNutritionRe
             if(mealState.dishA.id == newDishA.id && mealState.dishB.id === newDishB.id && mealState.dishC.id === newDishC.id){
                 return;
             }else{
-                const portions = await userActions.portionSuggestionByItemID(newDishA.id,newDishB.id,newDishC.id);
+                const portions = await userActions.portionSuggestionByItemID(newDishA.id,newDishB.id,newDishC.id,null);
                 console.log("Portions: " + {portions})
                 const dishAPortion = getPortionInfoFromAPIPortionInfo(newDishA,portions.small1,Portion.A);
                 const dishA= {...newDishA ,portion: dishAPortion}
@@ -164,7 +164,7 @@ export function useMealFeatures({timeInfo,onLoad, doFetchMeal,doFetchNutritionRe
                 },
             }
             if(doFetchMeal){
-                const [suggestion,prevChoices,nutritional] = await Promise.all([userActions.suggestionByMealId(mealID),userActions.getAnalyticsMealChoices(mealID),userActions.getNutritionalRequirements()])
+                const [suggestion,prevChoices,nutritional] = await Promise.all([userActions.suggestionByMealId(mealID,null),userActions.getAnalyticsMealChoices(mealID),userActions.getNutritionalRequirements()])
                 console.log({nutritional})
                 newState.nutritionRequirements = nutritional
                 // console.log({suggestion})
@@ -254,7 +254,7 @@ export function useMealFeatures({timeInfo,onLoad, doFetchMeal,doFetchNutritionRe
                     // console.log("FETCHING SIZES")
                     // setMealDishes(dishA,dishB,dishC)
                     
-                    const portions:APIPortionSuggest = await userActions.portionSuggestionByItemID(dishA.id,dishB.id,dishC.id);
+                    const portions:APIPortionSuggest = await userActions.portionSuggestionByItemID(dishA.id,dishB.id,dishC.id,null);
                     dishA.portion = getPortionInfoFromAPIPortionInfo(dishA, portions.small1,Portion.A);
                     dishB.portion = getPortionInfoFromAPIPortionInfo(dishB,portions.small2,Portion.B);
                     dishC.portion = getPortionInfoFromAPIPortionInfo(dishC,portions.large,Portion.C);
@@ -350,7 +350,7 @@ const Dashboard = (props)=>{
         }
     }
 
-    const {mealState,loading,noMeal,setMealDishes, isPast, isPresent, isFuture} = useMealFeatures({timeInfo,onLoad,doFetchMeal: true})
+    const {mealState,loading,noMeal,setMealDishes, isPast, isPresent, isFuture} = useMealFeatures({timeInfo,onLoad,doFetchMeal: true,doFetchNutritionReq: true})
 
     useEffect(()=>{
         const onStop = ()=>{
@@ -383,6 +383,9 @@ const Dashboard = (props)=>{
         setTopCategory,
         setBottomCategory,
         setRightCategory,
+        topDiscrete,
+        bottomDiscrete,
+        rightDiscrete
     } = portionAnimationState;
 
     const [animateRightSize,rightSizeValue,rightSizeTarg] = rightTrackedAnimation as any
@@ -398,6 +401,8 @@ const Dashboard = (props)=>{
             // console.log("Top Category:",mealState.dishA)
             const fillFraction = mealState?.dishA?.portion?.fillFraction?? BASE_FILL_FRACTION
             animateTopLeftSize(fillFraction,{duration:400})
+
+            topDiscrete.current = mealState.dishA.portionAmount.discrete
         }else{
             animateTopLeftSize(0,{duration:100})
         }
@@ -406,6 +411,8 @@ const Dashboard = (props)=>{
             setBottomCategory(mealState.dishB.category)
             const fillFraction = mealState?.dishB?.portion?.fillFraction?? BASE_FILL_FRACTION
             animateBottomLeftSize(fillFraction,{duration:400})
+
+            bottomDiscrete.current = mealState.dishB.portionAmount.discrete
         }else{
             animateBottomLeftSize(0,{duration: 100})
         }
@@ -414,6 +421,7 @@ const Dashboard = (props)=>{
             setRightCategory(mealState.dishC.category)
             const fillFraction = mealState?.dishC?.portion?.fillFraction?? BASE_FILL_FRACTION
             animateRightSize(fillFraction,{duration:400})
+            rightDiscrete.current = mealState.dishC.portionAmount.discrete
         }else{
             animateRightSize(0,{duration:100})
         }
@@ -501,6 +509,13 @@ const Dashboard = (props)=>{
         }
               
         content = <> 
+            { isPast && <Text style = {{
+                position: "absolute",
+                top:3,
+                color: ds.colors.grayscale3_4
+            }}>
+                You are viewing a past meal
+            </Text>}
             <View style = {{height: 20}}/>
             <View style = {{
                 flex: 1,
@@ -605,6 +620,7 @@ const Dashboard = (props)=>{
             </TouchableOpacity>
             <ChangeMenuItem modalOpen = {modalOpen} setModalOpen = {setModalOpen} mealState = {mealState} setMealDishes = {setMealDishes}/>
         </Modal> 
+      
         {content}
         <PortionView style = {{ marginTop:10}} animationState = {portionAnimationState}/>
         <CopilotStep text = {"After you are satisfied with your food selections, you can view the nutritional information of your meal based on its optimal combination!"} 

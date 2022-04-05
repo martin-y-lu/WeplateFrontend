@@ -37,7 +37,8 @@ const TrayItem = ( props : {isTop ?: boolean, number: number,portion: Portion, d
         const station = dish.station
         const stationName = getNameOfStation(station)
         const fillFraction = dish?.portion?.fillFraction ?? BASE_PORTION_FILL_FRACTION 
-        const calories = dish.nutritionSummary.calories *( dish?.portion?.nutrientFraction ?? BASE_PORTION_FILL_FRACTION)
+        const nutrientFraction = ( dish?.portion?.nutrientFraction ?? BASE_PORTION_FILL_FRACTION)
+        const calories = dish.nutritionSummary.calories * nutrientFraction
         const color = colorOfCategory(dish.category)
         const graphic = dish?.graphic
         const type = dish.category
@@ -149,9 +150,25 @@ const TrayItem = ( props : {isTop ?: boolean, number: number,portion: Portion, d
                     <Text style = {{
                         color : "#A4A4A4",
                         marginLeft: 5, 
+                        marginRight: 5, 
                     }}>
                         {Math.ceil(calories)} calories
                     </Text>
+                    {
+                        dish.portionAmount.discrete && 
+                        <View style = {{
+                            borderLeftWidth: 2,
+                            borderColor: "#A4A4A4", 
+                        }}>
+                            <Text style = {{
+                                color : ds.colors.grayscale1,
+                                marginLeft: 5,
+                                
+                            }}>
+                                {dish.portionAmount.count} { dish.portionAmount.count > 1 ? "pieces" : "piece"}
+                            </Text> 
+                        </View>
+                    }
                     {/* <Text style = {{
                         color : "#A4A4A4",
                         marginLeft: 5, 

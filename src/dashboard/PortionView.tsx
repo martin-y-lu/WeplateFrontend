@@ -1,5 +1,5 @@
 import React, {useRef, useState,useEffect} from 'react'
-import {Animated, View,Dimensions, Button} from 'react-native'
+import { Animated, View, Dimensions, Button, TouchableOpacity } from 'react-native';
 import Expo from 'expo'
 import * as FileSystem from 'expo-file-system';
 import {
@@ -37,7 +37,7 @@ import proteinIconImage from './assets/icons_text/protein_icon_with_text_centere
 
 import {OBJLoader} from 'three/examples/jsm/loaders/OBJLoader'
 import { degToRad, interp, lerp } from '../utils/math';
-import { FOOD_CATEGORY, MEAL } from './typeUtil';
+import { FOOD_CATEGORY, MEAL, PlateType } from './typeUtil';
 import { colorOfCategory } from './NutritionFacts';
 
 if (!global.btoa) {
@@ -48,7 +48,7 @@ if (!global.atob) {
   global.atob = decode;
 }
 
-export function useTrackedAnimation(init_value,valueListener = (val)=>{}){
+export function useTrackedAnimation(init_value: number,valueListener = (val:number)=>{}){
   const anim = useRef(new Animated.Value(init_value))
   const value = useRef(init_value)
   const targ = useRef(init_value)
@@ -57,12 +57,12 @@ export function useTrackedAnimation(init_value,valueListener = (val)=>{}){
       value.current = _value.value
       valueListener(_value.value)
     }
-    anim.current.addListener(listener)
+    const id = anim.current.addListener(listener)
     return () => {
-      anim.current.removeListener(listener)  
+      anim.current.removeListener(id)  
     };
   },[])
-  function animate(target,props){
+  function animate(target: number,props: Omit<Omit<Animated.TimingAnimationConfig,"useNativeDriver">,"toValue">, finished?:Animated.EndCallback ){
     if(targ.current != target){
       targ.current = target
       Animated.timing(anim.current,{
@@ -71,12 +71,12 @@ export function useTrackedAnimation(init_value,valueListener = (val)=>{}){
         duration: 1000,
         ...props
         
-      }).start()
+      }).start(finished)
     }
   }
-  return [animate,value,targ]
+  return [animate,value,targ] as [typeof animate, typeof value, typeof targ]
 }
-export function useTrackedStateAnimation(init_value,valueListener = (val)=>{}){
+export function useTrackedStateAnimation(init_value:number,valueListener = (val:number)=>{}){
   const anim = useRef(new Animated.Value(init_value))
   const [value,setValue]= useState(init_value)
   const [targ,setTarg] = useState(init_value)
@@ -85,12 +85,12 @@ export function useTrackedStateAnimation(init_value,valueListener = (val)=>{}){
       setValue(_value.value)
       valueListener(_value.value)
     }
-    anim.current.addListener(listener)
+    const id = anim.current.addListener(listener)
     return () => {
-      anim.current.removeListener(listener)  
+      anim.current.removeListener(id)  
     };
   },[])
-  function animate(target,props){
+  function animate(target:number,props: Omit<Omit<Animated.TimingAnimationConfig,"useNativeDriver">,"toValue">){
     if(targ != target){
       setTarg(target)
       Animated.timing(anim.current,{
@@ -109,6 +109,8 @@ export function usePortionViewAnimationState(){
   //default resting transformation of displayGroup, when centralized
   const DEFAULT_TRANSFORM = new Quaternion().setFromAxisAngle(new Vector3(1,0,0),Math.PI*0.3);
   // quaternions to keep track of orbit view
+  const cameraAngleAnimation = useTrackedAnimation(0);
+
   const initialRotation = useRef(DEFAULT_TRANSFORM.clone())
   const rotation = useRef(DEFAULT_TRANSFORM.clone())
   
@@ -139,8 +141,15 @@ export function usePortionViewAnimationState(){
   const doesInactivityTimer = useRef(true);
   const [loaded,setLoaded] = useState(false)
 
+  const topDiscrete = useRef(false)
+  const bottomDiscrete = useRef(false)
+  const rightDiscrete = useRef(false)
+
+  const [plateType,setPlateType] = useState(PlateType.Weplate)
+
   return {
     DEFAULT_TRANSFORM,
+    cameraAngleAnimation,
     initialRotation,
     rotation,
     rightTrackedAnimation,
@@ -155,12 +164,17 @@ export function usePortionViewAnimationState(){
     bottomCategory,setBottomCategory,
     rightCategory,setRightCategory,
     loaded,setLoaded,
+    topDiscrete,
+    bottomDiscrete,
+    rightDiscrete,
+    plateType, setPlateType,
   }
 
 }
+type PortionViewAnimationState = ReturnType<typeof usePortionViewAnimationState>
 
 
-const PortionView = (props)=>{
+const PortionView = (props : {style, animationState?: PortionViewAnimationState})=>{
   const {style} = props
   //size of graphics window (square)
   const size = Dimensions.get('window').width
@@ -181,6 +195,7 @@ const PortionView = (props)=>{
   
   const {
     DEFAULT_TRANSFORM,
+    cameraAngleAnimation,
     initialRotation,
     rotation,
     rightTrackedAnimation,
@@ -194,7 +209,12 @@ const PortionView = (props)=>{
     rightCategory,
     loaded,
     setLoaded,
+    topDiscrete,
+    bottomDiscrete,
+    rightDiscrete,
+    plateType,setPlateType,
   } = props?.animationState ?? usePortionViewAnimationState()
+  const [animateCameraAngle,cameraAngleValue, cameraAngleTarg] = cameraAngleAnimation
   const [animateRightSize,rightSizeValue,rightSizeTarg] = rightTrackedAnimation
   const [animateTopLeftSize,topLeftSizeValue,topLeftSizeTarg] = topTrackedAnimation
   const [animateBottomLeftSize,bottomLeftSizeValue,bottomLeftSizeTarg] = bottomTrackedAnimation
@@ -228,6 +248,7 @@ const PortionView = (props)=>{
     if(components.current){
       const color = colorOfCategory(topCategory)
       components.current["TopLeft"].material.color.setStyle(color)
+      components.current["TopLeftDisc"].material.color.setStyle(color)
     }
   },[topCategory,components,loaded])
   useEffect(()=>{
@@ -237,6 +258,7 @@ const PortionView = (props)=>{
     if(components.current){
       const color = colorOfCategory(bottomCategory)
       components.current["BottomLeft"].material.color.setStyle(color)
+      components.current["BottomLeftDisc"].material.color.setStyle(color)
     }
   },[bottomCategory,components,loaded])
   useEffect(()=>{
@@ -246,6 +268,7 @@ const PortionView = (props)=>{
     if(components.current){
       const color = colorOfCategory(rightCategory)
       components.current["Right"].material.color.setStyle(color)
+      components.current["RightDisc"].material.color.setStyle(color)
     }
   },[rightCategory,components,loaded])
 
@@ -299,7 +322,7 @@ const PortionView = (props)=>{
 
     const loader = new OBJLoader()
     // const asset = Asset.fromModule(require(''))
-    const modelAsset = Asset.fromModule(require('./assets/weplate-v3.obj'))
+    const modelAsset = Asset.fromModule(require('./assets/weplate-v6.obj'))
     const model = await loader.loadAsync(modelAsset.uri)
     // console.log(model)
     const textureLoader = new TextureLoader();
@@ -322,7 +345,11 @@ const PortionView = (props)=>{
     _components["Right"].material = new MeshLambertMaterial({ color: colorOfCategory(rightCategory),transparent:true,}); //red
     _components["BottomLeft"].material = new MeshLambertMaterial({color: colorOfCategory(bottomCategory),transparent:true,}) //yellow
     _components["TopLeft"].material = new MeshLambertMaterial({color: colorOfCategory(topCategory),transparent:true,}) //orange 
-    _components["PlateBody"].material = new MeshLambertMaterial({color: 'silver',opacity:0.8, transparent: true,}) 
+    _components["RightDisc"].material = new MeshLambertMaterial({ color: colorOfCategory(rightCategory),transparent:true,opacity:0}); //red
+    _components["BottomLeftDisc"].material = new MeshLambertMaterial({color: colorOfCategory(bottomCategory),transparent:true,opacity:0}) //yellow
+    _components["TopLeftDisc"].material = new MeshLambertMaterial({color: colorOfCategory(topCategory),transparent:true,opacity:0}) //orange 
+    _components["PlateBody"].material = new MeshLambertMaterial({color: 'silver',opacity:0.8, transparent: true,})
+    _components["PlateBody"].renderOrder = 100 
     // _components["Right"].scale.set(1,0.5,1);
     components.current = _components
 
@@ -353,6 +380,8 @@ const PortionView = (props)=>{
 
     const _bottomSquare = new Mesh(squareGeometry,materialOfCategory(bottomCategory))
     _bottomSquare.rotateX(-Math.PI/2)
+    const bottomSquareScale = bottomDiscrete.current ? 0.5 :1
+    _bottomSquare.scale.set(bottomSquareScale,bottomSquareScale,bottomSquareScale)
     _bottomSquare.position.set(-0.6,0.21,0.4)
     _bottomSquare.renderOrder = 10
     bottomSquare.current = _bottomSquare
@@ -437,43 +466,65 @@ const PortionView = (props)=>{
       //lerp opacity of box
       components.current["PlateBody"].material.opacity = 0.3
       // components.current["PlateBody"].material.opacity = lerp(0.3,0,centralizeValue.current)
+      if(rightDiscrete?.current){
+        components.current["Right"].visible = false
+        components.current["RightDisc"].visible = true
+      }else{
+        components.current["Right"].visible = true
+        components.current["RightDisc"].visible = false
+      }
 
       components.current["Right"].material.opacity= rightSizeTarg.current == 0 ? 0 : lerp(0.93,1,centralizeValue.current)
+      components.current["RightDisc"].material.opacity= rightSizeTarg.current == 0 ? 0 : lerp(0.93,1,centralizeValue.current)
+
+      if(topDiscrete?.current){
+        components.current["TopLeft"].visible = false
+        components.current["TopLeftDisc"].visible = true
+      }else{
+        components.current["TopLeft"].visible = true
+        components.current["TopLeftDisc"].visible = false
+      }
+
       components.current["TopLeft"].material.opacity = topLeftSizeTarg.current == 0 ? 0:  lerp(0.93,1,centralizeValue.current)
+      components.current["TopLeftDisc"].material.opacity = topLeftSizeTarg.current == 0 ? 0:  lerp(0.93,1,centralizeValue.current)
+
+      if(bottomDiscrete?.current){
+        components.current["BottomLeft"].visible = false
+        components.current["BottomLeftDisc"].visible = true
+      }else{
+        components.current["BottomLeft"].visible = true
+        components.current["BottomLeftDisc"].visible = false
+      }
+
       components.current["BottomLeft"].material.opacity = bottomLeftSizeTarg.current == 0 ? 0 : lerp(0.93,1,centralizeValue.current)
+      components.current["BottomLeftDisc"].material.opacity = bottomLeftSizeTarg.current == 0 ? 0 : lerp(0.93,1,centralizeValue.current)
 
       const WALL_HEIGHT = 1.2
       //set sizes of components
-      // let rightScale = lerp(rightSizeValue.current,1,centralizeValue.current)
-      // if(rightScale == 0) rightScale = 0.01 // prevent z fight
-      // components.current["Right"].scale.set(1,rightScale,1)
-      // _rightSquare.position.set(0.6,WALL_HEIGHT/2*rightScale - 0.2 +0.01,0)
-
-      // let topScale = lerp(topLeftSizeValue.current,1,centralizeValue.current)
-      // if(topScale == 0) topScale = 0.01
-      // components.current["TopLeft"].scale.set(1,topScale,1)
-      // _topSquare.position.set(-0.6,WALL_HEIGHT/2*topScale - 0.2 +0.01,-0.4)
-
-      // let bottomScale = lerp(bottomLeftSizeValue.current,1,centralizeValue.current);
-      // if(bottomScale == 0 ) bottomScale = 0.01
-      // components.current["BottomLeft"].scale.set(1,bottomScale,1)
-      // _bottomSquare.position.set(-0.6,WALL_HEIGHT/2*bottomScale - 0.2 +0.01,0.4)
       let rightScale = rightSizeValue.current
       if(rightScale == 0) rightScale = 0.01 // prevent z fight
       components.current["Right"].scale.set(1,rightScale,1)
+      components.current["RightDisc"].scale.set(1,rightScale,1)
       _rightSquare.position.set(0.6,WALL_HEIGHT/2*rightScale - 0.2 +0.01,0)
 
       let topScale = topLeftSizeValue.current
       if(topScale == 0) topScale = 0.01
       components.current["TopLeft"].scale.set(1,topScale,1)
-      _topSquare.position.set(-0.6,WALL_HEIGHT/2*topScale - 0.2 +0.01,-0.4)
+      components.current["TopLeftDisc"].scale.set(1,topScale,1)
+      const topSquareScale = topDiscrete.current ? 0.8 : 1.0
+      _topSquare.scale.set(topSquareScale,topSquareScale,topSquareScale)
+      _topSquare.position.set(-0.6,WALL_HEIGHT/2*topScale - 0.2 +0.01,-0.42)
 
       let bottomScale = bottomLeftSizeValue.current
       if(bottomScale == 0 ) bottomScale = 0.01
       components.current["BottomLeft"].scale.set(1,bottomScale,1)
+      components.current["BottomLeftDisc"].scale.set(1,bottomScale,1)
+      const bottomSquareSize = bottomDiscrete.current ? 0.8 : 1
+      _bottomSquare.scale.set(bottomSquareSize,bottomSquareSize,bottomSquareSize)
       _bottomSquare.position.set(-0.6,WALL_HEIGHT/2*bottomScale - 0.2 +0.01,0.4)
 
       
+      _perspectiveCamera.setRotationFromAxisAngle( new Vector3(0,1,0),cameraAngleValue.current)
       renderer.render(scene,usePerspective? _perspectiveCamera : _orthographicCamera)
       // renderer.render(scene,_orthographicCamera)
       gl.endFrameEXP( )
@@ -536,14 +587,57 @@ const PortionView = (props)=>{
       // }
     }
   }
+  const [rotating,setRotating] = useState(false);
+  const height = size*aspect
   const baseView = 
-  <PanGestureHandler minDist={25} onGestureEvent = {onGestureEvent} onFailed = {onPanFail} onEnded = {onPanEnded}>
-    <GLView
-      onContextCreate={onContextCreate}
-      // onTouchStart = {onTouchStart}
-      style = {{width:size,height:size*aspect,...style}}
-    />
-  </PanGestureHandler>
+  <View>
+    
+    <PanGestureHandler minDist={25} onGestureEvent = {onGestureEvent} onFailed = {onPanFail} onEnded = {onPanEnded}>
+      <GLView
+        onContextCreate={onContextCreate}
+        // onTouchStart = {onTouchStart}
+        style = {{width:size,height,...style}}
+        />
+    </PanGestureHandler>
+    <TouchableOpacity style = {{
+            position:"absolute",
+            width: 40,
+            marginTop: "10%",
+            height: "80%",
+            backgroundColor:"orange",
+          }} onPress= {()=>{
+            
+          }}>
+
+    </TouchableOpacity>
+    <TouchableOpacity style = {{
+            position:"absolute",
+            right: 0,
+            width: 40,
+            marginTop: "10%",
+            height: "80%",
+            backgroundColor:"orange",
+          }} onPress= {()=>{
+              if(!rotating){
+                setRotating(true)
+                animateCameraAngle(Math.PI/2,{duration:350}, (end1)=>{
+                  if(end1.finished){
+                    
+                    animateCameraAngle(Math.PI*(2-1/2),{duration:1},()=>{
+                      animateCameraAngle(2*Math.PI,{duration:350}, (end2)=>{
+                        animateCameraAngle(0,{duration:1},()=>{
+                          setRotating(false)
+                        })
+                      })
+                    }) 
+                  }
+                })
+
+              }
+          }}>
+
+    </TouchableOpacity>
+  </View>
   return baseView
 }
 export default PortionView

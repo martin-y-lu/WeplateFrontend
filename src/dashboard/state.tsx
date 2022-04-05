@@ -60,54 +60,54 @@ function randomNumber(max){
     return Math.floor(Math.random()*max/2)+max/2
 }
 
-function randomDish(){
-    const name_modifier = randomSelect("","","","","","","","Chopped","Stir fried","Spanish","Seared","Swedish","Japanese","French","Fried","Stewed","Braised","Sliced","Flambéed","Deviled","Baked","Fresh","Boiled","Million Dollar") 
-    let name_item = "Rice"
-    const category : FOOD_CATEGORY= randomSelect(FOOD_CATEGORY.Carbohydrates,FOOD_CATEGORY.Protein,FOOD_CATEGORY.Vegetable) 
-    if(category === FOOD_CATEGORY.Carbohydrates){
-        name_item = randomSelect("Curry","Rice","Ravioli","Pizza","Potatoes","Ramen","Spaghetti","Lasagna")
-    }if(category === FOOD_CATEGORY.Protein){
-        name_item = randomSelect( "Chicken","Tuna","Salmon","Eggs","Meatballs","Burger","Cheese")
-    }if(category === FOOD_CATEGORY.Vegetable){
-        name_item = randomSelect("Cauliflower","Spinach","Salad","Tomato","Broccoli","Brussels Sprouts")
-    }
-    const name = name_modifier.length > 0 ? name_modifier +" "+name_item : name_item
-    const station : STATION= randomSelect(STATION.A,STATION.B,STATION.C,STATION.D)
-    const nutrition:NutritionInfo = {
-        sugar: randomNumber(100),
-        cholesterol :randomNumber(50),
-        dietaryFiber :randomNumber(50),
-        sodium :randomNumber(50),
-        potassium :randomNumber(50),
-        calcium :randomNumber(50),
-        iron :randomNumber(50),
-        vitaminD :randomNumber(50),
-        vitaminC :randomNumber(50),
-        vitaminA :randomNumber(50),
-    }
-    const summary: NutritionSummaryInfo = {
-        calories :randomNumber(400),
-        protein : randomNumber(100),
-        carbohydrates : randomNumber(100),
-        totalFat : randomNumber(100),
-        saturatedFat : randomNumber(100),
-        transFat :randomNumber(100),
-    }
-    return {
-        id: 10,
-        name,
-        station,
-        category,
-        nutrition,
-        nutritionSummary: summary,
-        ingredients: [],
-        portion: {
-            fillFraction: Math.random(),
-            weight: lerp(100,200,Math.random()),
+// function randomDish(){
+//     const name_modifier = randomSelect("","","","","","","","Chopped","Stir fried","Spanish","Seared","Swedish","Japanese","French","Fried","Stewed","Braised","Sliced","Flambéed","Deviled","Baked","Fresh","Boiled","Million Dollar") 
+//     let name_item = "Rice"
+//     const category : FOOD_CATEGORY= randomSelect(FOOD_CATEGORY.Carbohydrates,FOOD_CATEGORY.Protein,FOOD_CATEGORY.Vegetable) 
+//     if(category === FOOD_CATEGORY.Carbohydrates){
+//         name_item = randomSelect("Curry","Rice","Ravioli","Pizza","Potatoes","Ramen","Spaghetti","Lasagna")
+//     }if(category === FOOD_CATEGORY.Protein){
+//         name_item = randomSelect( "Chicken","Tuna","Salmon","Eggs","Meatballs","Burger","Cheese")
+//     }if(category === FOOD_CATEGORY.Vegetable){
+//         name_item = randomSelect("Cauliflower","Spinach","Salad","Tomato","Broccoli","Brussels Sprouts")
+//     }
+//     const name = name_modifier.length > 0 ? name_modifier +" "+name_item : name_item
+//     const station : STATION= randomSelect(STATION.A,STATION.B,STATION.C,STATION.D)
+//     const nutrition:NutritionInfo = {
+//         sugar: randomNumber(100),
+//         cholesterol :randomNumber(50),
+//         dietaryFiber :randomNumber(50),
+//         sodium :randomNumber(50),
+//         potassium :randomNumber(50),
+//         calcium :randomNumber(50),
+//         iron :randomNumber(50),
+//         vitaminD :randomNumber(50),
+//         vitaminC :randomNumber(50),
+//         vitaminA :randomNumber(50),
+//     }
+//     const summary: NutritionSummaryInfo = {
+//         calories :randomNumber(400),
+//         protein : randomNumber(100),
+//         carbohydrates : randomNumber(100),
+//         totalFat : randomNumber(100),
+//         saturatedFat : randomNumber(100),
+//         transFat :randomNumber(100),
+//     }
+//     return {
+//         id: 10,
+//         name,
+//         station,
+//         category,
+//         nutrition,
+//         nutritionSummary: summary,
+//         ingredients: [],
+//         portion: {
+//             fillFraction: Math.random(),
+//             weight: lerp(100,200,Math.random()),
                
-        }
-    } as Dish
-}
+//         }
+//     } as Dish
+// }
 export const mealStatesAtom = atom({
     key: "mealStateKeys",
     default: {}
@@ -139,23 +139,23 @@ export const mealStateSelector = selectorFamily<MealState,{date:string,meal:stri
 export function useMealStateUtils(){
     
     const [mealStates,setMealStates] = useRecoilState(mealStatesAtom)
-    const getMealState = useCallback( (timeInfo:TimeInfo) => {
+    const getMealState =  (timeInfo:TimeInfo) => {
         const [mealState,setMealState] = useRecoilState(mealStateSelector(timeInfo))
        
         if(mealState != null) return [mealState,setMealState]  as [MealState,SetterOrUpdater<MealState>]
         const NUM_PER_REC = 5
-        function makeRecommendationList(){
-            let list = []
-            for(let i =0 ; i< NUM_PER_REC;i++){
-                list.push(randomDish() as Dish)
-            }
-            return list as Array<Dish>
-        }
-        //todo: fetch defaults and stuff
+        // function makeRecommendationList(){
+        //     let list = []
+        //     for(let i =0 ; i< NUM_PER_REC;i++){
+        //         list.push(randomDish() as Dish)
+        //     }
+        //     return list as Array<Dish>
+        // }
+        // //todo: fetch defaults and stuff
 
-        const recA = makeRecommendationList()
-        const recB = makeRecommendationList()
-        const recC = makeRecommendationList()
+        // const recA = makeRecommendationList()
+        // const recB = makeRecommendationList()
+        // const recC = makeRecommendationList()
         const state : MealState = {
             time: timeInfo,
             mealID: null,
@@ -163,18 +163,12 @@ export function useMealStateUtils(){
             dishA: null,
             recommendationB: null,
             dishB: null,
-            recommendationC: recC,
+            recommendationC: null,
             dishC: null,
-            // recommendationA: recA,
-            // dishA: randomSelect(...recA),
-            // recommendationB: recB,
-            // dishB: randomSelect(...recB),
-            // recommendationC: recC,
-            // dishC: randomSelect(...recC),
         }
         setMealState(state)
         return [state,setMealState] as [MealState,SetterOrUpdater<MealState>]
-    }, [mealStates])
+    }
     return {getMealState}
 
 }

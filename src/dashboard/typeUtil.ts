@@ -60,11 +60,12 @@ export interface PortionInfo{
     volume ?: number,
     fillFraction ?: number,
     nutrientFraction ?: number,
-    weight ?: number,
+    // weight ?: number,
 }
 
 export interface Dish{
     id: number,
+
     graphic?: string,
     name: string,
     station: STATION,
@@ -73,11 +74,10 @@ export interface Dish{
     nutritionSummary: NutritionSummaryInfo
     ingredients: Ingredients,
     portion_weight: number,
-    portion_volume: number,
+    portionAmount?: {volume: number, discrete: false} | {count: number, maxPieces: number, discrete: true},
     portion?: PortionInfo,
 }
-export interface NutritionalRequirements{
-
+interface NutritionalInfo{
     calories: number,
     carbohydrate: number,
     protein: number,
@@ -94,6 +94,10 @@ export interface NutritionalRequirements{
     vitamin_a: number,
     vitamin_c: number,
     vitamin_d: number,
+}
+export interface NutritionalRequirements{
+    hi: NutritionInfo,
+    lo:NutritionInfo,
 }
 export interface MealState {
     time: TimeInfo,
@@ -153,11 +157,12 @@ export function convertAPIStationToStation(stat:APIStation){
     }
 }
 
-export function convertAPIItemToDish(item:APIItem){
+export function convertAPIItemToDish(item:APIItem): Dish{
+    const discrete = item.portion_volume<0
+    const maxPieces = item?.max_pieces ?? 15
     return {
         id: item.id,
         name: item.name,
-        graphic : item.graphic,
         station: convertAPIStationToStation(item.station),
         category: getCategoryOfAPIItem(item),
         nutrition: {
@@ -181,12 +186,12 @@ export function convertAPIItemToDish(item:APIItem){
             transFat: item.trans_fat,
         },
         ingredients: item.ingredients,
-        portion_volume: item.portion_volume,
+        portionAmount: (discrete ? {count: Math.min(Math.abs( Math.round(item.portion_volume)), maxPieces), maxPieces, discrete:true }: {volume: item.portion_volume, discrete: false}),
         portion_weight: item.portion_weight,
         // portion:{
         //     fillFraction:0.6,
         // }
-    } as Dish
+    }
 }
 export function parseAPITimestamp(date:APITimestamp){
     return new Date()
@@ -201,6 +206,13 @@ export enum Portion{
     B = "B",
     C = "C"
 }
+
+export enum PlateType{
+    Weplate = "Weplate0",
+    Green = "Green0",
+    Normal = "Normal0",
+}
+export const plateTypes = [PlateType.Weplate,PlateType.Green,PlateType.Normal]
 
 export function getDishByPortion(mealState:MealState,portion:Portion){
     switch(portion){
@@ -261,13 +273,26 @@ export function fullVolumeByPortion(portion: Portion){
             return 610
     }
 }
+function pieceFillMapper(val:number):number{
+    return Math.pow(val,0.4) ;
+}
 
 export function getPortionInfoFromAPIPortionInfo(dish:Dish,info:APIPortionInfo,portion: Portion){
+    let nutrientFraction = 1;
+    let fillFraction = 1;
+    if(dish.portionAmount.discrete){
+        const numPieces =  Math.min( Math.abs(Math.round(info.volume)), dish.portionAmount.maxPieces)
+        nutrientFraction = numPieces/dish.portionAmount.maxPieces
+        fillFraction = pieceFillMapper(dish.portionAmount.count/dish.portionAmount.maxPieces)
+    }else if(dish.portionAmount.discrete === false){
+        nutrientFraction = info.volume/ dish.portionAmount.volume;
+        fillFraction = info.volume/fullVolumeByPortion(portion);
+    }
     return {
-        fillFraction: info.volume/fullVolumeByPortion(portion),
-        nutrientFraction: info.volume/dish.portion_volume,
+        fillFraction,
+        nutrientFraction,
         volume: info.volume,
-        weight: info.weight,
+        // weight: info.weight,
     } as PortionInfo
 }
 

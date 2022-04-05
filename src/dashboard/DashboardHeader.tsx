@@ -204,7 +204,7 @@ const DashboardHeader = (props) =>{
                 }}>
                     {   
                         [...Array(7).keys()].map((ind)=>{
-                            return <View style = {{
+                            return <View key = {ind} style = {{
                                 width: 32,
                                 height: 25,
                                 // margin: 3,
@@ -227,12 +227,14 @@ const DashboardHeader = (props) =>{
                 </View>
                 {
                     [...Array(6).keys()].map((i)=>{    
-                        return <View style = {{
-                            flexDirection: "row",
-                            width: '100%',
-                            alignItems: "center",
-                            justifyContent: "center"
-                        }}>
+                        return <View 
+                            key = {i}
+                            style = {{
+                                flexDirection: "row",
+                                width: '100%',
+                                alignItems: "center",
+                                justifyContent: "center"
+                            }}>
                             {   
                                 [...Array(7).keys()].map((j)=>{
                                     const calStartDay = calendarInfo.firstDayOfMonth.getDay()
@@ -250,28 +252,30 @@ const DashboardHeader = (props) =>{
                                     }
                                     const bubbleRad = 16
 
-                                    return <TouchableOpacity style = {{
-                                        width: 32,
-                                        height:25,
-                                        // margin: 3,
-                                        // backgroundColor: "orange",
-                                        // borderWidth: 1,
-                                        // borderColor: "black",
-                                        justifyContent: "center",
-                                        alignItems: "center",
-                                    }} onPress = {()=>{
-                                        if(dateIsInRange){
-                                            setShowingDatePick(false)
-                                            if(!dateMatches){
-                                                const newDate = new Date(date?.getFullYear(),monthSelect,dateInMonth+1)
-                                                console.log("NEWDATE:",dateToString(newDate))
-                                                setDashboardState({
-                                                    ...state,
-                                                    viewingDate: newDate
-                                                })
+                                    return <TouchableOpacity 
+                                        key = {j}
+                                        style = {{
+                                            width: 32,
+                                            height:25,
+                                            // margin: 3,
+                                            // backgroundColor: "orange",
+                                            // borderWidth: 1,
+                                            // borderColor: "black",
+                                            justifyContent: "center",
+                                            alignItems: "center",
+                                        }} onPress = {()=>{
+                                            if(dateIsInRange){
+                                                setShowingDatePick(false)
+                                                if(!dateMatches){
+                                                    const newDate = new Date(date?.getFullYear(),monthSelect,dateInMonth+1)
+                                                    console.log("NEWDATE:",dateToString(newDate))
+                                                    setDashboardState({
+                                                        ...state,
+                                                        viewingDate: newDate
+                                                    })
+                                                }
                                             }
-                                        }
-                                    }}>
+                                        }}>
                                         {dateIsInRange && 
                                             <View style = {{
                                                 width: bubbleRad*2,

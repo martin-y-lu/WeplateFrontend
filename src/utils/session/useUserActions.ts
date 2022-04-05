@@ -1,8 +1,8 @@
-import { NutritionalRequirements } from './../../dashboard/typeUtil';
+import { NutritionalRequirements, Portion } from './../../dashboard/typeUtil';
 
 import { atom, useSetRecoilState, useRecoilState } from 'recoil';
 import { TimeInfo } from '../../dashboard/state';
-import { mealToAPIForm, MealState } from '../../dashboard/typeUtil';
+import { mealToAPIForm, MealState, fullVolumeByPortion } from '../../dashboard/typeUtil';
 import { authAtom, useFetchWrapper } from './useFetchWrapper';
 import { APIMealSuggest, APIPortionInfo, APIPortionSuggest, APIMealEvent, APIMealByTimePayload, APIAnalyticsMealChoiceEntry, APIUserSettings, APIKey, APIRegisterSettings, APIVersionResponse } from './apiTypes';
 import { usePersistentAtom } from '../state/userState';
@@ -148,14 +148,20 @@ function useUserActions () {
         const resp = await fetchWrapper.get(endpoint)
         return resp as APIMealEvent
     }
-    async function suggestionByMealId(id:number){
-        const endpoint =  `${baseUrl}/api/suggest/${encodeURIComponent(id)}/items/`
+    async function suggestionByMealId(id:number,volumes: {large: number, small : number}){
+        let {large,small} = volumes ?? {large: 610, small: 270}
+        large = large ?? 610;
+        small = small ?? 270;
+        const endpoint =  `${baseUrl}/api/suggest/${encodeURIComponent(id)}/items/?large_max_volume=${encodeURIComponent(large)}&small_max_volume=${encodeURIComponent(small)}`
         console.log(endpoint)
         const resp = await fetchWrapper.get(endpoint)
         return resp as APIMealSuggest;
     }
-    async function portionSuggestionByItemID(small1: number, small2: number, large: number){
-        const endpoint = `${baseUrl}/api/suggest/portions/?small1=${encodeURIComponent(small1)}&small2=${encodeURIComponent(small2)}&large=${large}`
+    async function portionSuggestionByItemID(small1: number, small2: number, large: number,volumes: {large: number, small : number}){
+        let {large:largeVol,small:smallVol} = volumes ?? {large: 610, small: 270}
+        largeVol = largeVol ?? 610;
+        smallVol = smallVol ?? 270;
+        const endpoint = `${baseUrl}/api/suggest/portions/?small1=${encodeURIComponent(small1)}&small2=${encodeURIComponent(small2)}&large=${large}&large_max_volume=${encodeURIComponent(largeVol)}&small_max_volume=${encodeURIComponent(smallVol)}`
         console.log(endpoint)
         const resp = await fetchWrapper.get(endpoint)
         return resp as APIPortionSuggest;

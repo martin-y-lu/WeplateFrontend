@@ -32,7 +32,6 @@ export interface APIMealSuggest{
 
 export interface APIPortionInfo{
     volume: number,
-    weight: number,
 }
 export interface APIPortionSuggest{
     large: APIPortionInfo,
@@ -54,6 +53,7 @@ export enum APIMeals {"breakfast","lunch","dinner"}
 export enum APIStation {A = "HOMESTYLE", B = "ROOTED", C= "FYUL", D = "FLAME",E = "CARVED AND CRAFTED", F = "500 DEGREES"}
 export interface APIItem{
     graphic?: APILink
+
     ingredients: Array<APIKey>,
     name: string,
     // nutrition: APINutrition,
@@ -63,7 +63,8 @@ export interface APIItem{
     station : APIStation,
     portion_weight : number,
     portion_volume : number,
-    
+   
+    max_pieces ?: number,
     calcium?: number,
     calories ?: number,
     carbohydrate ?: number,
