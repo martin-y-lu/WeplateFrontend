@@ -209,10 +209,9 @@ export enum Portion{
 
 export enum PlateType{
     Weplate = "Weplate0",
-    Green = "Green0",
     Normal = "Normal0",
 }
-export const plateTypes = [PlateType.Weplate,PlateType.Green,PlateType.Normal]
+export const plateTypes = [PlateType.Weplate,PlateType.Normal]
 
 export function getDishByPortion(mealState:MealState,portion:Portion){
     switch(portion){

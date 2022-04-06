@@ -2,7 +2,7 @@ import * as React from "react"
 import {NavigationContainer} from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import {createDrawerNavigator, DrawerContent} from '@react-navigation/drawer'
-export const TEST = true;
+export const TEST = false;
 import {
     useQuery,
     useMutation,

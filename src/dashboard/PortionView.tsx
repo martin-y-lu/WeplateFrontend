@@ -37,7 +37,7 @@ import proteinIconImage from './assets/icons_text/protein_icon_with_text_centere
 
 import {OBJLoader} from 'three/examples/jsm/loaders/OBJLoader'
 import { degToRad, interp, lerp } from '../utils/math';
-import { FOOD_CATEGORY, MEAL, PlateType } from './typeUtil';
+import { FOOD_CATEGORY, MEAL, PlateType, plateTypes } from './typeUtil';
 import { colorOfCategory } from './NutritionFacts';
 
 if (!global.btoa) {
@@ -145,7 +145,7 @@ export function usePortionViewAnimationState(){
   const bottomDiscrete = useRef(false)
   const rightDiscrete = useRef(false)
 
-  const [plateType,setPlateType] = useState(PlateType.Weplate)
+  const plateType = useRef(PlateType.Normal)
 
   return {
     DEFAULT_TRANSFORM,
@@ -167,7 +167,7 @@ export function usePortionViewAnimationState(){
     topDiscrete,
     bottomDiscrete,
     rightDiscrete,
-    plateType, setPlateType,
+    plateType, 
   }
 
 }
@@ -186,6 +186,9 @@ const PortionView = (props : {style, animationState?: PortionViewAnimationState}
   
   // reference to three.js group containing all things to render in the orbit view
   const displayGroup = useRef(null)
+
+  const componentsWeplate = useRef(null);
+  const componentsNormal = useRef(null);
   const components = useRef(null)
   const [viewSize, setViewSize] = useState(null)
 
@@ -212,7 +215,7 @@ const PortionView = (props : {style, animationState?: PortionViewAnimationState}
     topDiscrete,
     bottomDiscrete,
     rightDiscrete,
-    plateType,setPlateType,
+    plateType,
   } = props?.animationState ?? usePortionViewAnimationState()
   const [animateCameraAngle,cameraAngleValue, cameraAngleTarg] = cameraAngleAnimation
   const [animateRightSize,rightSizeValue,rightSizeTarg] = rightTrackedAnimation
@@ -240,7 +243,7 @@ const PortionView = (props : {style, animationState?: PortionViewAnimationState}
     return emptyMaterial;
   }
   // // console.log({topCategory})
-  useEffect(()=>{
+  const onTopCategoryChange = ()=>{
     console.log("Top category updated!",topCategory)
     if(topSquare.current){
       topSquare.current.material = materialOfCategory(topCategory)
@@ -250,8 +253,9 @@ const PortionView = (props : {style, animationState?: PortionViewAnimationState}
       components.current["TopLeft"].material.color.setStyle(color)
       components.current["TopLeftDisc"].material.color.setStyle(color)
     }
-  },[topCategory,components,loaded])
-  useEffect(()=>{
+  }
+  useEffect(onTopCategoryChange,[topCategory,components.current,loaded])
+  const onBottomCategoryChange = ()=>{
     if(bottomSquare.current){
       bottomSquare.current.material = materialOfCategory(bottomCategory)
     }
@@ -260,8 +264,9 @@ const PortionView = (props : {style, animationState?: PortionViewAnimationState}
       components.current["BottomLeft"].material.color.setStyle(color)
       components.current["BottomLeftDisc"].material.color.setStyle(color)
     }
-  },[bottomCategory,components,loaded])
-  useEffect(()=>{
+  }
+  useEffect(onBottomCategoryChange,[bottomCategory,components.current,loaded])
+  const onRightCategoryChange = ()=>{
     if(rightSquare.current){
       rightSquare.current.material = materialOfCategory(rightCategory)
     }
@@ -270,8 +275,19 @@ const PortionView = (props : {style, animationState?: PortionViewAnimationState}
       components.current["Right"].material.color.setStyle(color)
       components.current["RightDisc"].material.color.setStyle(color)
     }
-  },[rightCategory,components,loaded])
-
+  }
+  useEffect(onRightCategoryChange,[rightCategory,components.current,loaded])
+  const onPlateTypeChange = ()=>{
+    const modelComponent = {
+      [PlateType.Normal] : componentsNormal,
+      [PlateType.Weplate]: componentsWeplate,
+    }
+    components.current = modelComponent[plateType.current].current
+    onTopCategoryChange()
+    onBottomCategoryChange()
+    onRightCategoryChange()
+  }
+  useEffect(onPlateTypeChange,[plateType.current])
 
   //Timer to re centralise after a certain period of no interaction
   const INACTIVITY_TIMER_LENGTH = 1400;
@@ -322,38 +338,79 @@ const PortionView = (props : {style, animationState?: PortionViewAnimationState}
 
     const loader = new OBJLoader()
     // const asset = Asset.fromModule(require(''))
-    const modelAsset = Asset.fromModule(require('./assets/weplate-v6.obj'))
-    const model = await loader.loadAsync(modelAsset.uri)
+    const modelNormalAsset = Asset.fromModule(require('./assets/normalplate-v1.obj'))
+    const modelWeplateAsset = Asset.fromModule(require('./assets/weplate-v6.obj'))
+    const modelNormal = await loader.loadAsync(modelNormalAsset.uri)
+    const modelWeplate = await loader.loadAsync(modelWeplateAsset.uri)
     // console.log(model)
     const textureLoader = new TextureLoader();
 
 
     const _displayGroup = new Group()
 
-    // _displayGroup.add(_cube1)
-    // _displayGroup.add(_cube2)
-    // _displayGroup.add(_cube3)
-    const model_scale = 0.5
-    model.scale.set(model_scale,model_scale,model_scale)
-    model.position.set(0,-0.2,0)
-    // console.log(model.children[0].name)
-    const _components = {}
-    model.children.forEach((object)=>{
-      _components[object.name] = object
-    })
-    // console.log(Object.keys(_components))
-    _components["Right"].material = new MeshLambertMaterial({ color: colorOfCategory(rightCategory),transparent:true,}); //red
-    _components["BottomLeft"].material = new MeshLambertMaterial({color: colorOfCategory(bottomCategory),transparent:true,}) //yellow
-    _components["TopLeft"].material = new MeshLambertMaterial({color: colorOfCategory(topCategory),transparent:true,}) //orange 
-    _components["RightDisc"].material = new MeshLambertMaterial({ color: colorOfCategory(rightCategory),transparent:true,opacity:0}); //red
-    _components["BottomLeftDisc"].material = new MeshLambertMaterial({color: colorOfCategory(bottomCategory),transparent:true,opacity:0}) //yellow
-    _components["TopLeftDisc"].material = new MeshLambertMaterial({color: colorOfCategory(topCategory),transparent:true,opacity:0}) //orange 
-    _components["PlateBody"].material = new MeshLambertMaterial({color: 'silver',opacity:0.8, transparent: true,})
-    _components["PlateBody"].renderOrder = 100 
-    // _components["Right"].scale.set(1,0.5,1);
-    components.current = _components
+    {
+      const modelWeplate_scale = 0.5
+      modelWeplate.scale.set(modelWeplate_scale,modelWeplate_scale,modelWeplate_scale)
+      modelWeplate.position.set(0,-0.2,0)
+      // console.log(model.children[0].name)
+      const _componentsWeplate = {}
+      modelWeplate.children.forEach((object)=>{
+        _componentsWeplate[object.name] = object
+      })
+      // console.log(Object.keys(_components))
+      _componentsWeplate["Right"].material = new MeshLambertMaterial({ color: colorOfCategory(rightCategory),transparent:true,}); //red
+      _componentsWeplate["BottomLeft"].material = new MeshLambertMaterial({color: colorOfCategory(bottomCategory),transparent:true,}) //yellow
+      _componentsWeplate["TopLeft"].material = new MeshLambertMaterial({color: colorOfCategory(topCategory),transparent:true,}) //orange 
+      _componentsWeplate["RightDisc"].material = new MeshLambertMaterial({ color: colorOfCategory(rightCategory),transparent:true,opacity:0}); //red
+      _componentsWeplate["BottomLeftDisc"].material = new MeshLambertMaterial({color: colorOfCategory(bottomCategory),transparent:true,opacity:0}) //yellow
+      _componentsWeplate["TopLeftDisc"].material = new MeshLambertMaterial({color: colorOfCategory(topCategory),transparent:true,opacity:0}) //orange 
+      _componentsWeplate["PlateBody"].material = new MeshLambertMaterial({color: 'silver',opacity:0.8, transparent: true,})
+      _componentsWeplate["PlateBody"].renderOrder = 100 
+      // _components["Right"].scale.set(1,0.5,1);
 
-    _displayGroup.add(model)
+      componentsWeplate.current = _componentsWeplate
+
+      _displayGroup.add(modelWeplate)
+    }
+    {
+      const modelNormal_scale = 0.5
+      modelNormal.scale.set(modelNormal_scale,modelNormal_scale,modelNormal_scale)
+      modelNormal.position.set(0,-0.2,0)
+      // console.log(model.children[0].name)
+      const _componentsNormal = {}
+      modelNormal.children.forEach((object)=>{
+        _componentsNormal[object.name] = object
+      })
+      // console.log(Object.keys(_components))
+      _componentsNormal["Right"].material = new MeshLambertMaterial({ color: colorOfCategory(rightCategory),transparent:true,}); //red
+      _componentsNormal["BottomLeft"].material = new MeshLambertMaterial({color: colorOfCategory(bottomCategory),transparent:true,}) //yellow
+      _componentsNormal["TopLeft"].material = new MeshLambertMaterial({color: colorOfCategory(topCategory),transparent:true,}) //orange 
+      _componentsNormal["RightDisc"].material = new MeshLambertMaterial({ color: colorOfCategory(rightCategory),transparent:true,opacity:0}); //red
+      _componentsNormal["BottomLeftDisc"].material = new MeshLambertMaterial({color: colorOfCategory(bottomCategory),transparent:true,opacity:0}) //yellow
+      _componentsNormal["TopLeftDisc"].material = new MeshLambertMaterial({color: colorOfCategory(topCategory),transparent:true,opacity:0}) //orange 
+      _componentsNormal["PlateBody"].material = new MeshLambertMaterial({color: 'silver',opacity:0.8, transparent: true,})
+      _componentsNormal["PlateBody"].renderOrder = 100 
+      // _components["Right"].scale.set(1,0.5,1);
+
+      componentsNormal.current = _componentsNormal
+
+      _displayGroup.add(modelNormal)
+    }
+
+    const models = {
+      [PlateType.Normal]: modelNormal,
+      [PlateType.Weplate]: modelWeplate,
+    } as {[key in PlateType]: Group}
+    const modelComponent = {
+      [PlateType.Normal] : componentsNormal,
+      [PlateType.Weplate]: componentsWeplate,
+    }
+
+    components.current = modelComponent[plateType.current].current
+    for(const model of Object.values(models)){
+      model.visible = false;
+    }
+    models[plateType.current].visible = true;
 
     const vegIconTexture = textureLoader.load(vegIconImage)
     const _vegIconMaterial = new MeshLambertMaterial({map: vegIconTexture,transparent:true,opacity:1})
@@ -463,6 +520,9 @@ const PortionView = (props : {style, animationState?: PortionViewAnimationState}
         _displayGroup.quaternion.slerp(target_transform,EASING)
       }
     
+      for(const _plateType in models){
+        models[_plateType].visible = _plateType === plateType.current;
+      }
       //lerp opacity of box
       components.current["PlateBody"].material.opacity = 0.3
       // components.current["PlateBody"].material.opacity = lerp(0.3,0,centralizeValue.current)
@@ -499,29 +559,33 @@ const PortionView = (props : {style, animationState?: PortionViewAnimationState}
       components.current["BottomLeft"].material.opacity = bottomLeftSizeTarg.current == 0 ? 0 : lerp(0.93,1,centralizeValue.current)
       components.current["BottomLeftDisc"].material.opacity = bottomLeftSizeTarg.current == 0 ? 0 : lerp(0.93,1,centralizeValue.current)
 
-      const WALL_HEIGHT = 1.2
+      const WALL_HEIGHT = {[PlateType.Weplate]: 1.2,[PlateType.Normal]: 0.8}[plateType.current]
+      // {[PlateType.Weplate]:,[PlateType.Normal]: }[plateType.current]
       //set sizes of components
       let rightScale = rightSizeValue.current
       if(rightScale == 0) rightScale = 0.01 // prevent z fight
       components.current["Right"].scale.set(1,rightScale,1)
       components.current["RightDisc"].scale.set(1,rightScale,1)
-      _rightSquare.position.set(0.6,WALL_HEIGHT/2*rightScale - 0.2 +0.01,0)
+      const rightSquareOffset = {[PlateType.Weplate]: {x: 0.6,y: -0.2, z: 0}, [PlateType.Normal]: {x: 0.37,y: -0.2, z: 0}} [plateType.current]
+      _rightSquare.position.set(rightSquareOffset.x,WALL_HEIGHT/2*rightScale + rightSquareOffset.y +0.01,rightSquareOffset.z)
 
       let topScale = topLeftSizeValue.current
       if(topScale == 0) topScale = 0.01
       components.current["TopLeft"].scale.set(1,topScale,1)
       components.current["TopLeftDisc"].scale.set(1,topScale,1)
-      const topSquareScale = topDiscrete.current ? 0.8 : 1.0
+      const topSquareScale = {[PlateType.Weplate]:topDiscrete.current ? 0.8 : 1.0,[PlateType.Normal]: topDiscrete.current ? 0.8 : 0.9}[plateType.current] 
       _topSquare.scale.set(topSquareScale,topSquareScale,topSquareScale)
-      _topSquare.position.set(-0.6,WALL_HEIGHT/2*topScale - 0.2 +0.01,-0.42)
+      const topSquareOffset = {[PlateType.Weplate]: {x: -0.6, y: -0.2, z: -0.42}, [PlateType.Normal]: {x: -0.35, y: -0.2, z: -0.40}} [plateType.current] 
+      _topSquare.position.set(topSquareOffset.x,WALL_HEIGHT/2*topScale +topSquareOffset.y +0.01,topSquareOffset.z)
 
       let bottomScale = bottomLeftSizeValue.current
       if(bottomScale == 0 ) bottomScale = 0.01
       components.current["BottomLeft"].scale.set(1,bottomScale,1)
       components.current["BottomLeftDisc"].scale.set(1,bottomScale,1)
-      const bottomSquareSize = bottomDiscrete.current ? 0.8 : 1
+      const bottomSquareSize =  {[PlateType.Weplate]:topDiscrete.current ? 0.8 : 1.0,[PlateType.Normal]: topDiscrete.current ? 0.8 : 0.9}[plateType.current] 
       _bottomSquare.scale.set(bottomSquareSize,bottomSquareSize,bottomSquareSize)
-      _bottomSquare.position.set(-0.6,WALL_HEIGHT/2*bottomScale - 0.2 +0.01,0.4)
+      const bottomSquareOffset = {[PlateType.Weplate]: {x:-0.6, y: -0.2, z: 0.4}, [PlateType.Normal]: {x:-0.35, y: -0.2, z: 0.4}} [plateType.current]  
+      _bottomSquare.position.set(bottomSquareOffset.x,WALL_HEIGHT/2*bottomScale +bottomSquareOffset.y +0.01,bottomSquareOffset.z)
 
       
       _perspectiveCamera.setRotationFromAxisAngle( new Vector3(0,1,0),cameraAngleValue.current)
@@ -623,6 +687,13 @@ const PortionView = (props : {style, animationState?: PortionViewAnimationState}
                 animateCameraAngle(Math.PI/2,{duration:350}, (end1)=>{
                   if(end1.finished){
                     
+                    const index = plateTypes.indexOf(plateType.current)
+                    const nextIndex = (index + 1)%plateTypes.length;
+                    const nextPlateType = plateTypes[nextIndex]
+                    console.log({nextPlateType})
+                    plateType.current = nextPlateType
+                    onPlateTypeChange()
+
                     animateCameraAngle(Math.PI*(2-1/2),{duration:1},()=>{
                       animateCameraAngle(2*Math.PI,{duration:350}, (end2)=>{
                         animateCameraAngle(0,{duration:1},()=>{
