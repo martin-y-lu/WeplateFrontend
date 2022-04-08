@@ -75,7 +75,7 @@ export interface Dish{
     ingredients: Ingredients,
     portion_weight: number,
     portionAmount?: {volume: number, discrete: false} | {count: number, maxPieces: number, discrete: true},
-    portion?: PortionInfo,
+    portion?: { [key in PlateType] ?: PortionInfo},
 }
 interface NutritionalInfo{
     calories: number,
@@ -262,21 +262,42 @@ export function getRecommendationsByPortion(mealState:MealState,portion:Portion)
             break;
     }
 }
-export function fullVolumeByPortion(portion: Portion){
+export function fullVolumeByPortion(portion: Portion, plateType: PlateType){
     switch(portion){
         case Portion.A:
-            return 270
+            switch(plateType){
+                case PlateType.Normal:
+                    return 400;
+                case PlateType.Weplate:
+                    return 270
+            }
         case Portion.B:
-            return 270
+            switch(plateType){
+                case PlateType.Normal:
+                    return 400;
+                case PlateType.Weplate:
+                    return 270
+            }
         case Portion.C:
-            return 610
+            switch(plateType){
+                case PlateType.Normal:
+                    return 800;
+                case PlateType.Weplate:
+                    return 610
+            }
+    }
+}
+export function volumesByPlateType(plateType: PlateType){
+    return {
+        small: (fullVolumeByPortion(Portion.A, plateType) + fullVolumeByPortion(Portion.B, plateType))/2, // weird 
+        large: fullVolumeByPortion(Portion.C, plateType),
     }
 }
 function pieceFillMapper(val:number):number{
     return Math.pow(val,0.4) ;
 }
 
-export function getPortionInfoFromAPIPortionInfo(dish:Dish,info:APIPortionInfo,portion: Portion){
+export function getPortionInfoFromAPIPortionInfo(dish:Dish,info:APIPortionInfo,portion: Portion,plateType: PlateType){
     let nutrientFraction = 1;
     let fillFraction = 1;
     if(dish.portionAmount.discrete){
@@ -285,7 +306,7 @@ export function getPortionInfoFromAPIPortionInfo(dish:Dish,info:APIPortionInfo,p
         fillFraction = pieceFillMapper(dish.portionAmount.count/dish.portionAmount.maxPieces)
     }else if(dish.portionAmount.discrete === false){
         nutrientFraction = info.volume/ dish.portionAmount.volume;
-        fillFraction = info.volume/fullVolumeByPortion(portion);
+        fillFraction = info.volume/fullVolumeByPortion(portion,plateType);
     }
     return {
         fillFraction,

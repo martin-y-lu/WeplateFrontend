@@ -2,7 +2,7 @@ import { memo, useCallback, useMemo } from 'react';
 import {atom, selector, selectorFamily, SetterOrUpdater, useRecoilState, } from 'recoil'
 import { lerp } from '../utils/math';
 import { useUserActions } from '../utils/session/useUserActions';
-import { FOOD_CATEGORY, MEAL, STATION, MealState, Dish, NutritionInfo, NutritionSummaryInfo, convertAPIItemToDish } from './typeUtil';
+import { FOOD_CATEGORY, MEAL, STATION, MealState, Dish, NutritionInfo, NutritionSummaryInfo, convertAPIItemToDish, PlateType } from './typeUtil';
 export function dateToString(date){
     if(date == null) return null
     try{

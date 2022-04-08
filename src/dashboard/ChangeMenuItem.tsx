@@ -27,7 +27,7 @@ import { useState } from "react";
 import {useEffect} from 'react';
 import { LoadingIcon } from "../utils/Loading";
 import { useDesignScheme } from '../design/designScheme';
-import { getFoodCategoryDescription } from './typeUtil';
+import { getFoodCategoryDescription, PlateType } from './typeUtil';
 import { NutritionInfoEntry } from "../individual-item/IndividualItem";
 
 const downArrowSvg = `
@@ -41,8 +41,8 @@ const upArrowSvg = `
 </svg>
 `
 
-const ChangeMenuItem = (props : {modalOpen: Portion,setModalOpen?: (Portion) => void, mealState: MealState,setMealDishes : (newDishA: Dish, newDishB: Dish, newDishC: Dish) => Promise<void>}) =>{
-    const {modalOpen, setModalOpen, mealState,setMealDishes} = props
+const ChangeMenuItem = (props : { plateType: PlateType, modalOpen: Portion,setModalOpen?: (Portion) => void, mealState: MealState,setMealDishes : (newDishA: Dish, newDishB: Dish, newDishC: Dish, plateType: PlateType) => Promise<void>}) =>{
+    const {plateType,modalOpen, setModalOpen, mealState,setMealDishes} = props
     const [selectedDish,setSelectedDish] = useState(null);
     const portion = modalOpen
     const dishes = getRecommendationsByPortion(mealState,portion)
@@ -59,13 +59,13 @@ const ChangeMenuItem = (props : {modalOpen: Portion,setModalOpen?: (Portion) => 
         const dishName = dish.name
         const station = dish.station
         const stationName = getNameOfStation(station)
-        const scaleFraction = ( dish?.portion?.nutrientFraction ?? BASE_PORTION_FILL_FRACTION)
+        const scaleFraction = ( dish?.portion?.[plateType]?.nutrientFraction ?? BASE_PORTION_FILL_FRACTION)
         const calories = dish.nutritionSummary.calories *scaleFraction
         const color = colorOfCategory(dish.category)
         const graphic = dish?.graphic
         const type = dish.category
         const icon = iconOfCategory(item.category)
-        const cals = item.nutritionSummary.calories *BASE_PORTION_FILL_FRACTION * fullVolumeByPortion(portion)/item.portion_volume
+        const cals = item.nutritionSummary.calories *BASE_PORTION_FILL_FRACTION * fullVolumeByPortion(portion,plateType)/item.portion[plateType].volume
         
         const open = openDishes?.[dish.id]
         function setOpen(_open){
@@ -102,7 +102,7 @@ const ChangeMenuItem = (props : {modalOpen: Portion,setModalOpen?: (Portion) => 
                     setSelectedDish(item.id)
                     const tempMealState = setDishByPortion(mealState,modalOpen,item);
                     // setMealState()
-                    await setMealDishes(tempMealState.dishA,tempMealState.dishB,tempMealState.dishC)
+                    await setMealDishes(tempMealState.dishA,tempMealState.dishB,tempMealState.dishC, plateType)
                     
                     setModalOpen(null)// close modal
                 }

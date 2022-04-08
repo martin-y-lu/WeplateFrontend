@@ -39,6 +39,18 @@ import {OBJLoader} from 'three/examples/jsm/loaders/OBJLoader'
 import { degToRad, interp, lerp } from '../utils/math';
 import { FOOD_CATEGORY, MEAL, PlateType, plateTypes } from './typeUtil';
 import { colorOfCategory } from './NutritionFacts';
+import { useDesignScheme } from '../design/designScheme';
+import { SvgXml } from 'react-native-svg';
+
+const weplate_icon_svg = `<svg width="52" height="38" viewBox="0 0 52 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M25.8995 3.5H49.046V34.4859H25.8995M25.8995 3.5H2.75293V18.9929M25.8995 3.5V18.9929M25.8995 34.4859H2.75293V18.9929M25.8995 34.4859V18.9929M25.8995 18.9929H2.75293" stroke="white" stroke-width="5.45448" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+`
+const normalplate_icon_svg = `<svg width="53" height="52" viewBox="0 0 53 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M26.5001 3.5V25.9929M26.5001 47.5V25.9929M26.5001 25.9929H3.35352" stroke="white" stroke-width="5.45448" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="26.5" cy="25.9929" r="22.9732" stroke="white" stroke-width="5.45"/>
+</svg>
+`
 
 if (!global.btoa) {
   global.btoa = encode;
@@ -105,7 +117,7 @@ export function useTrackedStateAnimation(init_value:number,valueListener = (val:
   return [animate,value,targ,anim]
 }
 
-export function usePortionViewAnimationState(){
+export function usePortionViewAnimationState(init: {plateType?: PlateType,onPlateTypeChange ?: (newPlateType: PlateType)=> void}){
   //default resting transformation of displayGroup, when centralized
   const DEFAULT_TRANSFORM = new Quaternion().setFromAxisAngle(new Vector3(1,0,0),Math.PI*0.3);
   // quaternions to keep track of orbit view
@@ -145,7 +157,13 @@ export function usePortionViewAnimationState(){
   const bottomDiscrete = useRef(false)
   const rightDiscrete = useRef(false)
 
-  const plateType = useRef(PlateType.Normal)
+  const plateType = useRef( init?.plateType ?? PlateType.Normal)
+  const setPlateType= (newType:PlateType) =>{
+    if(init?.onPlateTypeChange){
+      init.onPlateTypeChange(newType)
+    }
+    plateType.current = newType
+  }
 
   return {
     DEFAULT_TRANSFORM,
@@ -167,7 +185,7 @@ export function usePortionViewAnimationState(){
     topDiscrete,
     bottomDiscrete,
     rightDiscrete,
-    plateType, 
+    plateType, setPlateType
   }
 
 }
@@ -215,8 +233,8 @@ const PortionView = (props : {style, animationState?: PortionViewAnimationState}
     topDiscrete,
     bottomDiscrete,
     rightDiscrete,
-    plateType,
-  } = props?.animationState ?? usePortionViewAnimationState()
+    plateType, setPlateType,
+  } = props?.animationState ?? usePortionViewAnimationState({})
   const [animateCameraAngle,cameraAngleValue, cameraAngleTarg] = cameraAngleAnimation
   const [animateRightSize,rightSizeValue,rightSizeTarg] = rightTrackedAnimation
   const [animateTopLeftSize,topLeftSizeValue,topLeftSizeTarg] = topTrackedAnimation
@@ -365,7 +383,7 @@ const PortionView = (props : {style, animationState?: PortionViewAnimationState}
       _componentsWeplate["BottomLeftDisc"].material = new MeshLambertMaterial({color: colorOfCategory(bottomCategory),transparent:true,opacity:0}) //yellow
       _componentsWeplate["TopLeftDisc"].material = new MeshLambertMaterial({color: colorOfCategory(topCategory),transparent:true,opacity:0}) //orange 
       _componentsWeplate["PlateBody"].material = new MeshLambertMaterial({color: 'silver',opacity:0.8, transparent: true,})
-      _componentsWeplate["PlateBody"].renderOrder = 100 
+      _componentsWeplate["PlateBody"].renderOrder = 9
       // _components["Right"].scale.set(1,0.5,1);
 
       componentsWeplate.current = _componentsWeplate
@@ -375,7 +393,7 @@ const PortionView = (props : {style, animationState?: PortionViewAnimationState}
     {
       const modelNormal_scale = 0.5
       modelNormal.scale.set(modelNormal_scale,modelNormal_scale,modelNormal_scale)
-      modelNormal.position.set(0,-0.2,0)
+      modelNormal.position.set(0,0,0)
       // console.log(model.children[0].name)
       const _componentsNormal = {}
       modelNormal.children.forEach((object)=>{
@@ -389,7 +407,7 @@ const PortionView = (props : {style, animationState?: PortionViewAnimationState}
       _componentsNormal["BottomLeftDisc"].material = new MeshLambertMaterial({color: colorOfCategory(bottomCategory),transparent:true,opacity:0}) //yellow
       _componentsNormal["TopLeftDisc"].material = new MeshLambertMaterial({color: colorOfCategory(topCategory),transparent:true,opacity:0}) //orange 
       _componentsNormal["PlateBody"].material = new MeshLambertMaterial({color: 'silver',opacity:0.8, transparent: true,})
-      _componentsNormal["PlateBody"].renderOrder = 100 
+      _componentsNormal["PlateBody"].renderOrder = 9
       // _components["Right"].scale.set(1,0.5,1);
 
       componentsNormal.current = _componentsNormal
@@ -566,7 +584,7 @@ const PortionView = (props : {style, animationState?: PortionViewAnimationState}
       if(rightScale == 0) rightScale = 0.01 // prevent z fight
       components.current["Right"].scale.set(1,rightScale,1)
       components.current["RightDisc"].scale.set(1,rightScale,1)
-      const rightSquareOffset = {[PlateType.Weplate]: {x: 0.6,y: -0.2, z: 0}, [PlateType.Normal]: {x: 0.37,y: -0.2, z: 0}} [plateType.current]
+      const rightSquareOffset = {[PlateType.Weplate]: {x: 0.6,y: -0.2, z: 0}, [PlateType.Normal]: {x: 0.37,y: -0.0, z: 0}} [plateType.current]
       _rightSquare.position.set(rightSquareOffset.x,WALL_HEIGHT/2*rightScale + rightSquareOffset.y +0.01,rightSquareOffset.z)
 
       let topScale = topLeftSizeValue.current
@@ -575,7 +593,7 @@ const PortionView = (props : {style, animationState?: PortionViewAnimationState}
       components.current["TopLeftDisc"].scale.set(1,topScale,1)
       const topSquareScale = {[PlateType.Weplate]:topDiscrete.current ? 0.8 : 1.0,[PlateType.Normal]: topDiscrete.current ? 0.8 : 0.9}[plateType.current] 
       _topSquare.scale.set(topSquareScale,topSquareScale,topSquareScale)
-      const topSquareOffset = {[PlateType.Weplate]: {x: -0.6, y: -0.2, z: -0.42}, [PlateType.Normal]: {x: -0.35, y: -0.2, z: -0.40}} [plateType.current] 
+      const topSquareOffset = {[PlateType.Weplate]: {x: -0.6, y: -0.2, z: -0.4}, [PlateType.Normal]: {x: -0.35, y: -0.0, z: -0.40}} [plateType.current] 
       _topSquare.position.set(topSquareOffset.x,WALL_HEIGHT/2*topScale +topSquareOffset.y +0.01,topSquareOffset.z)
 
       let bottomScale = bottomLeftSizeValue.current
@@ -584,7 +602,7 @@ const PortionView = (props : {style, animationState?: PortionViewAnimationState}
       components.current["BottomLeftDisc"].scale.set(1,bottomScale,1)
       const bottomSquareSize =  {[PlateType.Weplate]:topDiscrete.current ? 0.8 : 1.0,[PlateType.Normal]: topDiscrete.current ? 0.8 : 0.9}[plateType.current] 
       _bottomSquare.scale.set(bottomSquareSize,bottomSquareSize,bottomSquareSize)
-      const bottomSquareOffset = {[PlateType.Weplate]: {x:-0.6, y: -0.2, z: 0.4}, [PlateType.Normal]: {x:-0.35, y: -0.2, z: 0.4}} [plateType.current]  
+      const bottomSquareOffset = {[PlateType.Weplate]: {x:-0.6, y: -0.2, z: 0.4}, [PlateType.Normal]: {x:-0.35, y: -0.0, z: 0.4}} [plateType.current]  
       _bottomSquare.position.set(bottomSquareOffset.x,WALL_HEIGHT/2*bottomScale +bottomSquareOffset.y +0.01,bottomSquareOffset.z)
 
       
@@ -653,6 +671,7 @@ const PortionView = (props : {style, animationState?: PortionViewAnimationState}
   }
   const [rotating,setRotating] = useState(false);
   const height = size*aspect
+  const ds = useDesignScheme()
   const baseView = 
   <View>
     
@@ -663,7 +682,7 @@ const PortionView = (props : {style, animationState?: PortionViewAnimationState}
         style = {{width:size,height,...style}}
         />
     </PanGestureHandler>
-    <TouchableOpacity style = {{
+    {/* <TouchableOpacity style = {{
             position:"absolute",
             width: 40,
             marginTop: "10%",
@@ -673,14 +692,18 @@ const PortionView = (props : {style, animationState?: PortionViewAnimationState}
             
           }}>
 
-    </TouchableOpacity>
+    </TouchableOpacity> */}
     <TouchableOpacity style = {{
             position:"absolute",
             right: 0,
-            width: 40,
-            marginTop: "10%",
-            height: "80%",
-            backgroundColor:"orange",
+            width: 60,
+            height: 60,
+            backgroundColor: ds.colors.grayscale4,
+            borderRadius: 5,
+            opacity: 0.8,
+
+            justifyContent: 'center',
+            alignItems: "center",
           }} onPress= {()=>{
               if(!rotating){
                 setRotating(true)
@@ -691,7 +714,7 @@ const PortionView = (props : {style, animationState?: PortionViewAnimationState}
                     const nextIndex = (index + 1)%plateTypes.length;
                     const nextPlateType = plateTypes[nextIndex]
                     console.log({nextPlateType})
-                    plateType.current = nextPlateType
+                    setPlateType(nextPlateType)
                     onPlateTypeChange()
 
                     animateCameraAngle(Math.PI*(2-1/2),{duration:1},()=>{
@@ -706,7 +729,7 @@ const PortionView = (props : {style, animationState?: PortionViewAnimationState}
 
               }
           }}>
-
+            <SvgXml xml= { {[PlateType.Normal]:weplate_icon_svg, [PlateType.Weplate]:normalplate_icon_svg}[plateType.current]}/>
     </TouchableOpacity>
   </View>
   return baseView

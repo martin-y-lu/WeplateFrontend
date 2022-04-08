@@ -174,9 +174,9 @@ function useUserActions () {
             small1: mealState.dishA.id,
             small2: mealState.dishB.id,
             large: mealState.dishC.id,
-            small1_portion: mealState.dishA.portion.fillFraction,
-            small2_portion: mealState.dishB.portion.fillFraction,
-            large_portion: mealState.dishC.portion.fillFraction,
+            small1_portion: mealState.dishA.portion,
+            small2_portion: mealState.dishB.portion,
+            large_portion: mealState.dishC.portion,
         })
         return resp as {detail:string}
     }

@@ -1,6 +1,6 @@
 import { View,Text, StyleSheet,TouchableOpacity, Dimensions,Animated, Modal, FlatList, Image } from "react-native"
 import { colorOfCategory, iconOfCategory, NutritionFacts } from "./NutritionFacts"
-import { Dish, Portion, getNameOfStation, FOOD_CATEGORY } from './typeUtil';
+import { Dish, Portion, getNameOfStation, FOOD_CATEGORY, PlateType } from './typeUtil';
 import { Swipeable } from "react-native-gesture-handler"
 import { SvgXml } from "react-native-svg"
 import { useRef } from "react"
@@ -25,9 +25,10 @@ const kebab_xml = `<svg width="4" height="13" viewBox="0 0 4 13" fill="none" xml
 <circle r="1.61086" transform="matrix(0 -1 -1 0 1.83262 1.61082)" fill="#C4C4C4"/>
 </svg>
 `
-const TrayItem = ( props : {isTop ?: boolean, number: number,portion: Portion, dish: Dish, modalOpen, disabled:boolean, ref?}) => {
+const TrayItem = ( props : {plateType: PlateType, isTop ?: boolean, number: number,portion: Portion, dish: Dish, modalOpen, disabled:boolean, ref?}) => {
     const userActions = useUserActions()
-    const {isTop, number, dish, disabled} = props
+    const {isTop, number, dish, disabled: propDisabled, plateType} = props
+    
     let body = <></>
 
     const swipeableRef = useRef(null)
@@ -36,8 +37,12 @@ const TrayItem = ( props : {isTop ?: boolean, number: number,portion: Portion, d
         const dishName = dish.name
         const station = dish.station
         const stationName = getNameOfStation(station)
-        const fillFraction = dish?.portion?.fillFraction ?? BASE_PORTION_FILL_FRACTION 
-        const nutrientFraction = ( dish?.portion?.nutrientFraction ?? BASE_PORTION_FILL_FRACTION)
+        const portion = dish?.portion?.[plateType]
+
+        const disabled = propDisabled || portion == null
+
+        const fillFraction = portion?.fillFraction ?? BASE_PORTION_FILL_FRACTION 
+        const nutrientFraction = portion?.[plateType]?.nutrientFraction ?? BASE_PORTION_FILL_FRACTION
         const calories = dish.nutritionSummary.calories * nutrientFraction
         const color = colorOfCategory(dish.category)
         const graphic = dish?.graphic
@@ -131,6 +136,7 @@ const TrayItem = ( props : {isTop ?: boolean, number: number,portion: Portion, d
                 }}>
                     {dishName}
                 </Text>
+                
                 <View style = {{
                     flexDirection: 'row'
                 }}>
@@ -147,27 +153,39 @@ const TrayItem = ( props : {isTop ?: boolean, number: number,portion: Portion, d
                             </Text>
                         </View>
                     }
-                    <Text style = {{
-                        color : "#A4A4A4",
-                        marginLeft: 5, 
-                        marginRight: 5, 
-                    }}>
-                        {Math.ceil(calories)} calories
-                    </Text>
                     {
-                        dish.portionAmount.discrete && 
-                        <View style = {{
-                            borderLeftWidth: 2,
-                            borderColor: "#A4A4A4", 
-                        }}>
+                        portion ?
+                        <>
                             <Text style = {{
-                                color : ds.colors.grayscale1,
-                                marginLeft: 5,
-                                
+                                color : "#A4A4A4",
+                                marginLeft: 5, 
+                                marginRight: 5, 
                             }}>
-                                {dish.portionAmount.count} { dish.portionAmount.count > 1 ? "pieces" : "piece"}
-                            </Text> 
-                        </View>
+                                {Math.ceil(calories)} calories
+                            </Text>
+                            {
+                                dish.portionAmount.discrete && 
+                                <View style = {{
+                                    borderLeftWidth: 2,
+                                    borderColor: "#A4A4A4", 
+                                }}>
+                                    <Text style = {{
+                                        color : ds.colors.grayscale1,
+                                        marginLeft: 5,
+                                        
+                                    }}>
+                                        {dish.portionAmount.count} { dish.portionAmount.count > 1 ? "pieces" : "piece"}
+                                    </Text> 
+                                </View>
+                            }
+                        </> :
+                        <Text style = {{
+                            color : "#A4A4A4",
+                            marginLeft: 5, 
+                            marginRight: 5, 
+                        }}>
+                            ...
+                        </Text>
                     }
                     {/* <Text style = {{
                         color : "#A4A4A4",

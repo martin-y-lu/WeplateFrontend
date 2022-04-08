@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useEffect } from 'react'
 import {atom, SetterOrUpdater, useRecoilState, } from 'recoil'
+import { PlateType } from '../../dashboard/typeUtil';
 const defaultPersist = {
     loaded: false,
     doOnboarding: true,
@@ -8,6 +9,7 @@ const defaultPersist = {
     password: null as string,
     alternativePasswords: [] as string[],
     verified: false,
+    plateType: PlateType.Weplate,
 }
 type defaultPersistType = typeof defaultPersist
 const persistentAtom = atom({

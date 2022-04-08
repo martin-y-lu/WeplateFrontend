@@ -1,6 +1,6 @@
 import { Animated, ScrollView, Text, TouchableOpacity, View } from "react-native"
 import NutritionFactsContainer from "./NutritionFactsContainer"
-import { FOOD_CATEGORY, MEAL, STATION, MealState, Dish, NutritionInfo, NutritionSummaryInfo, foodCategories, getFoodCategoryDescription, getDishesFromMealState, getDishesFromMealStateByCategory, NutritionalRequirements } from './typeUtil';
+import { FOOD_CATEGORY, MEAL, STATION, MealState, Dish, NutritionInfo, NutritionSummaryInfo, foodCategories, getFoodCategoryDescription, getDishesFromMealState, getDishesFromMealStateByCategory, NutritionalRequirements, PlateType } from './typeUtil';
 
 export const easter_egg_xml = `<svg width="112" height="85" viewBox="0 0 112 85" fill="none" xmlns="http://www.w3.org/2000/svg">
 <rect x="29.0854" y="42.4222" width="10.5854" height="22.3167" transform="rotate(-17.2827 29.0854 42.4222)" fill="#0CCC09" stroke="black" stroke-width="3"/>
@@ -456,9 +456,9 @@ function totalBy(func: (Dish)=>number,mealState:MealState){
     })
     return total
 }
-export const NutritionFacts = (props) =>{
-    const {mealState} : {mealState: MealState} = props 
-    const nutrientScale = (dish:Dish)=> (dish?.portion?.nutrientFraction ?? BASE_PORTION_FILL_FRACTION) 
+export const NutritionFacts = (props : {plateType: PlateType, mealState: MealState, disabled?: boolean}) =>{
+    const {mealState, plateType}  = props 
+    const nutrientScale = (dish:Dish)=> (dish?.portion?.[plateType]?.nutrientFraction ?? 0) 
     const nutReq = mealState?.nutritionRequirements
     return <NutritionFactsContainer disabled = {props?.disabled ?? false}> 
     <View style = {{

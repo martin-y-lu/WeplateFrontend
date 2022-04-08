@@ -4,7 +4,7 @@ import { useRecoilState, useRecoilValue } from "recoil"
 import { NutritionFactsContainerHiddenHeight } from "./NutritionFactsContainer";
 import PortionView, { usePortionViewAnimationState } from './PortionView'
 import { TimeInfo, dashboardStateAtom, dateToString, stringToDate, getTimeInfoOfNow, useMealStateUtils } from './state';
-import { MealState, convertAPIItemToDish, Portion, getPortionInfoFromAPIPortionInfo, Dish, FOOD_CATEGORY, FoodCategoryFromAPIFoodCategory, getMealsIndex, getDishByPortion, getFoodCategoryDescription } from './typeUtil';
+import { MealState, convertAPIItemToDish, Portion, getPortionInfoFromAPIPortionInfo, Dish, FOOD_CATEGORY, FoodCategoryFromAPIFoodCategory, getMealsIndex, getDishByPortion, getFoodCategoryDescription, PlateType, fullVolumeByPortion, volumesByPlateType } from './typeUtil';
 import { copilot,walkthroughable,CopilotStep } from "react-native-copilot"
 import TrayItem from "./TrayItem"
 import {
@@ -65,10 +65,16 @@ export function useMealFeatures({timeInfo,onLoad, doFetchMeal,doFetchNutritionRe
     const userActions = useUserActions()
     const auth = useRecoilValue(authAtom)
     const [persistentState,setPersistentState,fetchPersistentState,dangerouslySetPersistentState] = usePersistentAtom() as any
+    const {plateType} = persistentState
     const {getMealState} = useMealStateUtils()
 
-    const [mealState, setMealState] : [MealState,(MealState) => void]= getMealState(timeInfo)
-    const [loading,setLoading] = useState(false)
+    const [mealState, setMealState] : [MealState,(mealState: MealState) => void]= getMealState(timeInfo)
+    const [loadingMealState,setLoadingMealState] = useState(false)
+    const clearedLoadingPortions = {
+        [PlateType.Weplate]: false,
+        [PlateType.Normal]: false,
+    }
+    const [loadingPortions, setLoadingPortions] = useState(clearedLoadingPortions)
     const [noMeal,setNoMeal] = useState<{message: string}>(null);
 
     const [currentState,setCurrentState] = useRecoilState(dashboardStateAtom);
@@ -92,20 +98,20 @@ export function useMealFeatures({timeInfo,onLoad, doFetchMeal,doFetchNutritionRe
         }
     }
     
-    //Fetch meals 
+    //Fetch meals
     const setMealDishes = useCallback(
-        async (newDishA:Dish,newDishB:Dish,newDishC:Dish)=>{
+        async (newDishA:Dish,newDishB:Dish,newDishC:Dish, plateType: PlateType)=>{
             if(mealState.dishA.id == newDishA.id && mealState.dishB.id === newDishB.id && mealState.dishC.id === newDishC.id){
                 return;
             }else{
-                const portions = await userActions.portionSuggestionByItemID(newDishA.id,newDishB.id,newDishC.id,null);
+                const portions = await userActions.portionSuggestionByItemID(newDishA.id,newDishB.id,newDishC.id,volumesByPlateType(plateType));
                 console.log("Portions: " + {portions})
-                const dishAPortion = getPortionInfoFromAPIPortionInfo(newDishA,portions.small1,Portion.A);
-                const dishA= {...newDishA ,portion: dishAPortion}
-                const dishBPortion = getPortionInfoFromAPIPortionInfo(newDishB,portions.small2,Portion.B);
-                const dishB= {...newDishB ,portion: dishBPortion}
-                const dishCPortion = getPortionInfoFromAPIPortionInfo(newDishC,portions.large,Portion.C);
-                const dishC = {...newDishC,portion: dishCPortion}
+                const dishAPortion = getPortionInfoFromAPIPortionInfo(newDishA,portions.small1,Portion.A,plateType);
+                const dishA= {...newDishA ,portion: { ...newDishA.portion , [plateType]: dishAPortion}}
+                const dishBPortion = getPortionInfoFromAPIPortionInfo(newDishB,portions.small2,Portion.B,plateType);
+                const dishB= {...newDishB ,portion: { ...newDishB.portion , [plateType]: dishBPortion}}
+                const dishCPortion = getPortionInfoFromAPIPortionInfo(newDishC,portions.large,Portion.C,plateType);
+                const dishC = {...newDishC,portion:{ ...newDishC.portion , [plateType]: dishCPortion} }
                 
                 const newMealState :MealState = {
                     ... mealState,
@@ -134,7 +140,7 @@ export function useMealFeatures({timeInfo,onLoad, doFetchMeal,doFetchNutritionRe
         if(timeInfo?.date == null || timeInfo?.meal == null) return
         if(auth === null) return
         // console.log("Fetching meal!")
-        setLoading(true)
+        setLoadingMealState(true)
         const data :APIMealByTimePayload = await userActions.mealsByTime(timeInfo)
         if(data.length == 0 ){
             // console.log("Nomeal")
@@ -220,9 +226,9 @@ export function useMealFeatures({timeInfo,onLoad, doFetchMeal,doFetchNutritionRe
                 } 
 
                 // get lateset
-                let dishA = null;
-                let dishB = null;
-                let dishC = null;
+                let dishA = null as Dish;
+                let dishB = null as Dish;
+                let dishC = null as Dish;
 
                 if(prevChoices.length == 0){
                     // if no choice has been made yet, default to first
@@ -250,14 +256,16 @@ export function useMealFeatures({timeInfo,onLoad, doFetchMeal,doFetchNutritionRe
                 console.log("DISHB :",dishB)
                 console.log("DISHC :",dishC)
                 console.log(dishA?.portion,dishB?.portion,dishC?.portion)
-                if(dishA?.portion === undefined || dishB?.portion === undefined || dishC?.portion === undefined){
+                if(dishA?.portion === undefined){
+                    dishA.portion = {}
+                } 
+                if(dishB?.portion === undefined){
+                    dishB.portion = {}
+                }
+                if( dishC?.portion === undefined){
                     // console.log("FETCHING SIZES")
                     // setMealDishes(dishA,dishB,dishC)
-                    
-                    const portions:APIPortionSuggest = await userActions.portionSuggestionByItemID(dishA.id,dishB.id,dishC.id,null);
-                    dishA.portion = getPortionInfoFromAPIPortionInfo(dishA, portions.small1,Portion.A);
-                    dishB.portion = getPortionInfoFromAPIPortionInfo(dishB,portions.small2,Portion.B);
-                    dishC.portion = getPortionInfoFromAPIPortionInfo(dishC,portions.large,Portion.C);
+                    dishC.portion = {}
                 }
                 
                 // console.log(dishes)
@@ -274,20 +282,62 @@ export function useMealFeatures({timeInfo,onLoad, doFetchMeal,doFetchNutritionRe
             }
             // console.log({newState})
             setMealState(newState)
-            setLoading(false)
+            setLoadingMealState(false)
             //start onboarding
             onLoad()
         }
     }
+    async function fetchPortionSizes(plateType: PlateType, override : boolean = false){
+        const {dishA,dishB,dishC} = mealState;
+        const dAp = dishA?.portion?.[plateType];
+        const dBp = dishA?.portion?.[plateType];
+        const dCp = dishA?.portion?.[plateType];
+        if(dishA && dishB && dishC && (dAp === undefined || dBp === undefined || dCp == undefined) &&  loadingPortions[plateType] === false){
+            setLoadingPortions({
+                ...loadingPortions,
+                [plateType]: true
+            })
+            console.log({dAp,dBp,dCp})
+            const portions:APIPortionSuggest = await userActions.portionSuggestionByItemID(dishA.id,dishB.id,dishC.id,volumesByPlateType(plateType));
+            console.log(portions,{plateType})
+            let stateChanged = false
+            let newState = {} as any
+            if(dAp == undefined || override){
+                const newPortions = getPortionInfoFromAPIPortionInfo(dishA, portions.small1,Portion.A,plateType);
+                stateChanged = true;
+                newState.dishA = { ... dishA, portion: {...dishA.portion, [plateType]: newPortions}};
+            }
+            if(dBp == undefined || override){
+                const newPortions = getPortionInfoFromAPIPortionInfo(dishB,portions.small2,Portion.B,plateType);
+                stateChanged = true;
+                newState.dishB = { ... dishB, portion: {...dishB.portion, [plateType]: newPortions}};;
+            }
+            if(dCp == undefined || override){
+                const newPortions = getPortionInfoFromAPIPortionInfo(dishC,portions.large,Portion.C,plateType);
+                stateChanged = true;
+                newState.dishC = { ... dishC, portion: {...dishC.portion, [plateType]: newPortions}};
+            }
+            if(stateChanged){
+                setLoadingPortions({
+                    ...loadingPortions,
+                    [plateType]: false
+                })
+                setMealState({
+                    ...mealState,
+                    ...newState,
+                })
+            }
+        }
+    }
 
     useEffect(()=>{
-        setLoading(false)
+        setLoadingMealState(false)
     },[timeInfo])
     useEffect( ()=>{
         if(timeInfo){
             setNoMeal(null);
             const shouldFetch = (doFetchMeal && mealState.dishA == null) || mealState.menu == null
-            if( shouldFetch && !loading){
+            if( shouldFetch && !loadingMealState){
                 try{
                     fetchMeal()
                 }catch(e){
@@ -296,10 +346,11 @@ export function useMealFeatures({timeInfo,onLoad, doFetchMeal,doFetchNutritionRe
             }else{
                 onLoad()
             }
+            fetchPortionSizes(plateType)
         }
-    },[auth,timeInfo,loading,mealState])
+    },[auth,timeInfo,loadingMealState,mealState,plateType])
 
-    return {mealState,loading,noMeal,setMealDishes,isPast,isPresent,isFuture}
+    return {mealState,loading: loadingMealState,noMeal,setMealDishes, fetchPortionSizes,isPast,isPresent,isFuture}
 }
 
 export function useDashboardState(){
@@ -330,7 +381,8 @@ const WalkableTrayItem = walkthroughable(TrayItem)
 const WalkableNutritionFacts = walkthroughable(NutritionFacts)
 const Dashboard = (props)=>{
     const {route,navigation,copilotEvents} = props
-    const [persistentState,setPersistentState,fetchPersistentState,dangerouslySetPersistentState] = usePersistentAtom() as any
+    const [persistentState,setPersistentState,fetchPersistentState,dangerouslySetPersistentState] = usePersistentAtom()
+    const {plateType} = persistentState
     useLogin(navigation)
 
     const {start} = props // Copilot: Start onboarding
@@ -368,7 +420,14 @@ const Dashboard = (props)=>{
    
 
     //portion view animate
-    const portionAnimationState = usePortionViewAnimationState();
+    const portionAnimationState = usePortionViewAnimationState({plateType: persistentState.plateType, onPlateTypeChange : (newPlateType)=>{
+        if(newPlateType){
+            setPersistentState({
+                ... persistentState,
+                plateType: newPlateType,
+            })
+        }
+    }});
     const {
         DEFAULT_TRANSFORM,
         initialRotation,
@@ -385,8 +444,9 @@ const Dashboard = (props)=>{
         setRightCategory,
         topDiscrete,
         bottomDiscrete,
-        rightDiscrete
+        rightDiscrete,
     } = portionAnimationState;
+
 
     const [animateRightSize,rightSizeValue,rightSizeTarg] = rightTrackedAnimation as any
     const [animateTopLeftSize,topLeftSizeValue,topLeftSizeTarg] = topTrackedAnimation as any
@@ -399,7 +459,7 @@ const Dashboard = (props)=>{
         if(mealState?.dishA){
             setTopCategory(mealState.dishA.category)
             // console.log("Top Category:",mealState.dishA)
-            const fillFraction = mealState?.dishA?.portion?.fillFraction?? BASE_FILL_FRACTION
+            const fillFraction = mealState?.dishA?.portion?.[plateType]?.fillFraction?? BASE_FILL_FRACTION
             animateTopLeftSize(fillFraction,{duration:400})
 
             topDiscrete.current = mealState.dishA.portionAmount.discrete
@@ -409,7 +469,7 @@ const Dashboard = (props)=>{
         if(mealState?.dishB){
             // console.log("Bottom Category:",mealState.dishB.category,)
             setBottomCategory(mealState.dishB.category)
-            const fillFraction = mealState?.dishB?.portion?.fillFraction?? BASE_FILL_FRACTION
+            const fillFraction = mealState?.dishB?.portion?.[plateType]?.fillFraction?? BASE_FILL_FRACTION
             animateBottomLeftSize(fillFraction,{duration:400})
 
             bottomDiscrete.current = mealState.dishB.portionAmount.discrete
@@ -419,13 +479,13 @@ const Dashboard = (props)=>{
         if(mealState?.dishC){
             // console.log("Right Category:",mealState.dishC.category,)
             setRightCategory(mealState.dishC.category)
-            const fillFraction = mealState?.dishC?.portion?.fillFraction?? BASE_FILL_FRACTION
+            const fillFraction = mealState?.dishC?.portion?.[plateType]?.fillFraction?? BASE_FILL_FRACTION
             animateRightSize(fillFraction,{duration:400})
             rightDiscrete.current = mealState.dishC.portionAmount.discrete
         }else{
             animateRightSize(0,{duration:100})
         }
-    },[mealState])
+    },[mealState,plateType])
 
     function onPortionViewPress(){
         // console.log(viewingPortions)
@@ -516,6 +576,13 @@ const Dashboard = (props)=>{
             }}>
                 You are viewing a past meal
             </Text>}
+            {/* <Text style = {{
+                position: "absolute",
+                top:3,
+                color: ds.colors.grayscale3_4
+            }}>
+                {persistentState.plateType}
+            </Text>  */}
             <View style = {{height: 20}}/>
             <View style = {{
                 flex: 1,
@@ -554,17 +621,17 @@ const Dashboard = (props)=>{
                     <CopilotStep text = "If our default suggestion isn’t to your liking, you can easily switch options here!" 
                         order = {2} name = "test:2">
                         <WalkableView>
-                            <TrayItem disabled = {disableButtons} number = {1} dish = {mealState.dishA} portion = {Portion.A} modalOpen = {setModalOpen}/>
+                            <TrayItem plateType= {plateType} disabled = {disableButtons} number = {1} dish = {mealState.dishA} portion = {Portion.A} modalOpen = {setModalOpen}/>
                         </WalkableView>
                     </CopilotStep>
                     <Text style = {headerStyle}>
                         {getFoodCategoryDescription(mealState?.dishB?.category)}
                     </Text>
-                    <TrayItem disabled = {disableButtons} number = {2}  dish = {mealState.dishB} portion = {Portion.B} modalOpen = {setModalOpen} />
+                    <TrayItem plateType= {plateType} disabled = {disableButtons} number = {2}  dish = {mealState.dishB} portion = {Portion.B} modalOpen = {setModalOpen} />
                     <Text style = {headerStyle}>
                         {getFoodCategoryDescription(mealState?.dishC?.category)}
                     </Text>
-                    <TrayItem disabled = {disableButtons} number = {3}  dish = {mealState.dishC} portion = {Portion.C} modalOpen = {setModalOpen}/>
+                    <TrayItem plateType= {plateType} disabled = {disableButtons} number = {3}  dish = {mealState.dishC} portion = {Portion.C} modalOpen = {setModalOpen}/>
                     <CopilotStep text = {`At every meal, WePlate generates foods which are tailored for your needs and preferences.
                                     Note: in addition to following our recommendations, use your best judgement when choosing foods.`} 
                                     order = {0} name = "test:1">
@@ -618,7 +685,7 @@ const Dashboard = (props)=>{
             }}
             >
             </TouchableOpacity>
-            <ChangeMenuItem modalOpen = {modalOpen} setModalOpen = {setModalOpen} mealState = {mealState} setMealDishes = {setMealDishes}/>
+            <ChangeMenuItem plateType = {plateType} modalOpen = {modalOpen} setModalOpen = {setModalOpen} mealState = {mealState} setMealDishes = {setMealDishes}/>
         </Modal> 
       
         {content}
@@ -633,7 +700,7 @@ const Dashboard = (props)=>{
                 }}>
             </WalkableView>
         </CopilotStep>
-        <NutritionFacts disabled = {!!noMeal || loading} mealState = {mealState}/>
+        <NutritionFacts plateType= {plateType} disabled = {!!noMeal || loading} mealState = {mealState}/>
     </View>
 }
 
