@@ -5,8 +5,8 @@ import {
     Dish,
     Portion,
     getRecommendationsByPortion,
-    getDishByPortion,
-    setDishByPortion,
+    getDishesByPortion,
+    addDishByPortion,
     getNameOfStation,
     fullVolumeByPortion,
     FOOD_CATEGORY,
@@ -27,8 +27,10 @@ import { useState } from "react";
 import {useEffect} from 'react';
 import { LoadingIcon } from "../utils/Loading";
 import { useDesignScheme } from '../design/designScheme';
-import { getFoodCategoryDescription, PlateType } from './typeUtil';
+import { getFoodCategoryDescription, PlateType, replaceDishByPortion, removeDishByPortion } from './typeUtil';
 import { NutritionInfoEntry } from "../individual-item/IndividualItem";
+import { APIKey } from '../utils/session/apiTypes';
+import { ModalInfo } from './Dashboard';
 
 const downArrowSvg = `
 <svg width="23" height="9" viewBox="0 0 23 9" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -41,31 +43,51 @@ const upArrowSvg = `
 </svg>
 `
 
-const ChangeMenuItem = (props : { plateType: PlateType, modalOpen: Portion,setModalOpen?: (Portion) => void, mealState: MealState,setMealDishes : (newDishA: Dish, newDishB: Dish, newDishC: Dish, plateType: PlateType) => Promise<void>}) =>{
+const ChangeMenuItem = (props : { plateType: PlateType, modalOpen:ModalInfo ,setModalOpen?: (arg: ModalInfo) => void, mealState: MealState,setMealDishes : (newDishA: Dish[], newDishB: Dish[], newDishC: Dish[], plateType: PlateType) => Promise<void>}) =>{
     const {plateType,modalOpen, setModalOpen, mealState,setMealDishes} = props
-    const [selectedDish,setSelectedDish] = useState(null);
-    const portion = modalOpen
+    const [selectedDish,setSelectedDish] = useState(null as Dish);
+    const [loading,setLoading] = useState(false);
+    const {portion, opened: openedDish, action} = modalOpen
+    const isAltering = action === "alter"
+
+    const dishId = openedDish?.id
+    // const portion = modalOpen
     const dishes = getRecommendationsByPortion(mealState,portion)
-    const currentDish = getDishByPortion(mealState,portion)
+    const currentDish = getDishesByPortion(mealState,portion)
 
     const ds = useDesignScheme()
     const [openDishes, setOpenDishes] = useState({});
     function renderDish({item , index}:{item:Dish, index : number}){
         // const color = selectedDish != null ?  null : 
         // ? colorOfCategory(item.category): null
-        const itemMatches = item.id === currentDish.id 
-        const loading = selectedDish == item.id ;
+        const itemMatches = currentDish.map(dish => dish.id).includes(item.id)
+        const itemSelected = selectedDish?.id == item.id ;
+        // const loading = selectedDish == item.id ;
         const dish = item
         const dishName = dish.name
         const station = dish.station
         const stationName = getNameOfStation(station)
-        const scaleFraction = ( dish?.portion?.[plateType]?.nutrientFraction ?? BASE_PORTION_FILL_FRACTION)
+        const openedNutritionScale = openedDish?.portion?.[plateType]?.nutrientFraction
+        const volumeScale = 
+            isAltering ? (
+                dish.portionAmount.discrete === true ? 1 :
+                dish.portionAmount.discrete === false &&
+                    openedDish.portionAmount.discrete === true ? 1: 
+                    openedDish.portionAmount.discrete === false &&
+                        openedDish.portionAmount.volume/dish.portionAmount.volume
+            ) : 0
+        // const volumeScale = openedDish?.portion?.[plateType]?.volume
+        // const volumeScale = dish?.portion?.[plateType]?.volume/ openedDish?.portion?.[plateType]?.volume
+        const scaleFraction = 
+            isAltering ? (
+                dish?.portionAmount.discrete ? 1 : Math.min( ( dish?.portion?.[plateType]?.nutrientFraction  ?? openedNutritionScale ?? BASE_PORTION_FILL_FRACTION) * volumeScale , 4.5)
+            ) : 1
         const calories = dish.nutritionSummary.calories *scaleFraction
         const color = colorOfCategory(dish.category)
         const graphic = dish?.graphic
         const type = dish.category
         const icon = iconOfCategory(item.category)
-        const cals = item.nutritionSummary.calories *BASE_PORTION_FILL_FRACTION * fullVolumeByPortion(portion,plateType)/item.portion[plateType].volume
+        // BASE_PORTION_FILL_FRACTION * fullVolumeByPortion(portion,plateType)/item?.portion?.[plateType]?.volume ?? 1.0
         
         const open = openDishes?.[dish.id]
         function setOpen(_open){
@@ -95,16 +117,15 @@ const ChangeMenuItem = (props : { plateType: PlateType, modalOpen: Portion,setMo
                 alignItems: "center",
                 justifyContent: "flex-start",
                 alignSelf: "flex-start",
-                backgroundColor: itemMatches || loading ? "#FFEAEA" : "white",
+                backgroundColor:  itemSelected ? "#F6F6F6": (itemMatches ? "#FFEAEA" : "white"),
 
             }} onPress = {async ()=>{
-                if(selectedDish == null){
-                    setSelectedDish(item.id)
-                    const tempMealState = setDishByPortion(mealState,modalOpen,item);
-                    // setMealState()
-                    await setMealDishes(tempMealState.dishA,tempMealState.dishB,tempMealState.dishC, plateType)
+                if(!loading){
+                    setSelectedDish(item)
+                    // const tempMealState = replaceDishByPortion(mealState,portion, dishId,item);
+                    // await setMealDishes(tempMealState.dishA,tempMealState.dishB,tempMealState.dishC, plateType)
                     
-                    setModalOpen(null)// close modal
+                    // setModalOpen(null)// close modal
                 }
             }}>
                 <View style = {{
@@ -122,7 +143,7 @@ const ChangeMenuItem = (props : { plateType: PlateType, modalOpen: Portion,setMo
                                     marginVertical: 15, 
                                     overflow:"hidden"}}>
 
-                    { loading ? <LoadingIcon/> :  graphic ? 
+                    { itemSelected && loading ? <LoadingIcon/> :  graphic ? 
                         <Image style = {{ flex:1,aspectRatio:1.2}} source = {{uri: graphic}}/>
                         :(
                             type == FOOD_CATEGORY.Vegetable ?
@@ -173,7 +194,7 @@ const ChangeMenuItem = (props : { plateType: PlateType, modalOpen: Portion,setMo
                             marginLeft: 5, 
                             marginRight: 5,
                         }}>
-                            {Math.ceil(calories)} calories
+                             ~{Math.ceil(calories)} calories
                         </Text>
                         {
                         dish.portionAmount.discrete && 
@@ -236,6 +257,7 @@ const ChangeMenuItem = (props : { plateType: PlateType, modalOpen: Portion,setMo
         </View>
     }
 
+    const selectedMatches = currentDish.map(dish => dish.id).includes(selectedDish?.id)
     return <View style = {{
         flex:1,
         flexGrow:1,
@@ -248,7 +270,9 @@ const ChangeMenuItem = (props : { plateType: PlateType, modalOpen: Portion,setMo
         borderTopRightRadius: 20,
 
         paddingHorizontal: 35,
-        paddingTop: 30,
+        paddingTop: 25 ,
+
+        paddingBottom: 60,
     }}>
         <TouchableOpacity style = {{
             marginTop: 20,
@@ -264,7 +288,7 @@ const ChangeMenuItem = (props : { plateType: PlateType, modalOpen: Portion,setMo
                 fontSize : 28,
             }}
             >
-                Change{" "}
+                { isAltering ? "Change": "Add"}{" "}
             </Text>
             <Text style ={{
                 color : ds.colors.grayscale1,
@@ -278,9 +302,104 @@ const ChangeMenuItem = (props : { plateType: PlateType, modalOpen: Portion,setMo
         </TouchableOpacity>
         <FlatList style = {{
             width: "100%",
-            paddingTop: 10
+            paddingTop: 10,
 
         }} data = {dishes} renderItem = {renderDish} />
+        <View style = {{
+            width: "100%",
+            flexDirection: "row-reverse",
+            alignItems: "center",
+            opacity: loading ? 0.8 : 1.0
+        }}>
+            {
+                isAltering ? <>   
+                    <View style = {{
+
+                    }}>                    
+                    <TouchableOpacity style = {{
+                        backgroundColor: ds.colors.accent2,
+                        borderRadius: 5,
+                        paddingHorizontal:20,
+                        paddingVertical: 10,
+                        marginRight: 10,
+                    }}
+                        disabled = {!(selectedDish != null && ! loading && !selectedMatches) }
+                        onPress = {async ()=>{
+                            if(selectedDish != null && ! loading && !selectedMatches){
+                                const tempMealState = replaceDishByPortion(mealState,portion, dishId,selectedDish);
+                                setLoading(true);
+                                await setMealDishes(tempMealState.dishA,tempMealState.dishB,tempMealState.dishC, plateType)
+                                setModalOpen(null)// close modal
+                            }
+                        }}
+                    >
+                        <Text style = {{
+                            fontSize: 16,
+                            color: "white",
+                            fontFamily: ds.fontFamilies.heavy,
+                        }}>
+                            Change
+                        </Text>
+                    </TouchableOpacity>
+                    </View>
+                    { currentDish.length > 1 && 
+                        <TouchableOpacity style = {{  
+                            marginRight: 20
+                        }}
+                            disabled = { ! (!loading && currentDish.length > 1) }
+                            onPress = {async ()=>{
+                                if(!loading && currentDish.length > 1){
+                                    const tempMealState = removeDishByPortion(mealState,portion, dishId);
+                                    setLoading(true);
+                                    await setMealDishes(tempMealState.dishA,tempMealState.dishB,tempMealState.dishC, plateType)
+                                    setModalOpen(null)// close modal
+                                }
+                            }}
+                        >
+                            <Text style = {{
+                                color: ds.colors.grayscale2,
+                                textDecorationLine: "underline"
+                            }}
+                            >
+                                Remove
+                            </Text>
+                        </TouchableOpacity>
+                    }
+                </>:
+                <>
+                { 
+                    <View style = {{
+                        opacity: selectedMatches || currentDish.length >= 2 ? 0.5: 1.0
+                    }}>                    
+                    <TouchableOpacity style = {{
+                        backgroundColor: ds.colors.accent2,
+                        borderRadius: 5,
+                        paddingHorizontal:20,
+                        paddingVertical: 10,
+                    }}
+                        disabled = {!(selectedDish != null && ! loading && !selectedMatches && ! (currentDish.length >= 2)) }
+                        onPress = {async ()=>{
+                            if(selectedDish != null && ! loading && !selectedMatches && ! (currentDish.length >= 2)){
+                                const tempMealState = addDishByPortion(mealState,portion,selectedDish);
+                                setLoading(true);
+                                await setMealDishes(tempMealState.dishA,tempMealState.dishB,tempMealState.dishC, plateType)
+                                setModalOpen(null)// close modal
+                            }
+                        }}
+                    >
+                        <Text style = {{
+                            fontSize: 16,
+                            color: "white",
+                            fontFamily: ds.fontFamilies.heavy,
+                        }}>
+                            Add
+                        </Text>
+                    </TouchableOpacity>
+                    </View>
+                }
+                </>
+            }
+        </View>
     </View>
 }
 export default ChangeMenuItem

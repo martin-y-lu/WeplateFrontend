@@ -29,18 +29,27 @@ export const easter_egg_xml = `<svg width="112" height="85" viewBox="0 0 112 85"
 </svg>
 `
 
-export function colorOfCategory(category: FOOD_CATEGORY){
+export function colorOfCategory(category: FOOD_CATEGORY, index = 0){
     let color = ""
     switch(category){
         case(FOOD_CATEGORY.Carbohydrates):
-            color = "#FDB812"
+            color = ["#FDB812","#fd7a11"] [Math.min(1,index)]
             break
         case(FOOD_CATEGORY.Protein):
-            color = "#FF605B"
+            color = ["#FF605B","#ff5b80"] [Math.min(1,index)]
             break
         case(FOOD_CATEGORY.Vegetable):
-            color = "#CE014E"
+            color = ["#CE014E","#ce0083"] [Math.min(1,index)]
             break
+        // case(FOOD_CATEGORY.Carbohydrates):
+        //     color = ["#FDB812","#0fba4b"] [Math.min(1,index)]
+        //     break
+        // case(FOOD_CATEGORY.Protein):
+        //     color = ["#FF605B","#116ef0"] [Math.min(1,index)]
+        //     break
+        // case(FOOD_CATEGORY.Vegetable):
+        //     color = ["#CE014E","#a70082"] [Math.min(1,index)]
+        //     break
     }
     return color 
 }
@@ -314,7 +323,7 @@ const ButtonRow = (props :{height?: number,bold?:boolean,color ?: string, name ?
             Animated.timing(oValue.current, {toValue: (!open) ? 1: 0, duration: 200, useNativeDriver: false}).start()
         }}>
             <Animated.View style = {{
-                    height: oValue.current.interpolate({inputRange: [0,1],outputRange: [ 50, 220]}),
+                    height: oValue.current.interpolate({inputRange: [0,1],outputRange: [ 50, 130+ 30*getDishesFromMealState(mealState).length]}),
                     margin: oValue.current.interpolate({inputRange: [0,1],outputRange: [ 0,10]}),
                     borderRadius: 5,
                     backgroundColor:"white",

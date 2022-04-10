@@ -126,7 +126,7 @@ export const CustomDrawerContent = (props) => {
             <DrawerButton icon = {feedback_icon_svg} width = {width} navigation = {navigation} name = "Feedback" screen = "Feedback" screenName = {screenName}/>
             <DrawerButton icon = {settings_icon_svg} width = {width} navigation = {navigation} name = "Settings" screen = "Settings" screenName = {screenName}/>
             <DrawerButton icon = {about_us_icon_svg} width = {width} navigation = {navigation} name = "About Us" screen = "About Us" screenName = {screenName}/>
-            <DrawerButtonBehaviour icon = {null} width = {width} name = "Log Out" onPress = {()=>{
+            {/* <DrawerButtonBehaviour icon = {null} width = {width} name = "Log Out" onPress = {()=>{
                 console.log("LOGG OUT")
                 async function logOut(){
                     console.log("Logging out")
@@ -134,7 +134,7 @@ export const CustomDrawerContent = (props) => {
                     navigation.navigate("Login")
                 }
                 logOut()
-            }}/>
+            }}/> */}
 
             <View style = {{
                 marginTop: 'auto',

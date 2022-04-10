@@ -7,6 +7,8 @@ import { useRef } from "react"
 import { useUserActions } from "../utils/session/useUserActions"
 import { BASE_PORTION_FILL_FRACTION, leaf_xml, bread_xml, meat_xml } from '../dining-menu/DiningMenu';
 import { useDesignScheme } from '../design/designScheme';
+import { APIKey } from '../utils/session/apiTypes';
+import { ModalInfo } from './Dashboard';
 
 const thumbs_down_xml = `<svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
 <rect x="21.5312" y="1.4375" width="5.5625" height="12.125" rx="1" fill="white"/>
@@ -25,9 +27,9 @@ const kebab_xml = `<svg width="4" height="13" viewBox="0 0 4 13" fill="none" xml
 <circle r="1.61086" transform="matrix(0 -1 -1 0 1.83262 1.61082)" fill="#C4C4C4"/>
 </svg>
 `
-const TrayItem = ( props : {plateType: PlateType, isTop ?: boolean, number: number,portion: Portion, dish: Dish, modalOpen, disabled:boolean, ref?}) => {
+const TrayItem = ( props : {index: number,plateType: PlateType, isTop ?: boolean, number: number,portion: Portion, dish: Dish, setModalOpen?: (arg:ModalInfo)=> void, disabled:boolean, ref?}) => {
     const userActions = useUserActions()
-    const {isTop, number, dish, disabled: propDisabled, plateType} = props
+    const {isTop, number, dish, disabled: propDisabled, plateType, index} = props
     
     let body = <></>
 
@@ -42,9 +44,9 @@ const TrayItem = ( props : {plateType: PlateType, isTop ?: boolean, number: numb
         const disabled = propDisabled || portion == null
 
         const fillFraction = portion?.fillFraction ?? BASE_PORTION_FILL_FRACTION 
-        const nutrientFraction = portion?.[plateType]?.nutrientFraction ?? BASE_PORTION_FILL_FRACTION
+        const nutrientFraction = portion?.nutrientFraction ?? BASE_PORTION_FILL_FRACTION
         const calories = dish.nutritionSummary.calories * nutrientFraction
-        const color = colorOfCategory(dish.category)
+        const color = colorOfCategory(dish.category,index)
         const graphic = dish?.graphic
         const type = dish.category
         async function castVote(positive:boolean){
@@ -128,7 +130,12 @@ const TrayItem = ( props : {plateType: PlateType, isTop ?: boolean, number: numb
                 flexShrink: 1,
                 paddingRight: 20,
             }} onPress = {()=>{
-                props.modalOpen(props.portion)
+                props.setModalOpen({
+                    portion: props.portion,
+                    // id: dish.id,   
+                    opened: dish,
+                    action: "alter",
+                })
             }}>
                 <Text style = {{
                     fontSize: dishName.length > 25? 15: 20,
@@ -174,7 +181,7 @@ const TrayItem = ( props : {plateType: PlateType, isTop ?: boolean, number: numb
                                         marginLeft: 5,
                                         
                                     }}>
-                                        {dish.portionAmount.count} { dish.portionAmount.count > 1 ? "pieces" : "piece"}
+                                        {Math.round(dish?.portion?.[plateType].volume)} { Math.round(dish?.portion?.[plateType].volume) > 1 ? "pieces" : "piece"}
                                     </Text> 
                                 </View>
                             }

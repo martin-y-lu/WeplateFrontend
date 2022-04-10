@@ -4,7 +4,7 @@ import { atom, useSetRecoilState, useRecoilState } from 'recoil';
 import { TimeInfo } from '../../dashboard/state';
 import { mealToAPIForm, MealState, fullVolumeByPortion } from '../../dashboard/typeUtil';
 import { authAtom, useFetchWrapper } from './useFetchWrapper';
-import { APIMealSuggest, APIPortionInfo, APIPortionSuggest, APIMealEvent, APIMealByTimePayload, APIAnalyticsMealChoiceEntry, APIUserSettings, APIKey, APIRegisterSettings, APIVersionResponse } from './apiTypes';
+import { APIMealSuggest, APIPortionSuggestEntry, APIPortionSuggest, APIMealEvent, APIMealByTimePayload, APIAnalyticsMealChoiceEntry, APIUserSettings, APIKey, APIRegisterSettings, APIVersionResponse } from './apiTypes';
 import { usePersistentAtom } from '../state/userState';
 import {useEffect} from 'react';
 import Constants from "expo-constants"
@@ -142,13 +142,13 @@ function useUserActions () {
         if(resp == null) throw new Error(`No data.`)
         return resp as APIMealByTimePayload
     }
-    async function mealById(id:number){
+    async function mealById(id:APIKey){
         const endpoint = `${baseUrl}/api/meals/${encodeURIComponent(id)}/`
         console.log({endpoint})
         const resp = await fetchWrapper.get(endpoint)
         return resp as APIMealEvent
     }
-    async function suggestionByMealId(id:number,volumes: {large: number, small : number}){
+    async function suggestionByMealId(id:APIKey,volumes: {large: number, small : number}){
         let {large,small} = volumes ?? {large: 610, small: 270}
         large = large ?? 610;
         small = small ?? 270;
@@ -157,11 +157,11 @@ function useUserActions () {
         const resp = await fetchWrapper.get(endpoint)
         return resp as APIMealSuggest;
     }
-    async function portionSuggestionByItemID(small1: number, small2: number, large: number,volumes: {large: number, small : number}){
+    async function portionSuggestionByItemID(small1: APIKey[], small2: APIKey[], large: APIKey[],volumes: {large: number, small : number}){
         let {large:largeVol,small:smallVol} = volumes ?? {large: 610, small: 270}
         largeVol = largeVol ?? 610;
         smallVol = smallVol ?? 270;
-        const endpoint = `${baseUrl}/api/suggest/portions/?small1=${encodeURIComponent(small1)}&small2=${encodeURIComponent(small2)}&large=${large}&large_max_volume=${encodeURIComponent(largeVol)}&small_max_volume=${encodeURIComponent(smallVol)}`
+        const endpoint = `${baseUrl}/api/suggest/portions/?${ small1.map(id => `&small1=${encodeURIComponent(id)}`).join("") } ${ small2.map( id => `&small2=${encodeURIComponent(id)}`).join("") } ${ large.map( id => `&large=${id}`).join("") } &large_max_volume=${encodeURIComponent(largeVol)} &small_max_volume=${encodeURIComponent(smallVol)}`
         console.log(endpoint)
         const resp = await fetchWrapper.get(endpoint)
         return resp as APIPortionSuggest;
@@ -171,12 +171,12 @@ function useUserActions () {
         const endpoint =  `${baseUrl}/api/analytics/meal_choice/`
         const resp = await fetchWrapper.post(endpoint,{
             meal: mealState.mealID,
-            small1: mealState.dishA.id,
-            small2: mealState.dishB.id,
-            large: mealState.dishC.id,
-            small1_portion: mealState.dishA.portion,
-            small2_portion: mealState.dishB.portion,
-            large_portion: mealState.dishC.portion,
+            small1: mealState.dishA.map(dish=>dish.id),
+            small2: mealState.dishB.map(dish=>dish.id),
+            large: mealState.dishC.map(dish=>dish.id),
+            small1_portion: mealState.dishA.map(dish=>dish.portion),
+            small2_portion: mealState.dishB.map(dish=>dish.portion),
+            large_portion: mealState.dishC.map(dish=>dish.portion),
         })
         return resp as {detail:string}
     }
@@ -188,13 +188,13 @@ function useUserActions () {
         })
         console.log(resp)
     }
-    async function getAnalyticsMealChoices(mealId:number){
+    async function getAnalyticsMealChoices(mealId:APIKey){
         const endpoint = `${baseUrl}/api/analytics/meal_choice/?meal=${encodeURIComponent(mealId)}`
         const resp = await fetchWrapper.get(endpoint)
         return resp as Array<APIAnalyticsMealChoiceEntry>
     }
 
-    async function postAnalyticsMealItemVote(mealItemId: number,liked: boolean){
+    async function postAnalyticsMealItemVote(mealItemId: APIKey,liked: boolean){
         console.log("Posting")
         const endpoint = `${baseUrl}/api/analytics/meal_item_vote/`
         const resp = await fetchWrapper.post(endpoint,{

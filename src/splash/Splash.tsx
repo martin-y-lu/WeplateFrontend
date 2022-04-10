@@ -6,6 +6,7 @@ import { APIVersionResponse, APIHandleUpdateStrategies } from '../utils/session/
 import { useUserActions } from "../utils/session/useUserActions";
 import { usePersistentAtom } from '../utils/state/userState';
 import { useDesignScheme } from '../design/designScheme';
+import { TEST } from "../../App";
 const logo_svg =   `<svg width="65" height="46" viewBox="0 0 65 46" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M32.4725 3.90527H61.3254V42.3758H32.4725M32.4725 3.90527H3.61963V23.1405M32.4725 3.90527V23.1405M32.4725 42.3758H3.61963V23.1405M32.4725 42.3758V23.1405M32.4725 23.1405H3.61963" stroke="white" stroke-width="6.33166" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
@@ -23,7 +24,6 @@ const plate_svg =  `<svg width="146" height="77" viewBox="0 0 146 77" fill="none
 <path fill-rule="evenodd" clip-rule="evenodd" d="M38.7137 0.515625C40.4621 0.515625 41.8795 1.93301 41.8795 3.68145V49.8461C41.8795 51.5945 40.4621 53.0119 38.7137 53.0119C36.9652 53.0119 35.5479 51.5945 35.5479 49.8461V3.68145C35.5479 1.93301 36.9652 0.515625 38.7137 0.515625Z" fill="white"/>
 </svg>
 `
-
 const appStoreLink = "itms-apps://apps.apple.com/ca/app/weplate/id1610953263"
 
 function Splash({navigation}){
@@ -156,6 +156,15 @@ function Splash({navigation}){
             </View>
         </View>
     </View>
+    {TEST &&  <Text style = {{
+            position: "absolute",
+            top: 100,
+            left: 50,
+                color: "white",
+                fontSize: 25,
+            }}>
+                Test build (not for release)
+            </Text>}
     {
         (updateRequired == "maintenance") &&  <Animated.View style = {{
             position: "absolute",

@@ -134,9 +134,23 @@ export function usePortionViewAnimationState(init: {plateType?: PlateType,onPlat
     setRotation(DEFAULT_TRANSFORM)
   }
 
-  const rightTrackedAnimation = useTrackedAnimation(0)
-  const topTrackedAnimation = useTrackedAnimation(0)
-  const bottomTrackedAnimation = useTrackedAnimation(0)
+  const rightTrackedAnimation = {
+    "": useTrackedAnimation(0),
+    "1/2": useTrackedAnimation(0),
+    "2/2":useTrackedAnimation(0) 
+  } as {[key: string]: ReturnType<typeof useTrackedAnimation>}
+  
+  // [ [useTrackedAnimation(0)], [ useTrackedAnimation(0), useTrackedAnimation(0)]]
+  const topTrackedAnimation = {
+    "": useTrackedAnimation(0),
+    "1/2": useTrackedAnimation(0),
+    "2/2":useTrackedAnimation(0) 
+  } as {[key: string]: ReturnType<typeof useTrackedAnimation>}
+  const bottomTrackedAnimation = {
+    "": useTrackedAnimation(0),
+    "1/2": useTrackedAnimation(0),
+    "2/2":useTrackedAnimation(0) 
+  }as {[key: string]: ReturnType<typeof useTrackedAnimation>}
 
   //Animates level of centralisation, 0 -> orbit view , 1 -> orthographic view
 
@@ -146,16 +160,30 @@ export function usePortionViewAnimationState(init: {plateType?: PlateType,onPlat
     }
   })
 
-  const [topCategory,setTopCategory] = useState(null)
-  const [bottomCategory,setBottomCategory] = useState(null)
-  const [rightCategory,setRightCategory] = useState(null)
+  const [topCategory,setTopCategory] = useState(null as FOOD_CATEGORY)
+  const [bottomCategory,setBottomCategory] = useState(null as FOOD_CATEGORY)
+  const [rightCategory,setRightCategory] = useState(null as FOOD_CATEGORY)
 
   const doesInactivityTimer = useRef(true);
   const [loaded,setLoaded] = useState(false)
 
-  const topDiscrete = useRef(false)
-  const bottomDiscrete = useRef(false)
-  const rightDiscrete = useRef(false)
+  const topDiscrete = {
+    "": useRef(false),
+    "1/2": useRef(false), 
+    "2/2": useRef(false), 
+  } as {[key:string] : {current: boolean}}
+  const bottomDiscrete = {
+    "": useRef(false),
+    "1/2": useRef(false), 
+    "2/2": useRef(false), 
+  } as {[key:string] : {current: boolean}}
+  // useRef(false)
+  const rightDiscrete ={
+    "": useRef(false),
+    "1/2": useRef(false), 
+    "2/2": useRef(false), 
+  } as {[key:string] : {current: boolean}}
+  //  useRef(false)
 
   const plateType = useRef( init?.plateType ?? PlateType.Normal)
   const setPlateType= (newType:PlateType) =>{
@@ -191,7 +219,9 @@ export function usePortionViewAnimationState(init: {plateType?: PlateType,onPlat
 }
 type PortionViewAnimationState = ReturnType<typeof usePortionViewAnimationState>
 
-
+// export const counts = [[""],["1/2","2/2"]]
+export const allCounts = ["","1/2","2/2"]
+export const sectionNames = ["Right","TopLeft","BottomLeft"]
 const PortionView = (props : {style, animationState?: PortionViewAnimationState})=>{
   const {style} = props
   //size of graphics window (square)
@@ -235,27 +265,48 @@ const PortionView = (props : {style, animationState?: PortionViewAnimationState}
     rightDiscrete,
     plateType, setPlateType,
   } = props?.animationState ?? usePortionViewAnimationState({})
+  
+  const sectionDiscrete = {
+    Right: rightDiscrete,
+    TopLeft: topDiscrete,
+    BottomLeft: bottomDiscrete,
+  } as {[key: string]: typeof rightDiscrete}
+  const sectionCategory = {
+    Right: rightCategory,
+    TopLeft: topCategory,
+    BottomLeft: bottomCategory,
+  } as {[key:string]: typeof rightCategory}
+  const sectionTrackedAnimation = {
+    Right: rightTrackedAnimation,
+    TopLeft: topTrackedAnimation,
+    BottomLeft: bottomTrackedAnimation,
+  } as {[key :string]: typeof rightTrackedAnimation}
   const [animateCameraAngle,cameraAngleValue, cameraAngleTarg] = cameraAngleAnimation
-  const [animateRightSize,rightSizeValue,rightSizeTarg] = rightTrackedAnimation
-  const [animateTopLeftSize,topLeftSizeValue,topLeftSizeTarg] = topTrackedAnimation
-  const [animateBottomLeftSize,bottomLeftSizeValue,bottomLeftSizeTarg] = bottomTrackedAnimation
+  
+  // const [animateRightSize,rightSizeValue,rightSizeTarg] = rightTrackedAnimation
+  // const [animateTopLeftSize,topLeftSizeValue,topLeftSizeTarg] = topTrackedAnimation
+  // const [animateBottomLeftSize,bottomLeftSizeValue,bottomLeftSizeTarg] = bottomTrackedAnimation
+
+  // const [animateRightSizeOne,rightSizeValue,rightSizeTarg] = rightTrackedAnimation
+  // const [animateTopLeftSizeOne,topLeftSizeValue,topLeftSizeTarg] = topTrackedAnimation
+  // const [animateBottomLeftSizeOne,bottomLeftSizeValue,bottomLeftSizeTarg] = bottomTrackedAnimation
   
   const [animateCentralize,centralizeValue,centralizeTarg] = centralizeTrackedAnimation
   const emptyMaterial = useRef(null)
   const grainsIconMaterial = useRef(null)
   const proteinIconMaterial = useRef(null)
   const vegIconMaterial = useRef(null)
-  function materialOfCategory(category: FOOD_CATEGORY){
+  function graphicMaterialOfCategory(category: FOOD_CATEGORY){
     if(category == FOOD_CATEGORY.Carbohydrates){
-      console.log("carbs")
+      // console.log("carbs")
       return grainsIconMaterial.current
     } 
     if(category == FOOD_CATEGORY.Protein){
-      console.log("protien")  
+      // console.log("protien")  
       return proteinIconMaterial.current
     } 
     if(category == FOOD_CATEGORY.Vegetable){
-      console.log("veg")
+      // console.log("veg")
       return vegIconMaterial.current
     } 
     return emptyMaterial;
@@ -264,34 +315,40 @@ const PortionView = (props : {style, animationState?: PortionViewAnimationState}
   const onTopCategoryChange = ()=>{
     console.log("Top category updated!",topCategory)
     if(topSquare.current){
-      topSquare.current.material = materialOfCategory(topCategory)
+      topSquare.current.material = graphicMaterialOfCategory(topCategory)
     }
     if(components.current){
-      const color = colorOfCategory(topCategory)
-      components.current["TopLeft"].material.color.setStyle(color)
-      components.current["TopLeftDisc"].material.color.setStyle(color)
+      for(const count of allCounts){
+        const color = colorOfCategory(topCategory,{"": 0, "1/2":0, "2/2":1}[count])
+        components.current["TopLeft"+ count].material.color.setStyle(color)
+        components.current["TopLeftDisc"+ count].material.color.setStyle(color)
+      }
     }
   }
   useEffect(onTopCategoryChange,[topCategory,components.current,loaded])
   const onBottomCategoryChange = ()=>{
     if(bottomSquare.current){
-      bottomSquare.current.material = materialOfCategory(bottomCategory)
+      bottomSquare.current.material = graphicMaterialOfCategory(bottomCategory)
     }
     if(components.current){
-      const color = colorOfCategory(bottomCategory)
-      components.current["BottomLeft"].material.color.setStyle(color)
-      components.current["BottomLeftDisc"].material.color.setStyle(color)
+      for(const count of allCounts){
+        const color = colorOfCategory(bottomCategory,{"": 0, "1/2":0, "2/2":1}[count])
+        components.current["BottomLeft"+count].material.color.setStyle(color)
+        components.current["BottomLeftDisc"+count].material.color.setStyle(color)
+      }
     }
   }
   useEffect(onBottomCategoryChange,[bottomCategory,components.current,loaded])
   const onRightCategoryChange = ()=>{
     if(rightSquare.current){
-      rightSquare.current.material = materialOfCategory(rightCategory)
+      rightSquare.current.material = graphicMaterialOfCategory(rightCategory)
     }
     if(components.current){
-      const color = colorOfCategory(rightCategory)
-      components.current["Right"].material.color.setStyle(color)
-      components.current["RightDisc"].material.color.setStyle(color)
+      for(const count of allCounts){
+        const color = colorOfCategory(rightCategory,{"": 0, "1/2":0, "2/2":1}[count])
+        components.current["Right"+count].material.color.setStyle(color)
+        components.current["RightDisc"+count].material.color.setStyle(color)
+      }
     }
   }
   useEffect(onRightCategoryChange,[rightCategory,components.current,loaded])
@@ -356,8 +413,8 @@ const PortionView = (props : {style, animationState?: PortionViewAnimationState}
 
     const loader = new OBJLoader()
     // const asset = Asset.fromModule(require(''))
-    const modelNormalAsset = Asset.fromModule(require('./assets/normalplate-v1.obj'))
-    const modelWeplateAsset = Asset.fromModule(require('./assets/weplate-v6.obj'))
+    const modelNormalAsset = Asset.fromModule(require('./assets/normalplate-v2.obj'))
+    const modelWeplateAsset = Asset.fromModule(require('./assets/weplate-v7.obj'))
     const modelNormal = await loader.loadAsync(modelNormalAsset.uri)
     const modelWeplate = await loader.loadAsync(modelWeplateAsset.uri)
     // console.log(model)
@@ -365,7 +422,37 @@ const PortionView = (props : {style, animationState?: PortionViewAnimationState}
 
 
     const _displayGroup = new Group()
+    
+    
+    function materialOfCategory(category: FOOD_CATEGORY, hidden = false){
+      return new MeshLambertMaterial({ color: colorOfCategory(category),transparent:true,opacity: hidden ? 0 : 1})
+    }
+    function initComponents(_components){
+      for(const section of sectionNames){
+        for(const count of allCounts){
+          _components[section+count].material =  materialOfCategory(rightCategory,); //red
+          _components[section+"Disc"+count].material = materialOfCategory(rightCategory); //red
+        }
+        _components["Right"].material.opacity = 1.0
+      }
+      
+      // for(const count of allCounts ){
+      //   _components["TopLeft"+ count].material = materialOfCategory(topCategory)
+      //   _components["TopLeftDisc"+ count].material = materialOfCategory(topCategory)
+      // }
+      // _components["TopLeft"].material.opacity = 1.0
 
+      // for(const count of allCounts){
+      //   _components["BottomLeft" + count].material =materialOfCategory(bottomCategory); //yellow
+      //   _components["BottomLeftDisc" + count].material = materialOfCategory(bottomCategory)
+      // }
+      // _components["BottomLeft"].material.opacity = 1.0
+      // new MeshLambertMaterial({color: colorOfCategory(bottomCategory),transparent:true,opacity:0}) //yellow
+
+        _components["PlateBody"].material = new MeshLambertMaterial({color: 'silver',opacity:0.8, transparent: true,})
+        _components["PlateBody"].renderOrder = 9
+        // _components["Right"].scale.set(1,0.5,1);
+    }
     {
       const modelWeplate_scale = 0.5
       modelWeplate.scale.set(modelWeplate_scale,modelWeplate_scale,modelWeplate_scale)
@@ -375,17 +462,8 @@ const PortionView = (props : {style, animationState?: PortionViewAnimationState}
       modelWeplate.children.forEach((object)=>{
         _componentsWeplate[object.name] = object
       })
-      // console.log(Object.keys(_components))
-      _componentsWeplate["Right"].material = new MeshLambertMaterial({ color: colorOfCategory(rightCategory),transparent:true,}); //red
-      _componentsWeplate["BottomLeft"].material = new MeshLambertMaterial({color: colorOfCategory(bottomCategory),transparent:true,}) //yellow
-      _componentsWeplate["TopLeft"].material = new MeshLambertMaterial({color: colorOfCategory(topCategory),transparent:true,}) //orange 
-      _componentsWeplate["RightDisc"].material = new MeshLambertMaterial({ color: colorOfCategory(rightCategory),transparent:true,opacity:0}); //red
-      _componentsWeplate["BottomLeftDisc"].material = new MeshLambertMaterial({color: colorOfCategory(bottomCategory),transparent:true,opacity:0}) //yellow
-      _componentsWeplate["TopLeftDisc"].material = new MeshLambertMaterial({color: colorOfCategory(topCategory),transparent:true,opacity:0}) //orange 
-      _componentsWeplate["PlateBody"].material = new MeshLambertMaterial({color: 'silver',opacity:0.8, transparent: true,})
-      _componentsWeplate["PlateBody"].renderOrder = 9
-      // _components["Right"].scale.set(1,0.5,1);
-
+      console.log({componentsWeplateKeys: Object.keys(_componentsWeplate)})
+      initComponents(_componentsWeplate)
       componentsWeplate.current = _componentsWeplate
 
       _displayGroup.add(modelWeplate)
@@ -399,15 +477,16 @@ const PortionView = (props : {style, animationState?: PortionViewAnimationState}
       modelNormal.children.forEach((object)=>{
         _componentsNormal[object.name] = object
       })
+      initComponents(_componentsNormal)
       // console.log(Object.keys(_components))
-      _componentsNormal["Right"].material = new MeshLambertMaterial({ color: colorOfCategory(rightCategory),transparent:true,}); //red
-      _componentsNormal["BottomLeft"].material = new MeshLambertMaterial({color: colorOfCategory(bottomCategory),transparent:true,}) //yellow
-      _componentsNormal["TopLeft"].material = new MeshLambertMaterial({color: colorOfCategory(topCategory),transparent:true,}) //orange 
-      _componentsNormal["RightDisc"].material = new MeshLambertMaterial({ color: colorOfCategory(rightCategory),transparent:true,opacity:0}); //red
-      _componentsNormal["BottomLeftDisc"].material = new MeshLambertMaterial({color: colorOfCategory(bottomCategory),transparent:true,opacity:0}) //yellow
-      _componentsNormal["TopLeftDisc"].material = new MeshLambertMaterial({color: colorOfCategory(topCategory),transparent:true,opacity:0}) //orange 
-      _componentsNormal["PlateBody"].material = new MeshLambertMaterial({color: 'silver',opacity:0.8, transparent: true,})
-      _componentsNormal["PlateBody"].renderOrder = 9
+      // _componentsNormal["Right"].material = new MeshLambertMaterial({ color: colorOfCategory(rightCategory),transparent:true,}); //red
+      // _componentsNormal["BottomLeft"].material = new MeshLambertMaterial({color: colorOfCategory(bottomCategory),transparent:true,}) //yellow
+      // _componentsNormal["TopLeft"].material = new MeshLambertMaterial({color: colorOfCategory(topCategory),transparent:true,}) //orange 
+      // _componentsNormal["RightDisc"].material = new MeshLambertMaterial({ color: colorOfCategory(rightCategory),transparent:true,opacity:0}); //red
+      // _componentsNormal["BottomLeftDisc"].material = new MeshLambertMaterial({color: colorOfCategory(bottomCategory),transparent:true,opacity:0}) //yellow
+      // _componentsNormal["TopLeftDisc"].material = new MeshLambertMaterial({color: colorOfCategory(topCategory),transparent:true,opacity:0}) //orange 
+      // _componentsNormal["PlateBody"].material = new MeshLambertMaterial({color: 'silver',opacity:0.8, transparent: true,})
+      // _componentsNormal["PlateBody"].renderOrder = 9
       // _components["Right"].scale.set(1,0.5,1);
 
       componentsNormal.current = _componentsNormal
@@ -467,6 +546,13 @@ const PortionView = (props : {style, animationState?: PortionViewAnimationState}
     _rightSquare.position.set(0.6,0.21,0)
     _rightSquare.renderOrder = 10
     rightSquare.current = _rightSquare
+
+    const sectionSquare = {
+      Right: _rightSquare,
+      TopLeft: _topSquare,
+      BottomLeft: _bottomSquare,
+    } as {[key: string]: typeof _rightSquare}
+
 
     _displayGroup.add(_topSquare)
     _displayGroup.add(_bottomSquare)
@@ -544,66 +630,117 @@ const PortionView = (props : {style, animationState?: PortionViewAnimationState}
       //lerp opacity of box
       components.current["PlateBody"].material.opacity = 0.3
       // components.current["PlateBody"].material.opacity = lerp(0.3,0,centralizeValue.current)
-      if(rightDiscrete?.current){
-        components.current["Right"].visible = false
-        components.current["RightDisc"].visible = true
-      }else{
-        components.current["Right"].visible = true
-        components.current["RightDisc"].visible = false
+
+      for(const section of sectionNames){
+        for( const count of allCounts){
+          const isSectionDiscrete = sectionDiscrete[section][count].current as boolean
+          const [animate,value,targ] = sectionTrackedAnimation[section][count]
+          components.current[section+ count].visible = value.current > 0 && !isSectionDiscrete
+          components.current[section + "Disc"+ count].visible = value.current > 0 && isSectionDiscrete
+          // if(){
+          //   components
+          // }
+        }
       }
+      // if(rightDiscrete?.current){
+      //   for( const count of allCounts){
+      //     components.current["Right"+ count].visible = false
+      //     components.current["RightDisc"+ count].visible = true
+      //   }
+      // }else{
+      //   for(const count of allCounts){
+      //     components.current["Right"+ count].visible = true
+      //     components.current["RightDisc" + count].visible = false
+      //   }
+      // }
 
-      components.current["Right"].material.opacity= rightSizeTarg.current == 0 ? 0 : lerp(0.93,1,centralizeValue.current)
-      components.current["RightDisc"].material.opacity= rightSizeTarg.current == 0 ? 0 : lerp(0.93,1,centralizeValue.current)
+      // components.current["Right"].material.opacity= rightSizeTarg.current == 0 ? 0 : lerp(0.93,1,centralizeValue.current)
+      // components.current["RightDisc"].material.opacity= rightSizeTarg.current == 0 ? 0 : lerp(0.93,1,centralizeValue.current)
 
-      if(topDiscrete?.current){
-        components.current["TopLeft"].visible = false
-        components.current["TopLeftDisc"].visible = true
-      }else{
-        components.current["TopLeft"].visible = true
-        components.current["TopLeftDisc"].visible = false
-      }
+      // if(topDiscrete?.current){
+      //   components.current["TopLeft"].visible = false
+      //   components.current["TopLeftDisc"].visible = true
+      // }else{
+      //   components.current["TopLeft"].visible = true
+      //   components.current["TopLeftDisc"].visible = false
+      // }
 
-      components.current["TopLeft"].material.opacity = topLeftSizeTarg.current == 0 ? 0:  lerp(0.93,1,centralizeValue.current)
-      components.current["TopLeftDisc"].material.opacity = topLeftSizeTarg.current == 0 ? 0:  lerp(0.93,1,centralizeValue.current)
+      // components.current["TopLeft"].material.opacity = topLeftSizeTarg.current == 0 ? 0:  lerp(0.93,1,centralizeValue.current)
+      // components.current["TopLeftDisc"].material.opacity = topLeftSizeTarg.current == 0 ? 0:  lerp(0.93,1,centralizeValue.current)
 
-      if(bottomDiscrete?.current){
-        components.current["BottomLeft"].visible = false
-        components.current["BottomLeftDisc"].visible = true
-      }else{
-        components.current["BottomLeft"].visible = true
-        components.current["BottomLeftDisc"].visible = false
-      }
+      // if(bottomDiscrete?.current){
+      //   components.current["BottomLeft"].visible = false
+      //   components.current["BottomLeftDisc"].visible = true
+      // }else{
+      //   components.current["BottomLeft"].visible = true
+      //   components.current["BottomLeftDisc"].visible = false
+      // }
 
-      components.current["BottomLeft"].material.opacity = bottomLeftSizeTarg.current == 0 ? 0 : lerp(0.93,1,centralizeValue.current)
-      components.current["BottomLeftDisc"].material.opacity = bottomLeftSizeTarg.current == 0 ? 0 : lerp(0.93,1,centralizeValue.current)
+      // components.current["BottomLeft"].material.opacity = bottomLeftSizeTarg.current == 0 ? 0 : lerp(0.93,1,centralizeValue.current)
+      // components.current["BottomLeftDisc"].material.opacity = bottomLeftSizeTarg.current == 0 ? 0 : lerp(0.93,1,centralizeValue.current)
 
       const WALL_HEIGHT = {[PlateType.Weplate]: 1.2,[PlateType.Normal]: 0.8}[plateType.current]
+      const sectionSquareScale = {
+        Right:  {[PlateType.Weplate]:[ 1.0 ,1.0 ],[PlateType.Normal]: [ 1.0 , 1.0 ]} ,
+        TopLeft: {[PlateType.Weplate]:[ 0.8 ,1.0 ],[PlateType.Normal]: [ 0.8 , 0.9 ]},
+        BottomLeft:  {[PlateType.Weplate]:[ 0.8 ,1.0 ],[PlateType.Normal]: [ 0.8 , 0.9 ]} ,
+      } as {[key:string]:{[key in PlateType]:[number,number]}}
+      const sectionSquareOffset = {
+        Right: {[PlateType.Weplate]: {x: 0.6,y: -0.2, z: 0}, [PlateType.Normal]: {x: 0.37,y: -0.0, z: 0}},
+        TopLeft: {[PlateType.Weplate]: {x: -0.6, y: -0.2, z: -0.4}, [PlateType.Normal]: {x: -0.35, y: -0.0, z: -0.40}},
+        BottomLeft: {[PlateType.Weplate]: {x:-0.6, y: -0.2, z: 0.4}, [PlateType.Normal]: {x:-0.35, y: -0.0, z: 0.4}},  
+      } as {[key:string]:{[key in PlateType]:{x:number,y:number,z:number}}} 
+
+      for(const section of sectionNames){
+        
+        let maxScale = -1;
+        for(const count of allCounts){
+          const [animate,value,targ] = sectionTrackedAnimation[section][count]
+          let scale = value.current
+          if(scale > 0 && scale > maxScale){
+            maxScale = scale 
+          }
+          components.current[section + count].scale.set(1,scale,1)
+          components.current[section + "Disc"+ count].scale.set(1,scale,1) 
+        }
+        if(maxScale > 0){
+          const scale = maxScale
+          const isDiscrete = sectionDiscrete[section][""].current
+          const squareScale = sectionSquareScale[section][plateType.current][isDiscrete? 0: 1]
+          const squareOffset = sectionSquareOffset[section][plateType.current]
+
+          const square = sectionSquare[section]
+          square.scale.set(squareScale,squareScale,squareScale)
+          square.position.set(squareOffset.x,WALL_HEIGHT/2*scale + squareOffset.y +0.01,squareOffset.z)
+        }
+      }
+
       // {[PlateType.Weplate]:,[PlateType.Normal]: }[plateType.current]
       //set sizes of components
-      let rightScale = rightSizeValue.current
-      if(rightScale == 0) rightScale = 0.01 // prevent z fight
-      components.current["Right"].scale.set(1,rightScale,1)
-      components.current["RightDisc"].scale.set(1,rightScale,1)
-      const rightSquareOffset = {[PlateType.Weplate]: {x: 0.6,y: -0.2, z: 0}, [PlateType.Normal]: {x: 0.37,y: -0.0, z: 0}} [plateType.current]
-      _rightSquare.position.set(rightSquareOffset.x,WALL_HEIGHT/2*rightScale + rightSquareOffset.y +0.01,rightSquareOffset.z)
+      // let rightScale = rightSizeValue.current
+      // if(rightScale == 0) rightScale = 0.01 // prevent z fight
+      // components.current["Right"].scale.set(1,rightScale,1)
+      // components.current["RightDisc"].scale.set(1,rightScale,1)
+      // const rightSquareOffset = {[PlateType.Weplate]: {x: 0.6,y: -0.2, z: 0}, [PlateType.Normal]: {x: 0.37,y: -0.0, z: 0}} [plateType.current]
+      // _rightSquare.position.set(rightSquareOffset.x,WALL_HEIGHT/2*rightScale + rightSquareOffset.y +0.01,rightSquareOffset.z)
 
-      let topScale = topLeftSizeValue.current
-      if(topScale == 0) topScale = 0.01
-      components.current["TopLeft"].scale.set(1,topScale,1)
-      components.current["TopLeftDisc"].scale.set(1,topScale,1)
-      const topSquareScale = {[PlateType.Weplate]:topDiscrete.current ? 0.8 : 1.0,[PlateType.Normal]: topDiscrete.current ? 0.8 : 0.9}[plateType.current] 
-      _topSquare.scale.set(topSquareScale,topSquareScale,topSquareScale)
-      const topSquareOffset = {[PlateType.Weplate]: {x: -0.6, y: -0.2, z: -0.4}, [PlateType.Normal]: {x: -0.35, y: -0.0, z: -0.40}} [plateType.current] 
-      _topSquare.position.set(topSquareOffset.x,WALL_HEIGHT/2*topScale +topSquareOffset.y +0.01,topSquareOffset.z)
+      // let topScale = topLeftSizeValue.current
+      // if(topScale == 0) topScale = 0.01
+      // components.current["TopLeft"].scale.set(1,topScale,1)
+      // components.current["TopLeftDisc"].scale.set(1,topScale,1)
+      // const topSquareScale = {[PlateType.Weplate]:topDiscrete.current ? 0.8 : 1.0,[PlateType.Normal]: topDiscrete.current ? 0.8 : 0.9}[plateType.current] 
+      // _topSquare.scale.set(topSquareScale,topSquareScale,topSquareScale)
+      // const topSquareOffset = {[PlateType.Weplate]: {x: -0.6, y: -0.2, z: -0.4}, [PlateType.Normal]: {x: -0.35, y: -0.0, z: -0.40}} [plateType.current] 
+      // _topSquare.position.set(topSquareOffset.x,WALL_HEIGHT/2*topScale +topSquareOffset.y +0.01,topSquareOffset.z)
 
-      let bottomScale = bottomLeftSizeValue.current
-      if(bottomScale == 0 ) bottomScale = 0.01
-      components.current["BottomLeft"].scale.set(1,bottomScale,1)
-      components.current["BottomLeftDisc"].scale.set(1,bottomScale,1)
-      const bottomSquareSize =  {[PlateType.Weplate]:topDiscrete.current ? 0.8 : 1.0,[PlateType.Normal]: topDiscrete.current ? 0.8 : 0.9}[plateType.current] 
-      _bottomSquare.scale.set(bottomSquareSize,bottomSquareSize,bottomSquareSize)
-      const bottomSquareOffset = {[PlateType.Weplate]: {x:-0.6, y: -0.2, z: 0.4}, [PlateType.Normal]: {x:-0.35, y: -0.0, z: 0.4}} [plateType.current]  
-      _bottomSquare.position.set(bottomSquareOffset.x,WALL_HEIGHT/2*bottomScale +bottomSquareOffset.y +0.01,bottomSquareOffset.z)
+      // let bottomScale = bottomLeftSizeValue.current
+      // if(bottomScale == 0 ) bottomScale = 0.01
+      // components.current["BottomLeft"].scale.set(1,bottomScale,1)
+      // components.current["BottomLeftDisc"].scale.set(1,bottomScale,1)
+      // const bottomSquareSize =  {[PlateType.Weplate]:topDiscrete.current ? 0.8 : 1.0,[PlateType.Normal]: topDiscrete.current ? 0.8 : 0.9}[plateType.current] 
+      // _bottomSquare.scale.set(bottomSquareSize,bottomSquareSize,bottomSquareSize)
+      // const bottomSquareOffset = {[PlateType.Weplate]: {x:-0.6, y: -0.2, z: 0.4}, [PlateType.Normal]: {x:-0.35, y: -0.0, z: 0.4}} [plateType.current]  
+      // _bottomSquare.position.set(bottomSquareOffset.x,WALL_HEIGHT/2*bottomScale +bottomSquareOffset.y +0.01,bottomSquareOffset.z)
 
       
       _perspectiveCamera.setRotationFromAxisAngle( new Vector3(0,1,0),cameraAngleValue.current)

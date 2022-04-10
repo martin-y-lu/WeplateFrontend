@@ -1,7 +1,7 @@
 import { FOOD_CATEGORY } from '../../dashboard/typeUtil';
 
 export type APIMealByTimePayload = Array<APIMealByTimeEvent>
-export type APIKey = number
+export type APIKey = number | string
 export type APITimestamp = string
 export type APILink = string
 
@@ -30,14 +30,21 @@ export interface APIMealSuggest{
     small2:APIMealSuggestEntry,
 }
 
-export interface APIPortionInfo{
+
+
+export type APIPortionSuggestEntry = {
+    id: APIKey,
     volume: number,
+    total_volume: number,
+    section: "small1" | "small2" | "large",
 }
-export interface APIPortionSuggest{
-    large: APIPortionInfo,
-    small1: APIPortionInfo,
-    small2: APIPortionInfo,
-}
+export type APIPortionSuggest = Array<APIPortionSuggestEntry>
+
+// {
+//     large: APIPortionInfo,
+//     small1: APIPortionInfo,
+//     small2: APIPortionInfo,
+// }
 export interface APIAnalyticsMealChoiceEntry{
     id: APIKey,
     timestamp: string,

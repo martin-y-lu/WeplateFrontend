@@ -1,4 +1,4 @@
-import { APIFoodCategory, APIPortionInfo, APIItem, APITimestamp, APIStation } from '../utils/session/apiTypes';
+import { APIFoodCategory, APIPortionSuggestEntry, APIItem, APITimestamp, APIStation, APIKey } from '../utils/session/apiTypes';
 import { TimeInfo } from './state';
 export enum FOOD_CATEGORY{Carbohydrates = "Carbohydrates",Protein = "Protein", Vegetable = "Vegetable"}
 export const foodCategories = [FOOD_CATEGORY.Carbohydrates,FOOD_CATEGORY.Protein,FOOD_CATEGORY.Vegetable]
@@ -54,7 +54,7 @@ export interface NutritionSummaryInfo{
     transFat ?: number //
 }
 
-export type Ingredients = Array<number>
+export type Ingredients = Array<APIKey>
 
 export interface PortionInfo{
     volume ?: number,
@@ -64,7 +64,7 @@ export interface PortionInfo{
 }
 
 export interface Dish{
-    id: number,
+    id: APIKey,
 
     graphic?: string,
     name: string,
@@ -101,21 +101,21 @@ export interface NutritionalRequirements{
 }
 export interface MealState {
     time: TimeInfo,
-    mealID: number,
+    mealID: APIKey,
     recommendationA?: Array<Dish>,
-    dishA?: Dish,
+    dishA?: Dish[],
     recommendationB?: Array<Dish>,
-    dishB?: Dish,
+    dishB?: Dish[],
     recommendationC?: Array<Dish>,
-    dishC?: Dish,
+    dishC?: Dish[],
     menu?: {
         dishes : Dish[]
     },
     nutritionRequirements?:NutritionalRequirements
 }
 
-export function getDishesFromMealState(mealState: MealState){
-    return [mealState.dishA,mealState.dishB,mealState.dishC]
+export function getDishesFromMealState(mealState: MealState): Dish[]{
+    return [...mealState.dishA,...mealState.dishB,...mealState.dishC]
 }
 
 export function getDishesFromMealStateByCategory(mealState:MealState){
@@ -213,7 +213,7 @@ export enum PlateType{
 }
 export const plateTypes = [PlateType.Weplate,PlateType.Normal]
 
-export function getDishByPortion(mealState:MealState,portion:Portion){
+export function getDishesByPortion(mealState:MealState,portion:Portion){
     switch(portion){
         case(Portion.A):
             return mealState.dishA;
@@ -226,29 +226,85 @@ export function getDishByPortion(mealState:MealState,portion:Portion){
             break;
     }
 }
-export function setDishByPortion(mealState:MealState,portion:Portion, toSet : Dish){
+
+export function replaceDishByPortion(mealState:MealState,portion:Portion, id: APIKey, toSet : Dish) : MealState{
+    function replaceDish(dishes: Dish[]){
+        return dishes.map((dish)=>{
+            if(dish?.id == id){
+                return toSet
+            }else{
+                return dish
+            }
+        })
+    }
     switch(portion){
         case(Portion.A):
             return {
                 ...mealState,
-                dishA: toSet
+                dishA: replaceDish(mealState.dishA)
             }    
             break;
         case(Portion.B):
             return {
                 ...mealState,
-                dishB: toSet
+                dishB: replaceDish(mealState.dishB)
             }    
             break;
         case(Portion.C):
             return {
                 ...mealState,
-                dishC: toSet
+                dishC: replaceDish(mealState.dishC)
             }    
             break;
     }
 }
-
+export function removeDishByPortion(mealState:MealState,portion:Portion, id: APIKey) : MealState{
+    function removeDish(dishes: Dish[]){
+        return dishes.filter((dish)=>dish?.id !== id)
+    }
+    switch(portion){
+        case(Portion.A):
+            return {
+                ...mealState,
+                dishA: removeDish(mealState.dishA)
+            }    
+            break;
+        case(Portion.B):
+            return {
+                ...mealState,
+                dishB: removeDish(mealState.dishB)
+            }    
+            break;
+        case(Portion.C):
+            return {
+                ...mealState,
+                dishC: removeDish(mealState.dishC)
+            }    
+            break;
+    }
+}
+export function addDishByPortion(mealState:MealState,portion:Portion, toSet : Dish) : MealState{
+    switch(portion){
+        case(Portion.A):
+            return {
+                ...mealState,
+                dishA: [...mealState.dishA, toSet]
+            }    
+            break;
+        case(Portion.B):
+            return {
+                ...mealState,
+                dishB: [...mealState.dishB, toSet]
+            }    
+            break;
+        case(Portion.C):
+            return {
+                ...mealState,
+                dishC:[...mealState.dishC, toSet]
+            }    
+            break;
+    }
+}
 export function getRecommendationsByPortion(mealState:MealState,portion:Portion){
     switch(portion){
         case(Portion.A):
@@ -297,21 +353,21 @@ function pieceFillMapper(val:number):number{
     return Math.pow(val,0.4) ;
 }
 
-export function getPortionInfoFromAPIPortionInfo(dish:Dish,info:APIPortionInfo,portion: Portion,plateType: PlateType){
+export function getPortionInfoFromAPIPortionInfo(dish:Dish,info:APIPortionSuggestEntry,portion: Portion,plateType: PlateType){
     let nutrientFraction = 1;
     let fillFraction = 1;
     if(dish.portionAmount.discrete){
         const numPieces =  Math.min( Math.abs(Math.round(info.volume)), dish.portionAmount.maxPieces)
-        nutrientFraction = numPieces/dish.portionAmount.maxPieces
+        nutrientFraction = numPieces/dish.portionAmount.count
         fillFraction = pieceFillMapper(dish.portionAmount.count/dish.portionAmount.maxPieces)
     }else if(dish.portionAmount.discrete === false){
         nutrientFraction = info.volume/ dish.portionAmount.volume;
-        fillFraction = info.volume/fullVolumeByPortion(portion,plateType);
+        fillFraction = info.volume/info.total_volume;
     }
     return {
         fillFraction,
         nutrientFraction,
-        volume: info.volume,
+        volume: Math.abs(info.volume),
         // weight: info.weight,
     } as PortionInfo
 }
