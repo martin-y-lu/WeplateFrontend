@@ -24,6 +24,7 @@ import { usePersistentAtom } from "../utils/state/userState";
 import { LoadingIcon } from '../utils/Loading';
 import { useLogin } from '../utils/session/session';
 import { useDesignScheme } from '../design/designScheme';
+import { TEST } from '../../App';
 
 const drag_icon_svg = `<svg width="59" height="55" viewBox="0 0 59 55" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M30.5507 37.8757C30.5507 37.0086 30.5507 36.0361 30.5507 34.9885M36.8279 23.0265C36.8279 18.1153 36.8279 12.1876 36.8279 10.9268C36.8279 9.07077 35.5841 7.62695 33.6502 7.62695C31.7163 7.62695 30.5507 8.66962 30.5507 10.9268C30.5507 13.184 30.5507 26.6231 30.5507 34.9885M36.8279 23.0265C36.8279 26.1137 36.8279 28.1895 36.8279 30.3595C36.8279 28.3735 36.8279 24.933 36.8279 23.0265ZM36.8279 23.0265C36.8279 21.1015 38.3848 19.8985 40.1329 19.8985C41.881 19.8985 43.423 20.9182 43.423 23.0265C43.423 23.3621 43.423 22.9233 43.423 24.9285M43.423 24.9285C43.423 26.9336 43.423 29.7045 43.423 31.3678C43.423 31.3678 43.423 26.9336 43.423 24.9285ZM43.423 24.9285C43.423 22.9233 44.7462 21.8578 46.7326 21.8578C48.7191 21.8578 49.7002 23.6223 49.7201 25.0889C49.7263 25.5511 49.723 27.537 49.7201 27.9992M49.7201 32.3303C49.7241 31.1636 49.7198 29.1658 49.7201 27.9992M49.7201 27.9992C49.7201 26.4867 51.2272 25.3868 53.0459 25.3868C54.8646 25.3868 56.1959 26.8992 56.1959 28.2283C56.1959 29.5574 56.1959 36.9134 56.1959 39.0216C56.1959 43.834 53.014 48.3711 49.1731 50.5711C45.3323 52.771 44.04 53.0001 40.6967 53.0001C37.3534 53.0001 33.182 50.6477 31.4364 49.1503C29.6907 47.6529 21.2938 37.8759 20.3403 36.7759C19.0491 35.2864 19.2228 33.4302 19.4285 32.9261C19.6343 32.4219 20.1389 31.4708 21.0212 30.8521C21.9034 30.2333 22.6139 30.1762 23.5981 30.3595C24.5824 30.5428 28.551 33.5677 30.5507 34.9885" stroke="#F0ECEC" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
@@ -65,13 +66,14 @@ export function useMealFeatures({timeInfo,onLoad, doFetchMeal,doFetchNutritionRe
     const userActions = useUserActions()
     const auth = useRecoilValue(authAtom)
     const [persistentState,setPersistentState,fetchPersistentState,dangerouslySetPersistentState] = usePersistentAtom() as any
-    const {plateType} = persistentState
+    let {plateType} = persistentState
+    plateType = plateType ?? PlateType.WePlate
     const {getMealState} = useMealStateUtils()
 
     const [mealState, setMealState] : [MealState,(mealState: MealState) => void]= getMealState(timeInfo)
     const [loadingMealState,setLoadingMealState] = useState(false)
     const clearedLoadingPortions = {
-        [PlateType.Weplate]: false,
+        [PlateType.WePlate]: false,
         [PlateType.Normal]: false,
     }
     const [loadingPortions, setLoadingPortions] = useState(clearedLoadingPortions)
@@ -142,158 +144,174 @@ export function useMealFeatures({timeInfo,onLoad, doFetchMeal,doFetchNutritionRe
     )
     async function fetchMeal(){
         console.log("try fetching.")
-        if(persistentState.loaded == false){ 
-            console.log("Persistent state not loaded")    
-            return
-        }
-        if(timeInfo?.date == null || timeInfo?.meal == null) return
-        if(auth === null) return
-        // console.log("Fetching meal!")
-        setLoadingMealState(true)
-        const data :APIMealByTimePayload = await userActions.mealsByTime(timeInfo)
-        if(data.length == 0 ){
-            // console.log("Nomeal")
-            let message = "No meals at this time!";
-            if(isFuture){
-                message = "Menu coming soon..."
+        try{
+            if(persistentState.loaded == false){ 
+                console.log("Persistent state not loaded")    
+                return
             }
-            setNoMeal({message})
-        }else{
-            const mealID = data[0].id as number;
-            console.log("MealID:",mealID)
-            //TODONE make fetches concurrent
-            // const mealEvent = await userActions.mealById(mealID);
-            // const suggestion = await userActions.suggestionByMealId(mealID);
-            // const prevChoices = await userActions.getAnalyticsMealChoices(mealID);
-            const mealEvent = await userActions.mealById(mealID);
-            const dishes = mealEvent.items.map(convertAPIItemToDish)
-            if(dishes.length === 0){
-                setNoMeal({message:"Mo meals at this time!"})
-                return;
-            }
-            let newState : MealState = {
-                time: timeInfo,
-                mealID: mealEvent.id,
-                menu: {
-                    dishes
-                },
-            }
-            if(doFetchMeal){
-                const [suggestion,prevChoices,nutritional] = await Promise.all([userActions.suggestionByMealId(mealID,volumesByPlateType(plateType)),userActions.getAnalyticsMealChoices(mealID),userActions.getNutritionalRequirements()])
-                console.log({nutritional})
-                newState.nutritionRequirements = nutritional
-                // console.log({suggestion})
-                // console.log({mealEvent,suggestion})
-                // console.log({mealEvent})
-                // debug purposes
-                
-                console.log("Dishes: ",dishes.length)
-                function getDishByIdFromList(list:Dish[],id:APIKey){
-                    const dish = list.filter(dish=> dish.id === id)
-                    if(dish.length === 1){
-                        return dish[0]
+            if(timeInfo?.date == null || timeInfo?.meal == null) return
+            if(auth === null) return
+            // console.log("Fetching meal!")
+            setLoadingMealState(true)
+            const data :APIMealByTimePayload = await userActions.mealsByTime(timeInfo)
+            if(data.length == 0 ){
+                // console.log("Nomeal")
+                let message = "No meals at this time!";
+                if(isFuture){
+                    message = "Menu coming soon..."
+                }
+                setNoMeal({message})
+            }else{
+                const mealID = data[0].id as number;
+                console.log("MealID:",mealID)
+                //TODONE make fetches concurrent
+                // const mealEvent = await userActions.mealById(mealID);
+                // const suggestion = await userActions.suggestionByMealId(mealID);
+                // const prevChoices = await userActions.getAnalyticsMealChoices(mealID);
+                const mealEvent = await userActions.mealById(mealID);
+                const dishes = mealEvent.items.map(convertAPIItemToDish)
+                if(dishes.length === 0){
+                    setNoMeal({message:"Mo meals at this time!"})
+                    return;
+                }
+                let newState : MealState = {
+                    time: timeInfo,
+                    mealID: mealEvent.id,
+                    menu: {
+                        dishes
+                    },
+                }
+                if(doFetchMeal){
+                    const [suggestion,prevChoices,nutritional] = await Promise.all([userActions.suggestionByMealId(mealID,volumesByPlateType(plateType)),userActions.getAnalyticsMealChoices(mealID),userActions.getNutritionalRequirements()])
+                    console.log({nutritional})
+                    newState.nutritionRequirements = nutritional
+                    // console.log({suggestion})
+                    // console.log({mealEvent,suggestion})
+                    // console.log({mealEvent})
+                    // debug purposes
+                    
+                    console.log("Dishes: ",dishes.length)
+                    function getDishByIdFromList(list:Dish[],id:APIKey){
+                        const dish = list.filter(dish=> dish.id === id)
+                        if(dish.length === 1){
+                            return dish[0]
+                        }else{
+                            return null;
+                        }
+                    }
+                    function getDishById(id:APIKey) {
+                        return getDishByIdFromList(dishes,id)
+                    }
+                    function idsOfList(list:Dish[]){
+                        return list.map(dish=> dish.id)
+                    }
+                    function makeRecommendationList(items:Array<APIKey>,category:FOOD_CATEGORY){
+                        // console.log({category})
+                        const list = items.map(getDishById).filter(dish=> dish !== null)
+                        let ids = []
+                        let norepList = [] as Array<Dish>
+                        list.forEach((_dish:Dish)=>{
+                            const dish = JSON.parse(JSON.stringify(_dish))
+                            if(!ids.includes(dish.id)){
+                                dish.category = category
+                                norepList.push(dish)
+                                ids.push(dish.id)
+                            }
+                        })
+                        // console.log({norepList})
+                        return norepList
+                    }
+                    function makeRecommendation(entry: APIMealSuggestEntry){
+                        if(!entry) return []
+                        // console.log({entryCategory: entry.category})
+                        return makeRecommendationList(entry.items as Array<number>,FoodCategoryFromAPIFoodCategory(entry.category))
+                    }
+                    console.log("Suggestion:",suggestion)    
+                    // if(suggestion == null){
+                    //     if(mealEvent.id == mealState.mealID){
+                    //         setNoMeal({message: "WePlate couldn't find any suggestions 😐"})
+                    //     }
+                    //     console.log("Set no meal!")
+                    //     return 
+                    // }        
+                    const recommendationA = makeRecommendation(suggestion?.small1)
+                    const recommendationB = makeRecommendation(suggestion?.small2)
+                    const recommendationC = makeRecommendation(suggestion?.large)
+                    console.log({recommendationA,recommendationB,recommendationC})
+                    if (recommendationA.length == 0 || recommendationB.length == 0 || recommendationC.length == 0 ){
+                        if(mealEvent.id == mealState.mealID){
+                            setNoMeal({message: "WePlate couldn't find any suggestions 😐"})
+                        }
+                        console.log("Set no meal!")
+                        return
+                        // throw new Error("Issue with suggestions!")
+                    } 
+
+                    // get lateset
+                    let dishA = null as Dish;
+                    let dishB = null as Dish;
+                    let dishC = null as Dish;
+
+                    if(prevChoices.length == 0){
+                        // if no choice has been made yet, default to first
+                        dishA = recommendationA[0]
+                        dishB = recommendationB[0]
+                        dishC = recommendationC[0]
                     }else{
-                        return null;
+                        const recentEntry = prevChoices[0]
+                        // console.log({recentEntry, idsA: idsOfList(recommendationA),idsB: idsOfList(recommendationB), idsC: idsOfList(recommendationC)})
+                        dishA = getDishByIdFromList(recommendationA,recentEntry.small1)
+                        // recBIds = 
+                        dishB = getDishByIdFromList(recommendationB,recentEntry.small2)
+                        dishC = getDishByIdFromList(recommendationC,recentEntry.large)
+                    }
+                    
+                    if(dishA === null || dishB === null || dishC == null){
+                        // console.log("issue with prevEntries, failing gracefully")
+                        dishA = recommendationA[0]
+                        dishB = recommendationB[0]
+                        dishC = recommendationC[0] 
+                    }
+                    
+                    
+                    console.log("DISHA :",dishA)
+                    console.log("DISHB :",dishB)
+                    console.log("DISHC :",dishC)
+                    console.log(dishA?.portion,dishB?.portion,dishC?.portion)
+                    if(dishA?.portion === undefined){
+                        dishA.portion = {}
+                    } 
+                    if(dishB?.portion === undefined){
+                        dishB.portion = {}
+                    }
+                    if( dishC?.portion === undefined){
+                        // console.log("FETCHING SIZES")
+                        // setMealDishes(dishA,dishB,dishC)
+                        dishC.portion = {}
+                    }
+                    
+                    // console.log(dishes)
+                
+                    newState = {
+                        ...newState,
+                        recommendationA,
+                        recommendationB,
+                        recommendationC,
+                        dishA:[dishA],
+                        dishB:[dishB],
+                        dishC:[dishC],
                     }
                 }
-                function getDishById(id:APIKey) {
-                    return getDishByIdFromList(dishes,id)
-                }
-                function idsOfList(list:Dish[]){
-                    return list.map(dish=> dish.id)
-                }
-                function makeRecommendationList(items:Array<APIKey>,category:FOOD_CATEGORY){
-                    // console.log({category})
-                    const list = items.map(getDishById).filter(dish=> dish !== null)
-                    let ids = []
-                    let norepList = [] as Array<Dish>
-                    list.forEach((_dish:Dish)=>{
-                        const dish = JSON.parse(JSON.stringify(_dish))
-                        if(!ids.includes(dish.id)){
-                            dish.category = category
-                            norepList.push(dish)
-                            ids.push(dish.id)
-                        }
-                    })
-                    // console.log({norepList})
-                    return norepList
-                }
-                function makeRecommendation(entry: APIMealSuggestEntry){
-                    // console.log({entryCategory: entry.category})
-                    return makeRecommendationList(entry.items as Array<number>,FoodCategoryFromAPIFoodCategory(entry.category))
-                }
-                console.log("Suggestion:",suggestion)            
-                const recommendationA = makeRecommendation(suggestion.small1)
-                const recommendationB = makeRecommendation(suggestion.small2)
-                const recommendationC = makeRecommendation(suggestion.large)
-                console.log({recommendationA,recommendationB,recommendationC})
-                if (recommendationA.length == 0 || recommendationB.length == 0 || recommendationC.length == 0 ){
-                    setNoMeal({message: "WePlate couldn't find any suggestions 😐"})
-                    console.log("Set no meal!")
-                    return
-                    // throw new Error("Issue with suggestions!")
-                } 
-
-                // get lateset
-                let dishA = null as Dish;
-                let dishB = null as Dish;
-                let dishC = null as Dish;
-
-                if(prevChoices.length == 0){
-                    // if no choice has been made yet, default to first
-                    dishA = recommendationA[0]
-                    dishB = recommendationB[0]
-                    dishC = recommendationC[0]
-                }else{
-                    const recentEntry = prevChoices[0]
-                    // console.log({recentEntry, idsA: idsOfList(recommendationA),idsB: idsOfList(recommendationB), idsC: idsOfList(recommendationC)})
-                    dishA = getDishByIdFromList(recommendationA,recentEntry.small1)
-                    // recBIds = 
-                    dishB = getDishByIdFromList(recommendationB,recentEntry.small2)
-                    dishC = getDishByIdFromList(recommendationC,recentEntry.large)
-                }
-                
-                if(dishA === null || dishB === null || dishC == null){
-                    // console.log("issue with prevEntries, failing gracefully")
-                    dishA = recommendationA[0]
-                    dishB = recommendationB[0]
-                    dishC = recommendationC[0] 
-                }
-                
-                
-                console.log("DISHA :",dishA)
-                console.log("DISHB :",dishB)
-                console.log("DISHC :",dishC)
-                console.log(dishA?.portion,dishB?.portion,dishC?.portion)
-                if(dishA?.portion === undefined){
-                    dishA.portion = {}
-                } 
-                if(dishB?.portion === undefined){
-                    dishB.portion = {}
-                }
-                if( dishC?.portion === undefined){
-                    // console.log("FETCHING SIZES")
-                    // setMealDishes(dishA,dishB,dishC)
-                    dishC.portion = {}
-                }
-                
-                // console.log(dishes)
-            
-                newState = {
-                    ...newState,
-                    recommendationA,
-                    recommendationB,
-                    recommendationC,
-                    dishA:[dishA],
-                    dishB:[dishB],
-                    dishC:[dishC],
-                }
+                // console.log({newState})
+                setMealState(newState)
+                setLoadingMealState(false)
+                //start onboarding
+                onLoad()
             }
-            // console.log({newState})
-            setMealState(newState)
-            setLoadingMealState(false)
-            //start onboarding
-            onLoad()
+        }catch(e){
+            if(TEST){
+                setNoMeal({message: JSON.stringify(e)})
+            }
         }
     }
     function allDishesPortioned(dishes: Dish[]): boolean {

@@ -1,6 +1,6 @@
 import { Animated, ScrollView, Text, TouchableOpacity, View } from "react-native"
 import NutritionFactsContainer from "./NutritionFactsContainer"
-import { FOOD_CATEGORY, MEAL, STATION, MealState, Dish, NutritionInfo, NutritionSummaryInfo, foodCategories, getFoodCategoryDescription, getDishesFromMealState, getDishesFromMealStateByCategory, NutritionalRequirements, PlateType } from './typeUtil';
+import { FOOD_CATEGORY, MealState, Dish,  foodCategories, getFoodCategoryDescription, getDishesFromMealState, getDishesFromMealStateByCategory, NutritionalRequirements, PlateType } from './typeUtil';
 
 export const easter_egg_xml = `<svg width="112" height="85" viewBox="0 0 112 85" fill="none" xmlns="http://www.w3.org/2000/svg">
 <rect x="29.0854" y="42.4222" width="10.5854" height="22.3167" transform="rotate(-17.2827 29.0854 42.4222)" fill="#0CCC09" stroke="black" stroke-width="3"/>

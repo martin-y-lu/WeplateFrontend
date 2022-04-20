@@ -208,10 +208,10 @@ export enum Portion{
 }
 
 export enum PlateType{
-    Weplate = "Weplate0",
+    WePlate = "WePlate0",
     Normal = "Normal0",
 }
-export const plateTypes = [PlateType.Weplate,PlateType.Normal]
+export const plateTypes = [PlateType.WePlate,PlateType.Normal]
 
 export function getDishesByPortion(mealState:MealState,portion:Portion){
     switch(portion){
@@ -324,21 +324,21 @@ export function fullVolumeByPortion(portion: Portion, plateType: PlateType){
             switch(plateType){
                 case PlateType.Normal:
                     return 400;
-                case PlateType.Weplate:
+                case PlateType.WePlate:
                     return 270
             }
         case Portion.B:
             switch(plateType){
                 case PlateType.Normal:
                     return 400;
-                case PlateType.Weplate:
+                case PlateType.WePlate:
                     return 270
             }
         case Portion.C:
             switch(plateType){
                 case PlateType.Normal:
                     return 800;
-                case PlateType.Weplate:
+                case PlateType.WePlate:
                     return 610
             }
     }

@@ -10,6 +10,7 @@ export const SHADOW_STYLE = {
 
 import { SvgXml } from "react-native-svg"
 import {useEffect} from 'react';
+import {useRef} from 'react';
 
 export const loading_icon_svg = `<svg width="37" height="37" viewBox="0 0 37 37" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M36.4624 18.5315C36.4624 28.3519 28.5014 36.313 18.6809 36.313C8.86046 36.313 0.899414 28.3519 0.899414 18.5315C0.899414 8.71105 8.86046 0.75 18.6809 0.75C28.5014 0.75 36.4624 8.71105 36.4624 18.5315ZM6.23386 18.5315C6.23386 25.4058 11.8066 30.9785 18.6809 30.9785C25.5552 30.9785 31.128 25.4058 31.128 18.5315C31.128 11.6572 25.5552 6.08445 18.6809 6.08445C11.8066 6.08445 6.23386 11.6572 6.23386 18.5315Z" fill="#D6D3D3"/>
@@ -18,10 +19,10 @@ export const loading_icon_svg = `<svg width="37" height="37" viewBox="0 0 37 37"
 `
 
 export const LoadingIcon = (props)=>{
-    const angle  = new Animated.Value(0)
+    const angle  =  useRef(new Animated.Value(0))
     const length = 1000*40;
     useEffect(()=>{
-        Animated.timing(angle,{
+        Animated.timing(angle.current,{
             toValue: 0.02*length,
             duration: length,
             useNativeDriver: true,
@@ -29,7 +30,7 @@ export const LoadingIcon = (props)=>{
     },[])
  
     return <Animated.View style = {{
-        transform : [{rotate: angle}]
+        transform : [{rotate: angle.current}]
     }}> 
         <SvgXml xml = {loading_icon_svg}/>
     </Animated.View>

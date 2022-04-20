@@ -22,11 +22,12 @@ PODS:
     - React-Core
   - EXKeepAwake (10.0.2):
     - ExpoModulesCore
+  - EXNotifications (0.14.1):
+    - ExpoModulesCore
   - Expo (44.0.6):
     - ExpoModulesCore
-  - ExpoModulesCore (0.6.5):
+  - ExpoModulesCore (0.4.10):
     - React-Core
-    - ReactCommon/turbomodule/core
   - EXSplashScreen (0.14.1):
     - ExpoModulesCore
     - React-Core
@@ -366,6 +367,7 @@ DEPENDENCIES:
   - EXGL_CPP (from `../node_modules/expo-gl-cpp/cpp`)
   - EXImageLoader (from `../node_modules/expo-image-loader/ios`)
   - EXKeepAwake (from `../node_modules/expo-keep-awake/ios`)
+  - EXNotifications (from `../node_modules/expo-notifications/ios`)
   - Expo (from `../node_modules/expo/ios`)
   - ExpoModulesCore (from `../node_modules/expo-modules-core/ios`)
   - EXSplashScreen (from `../node_modules/expo-splash-screen/ios`)
@@ -439,6 +441,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-image-loader/ios"
   EXKeepAwake:
     :path: "../node_modules/expo-keep-awake/ios"
+  EXNotifications:
+    :path: "../node_modules/expo-notifications/ios"
   Expo:
     :path: "../node_modules/expo/ios"
   ExpoModulesCore:
@@ -542,8 +546,9 @@ SPEC CHECKSUMS:
   EXGL_CPP: 76964bd58c8ab1932b8d86b532d66c9b32133f02
   EXImageLoader: 939451be6f7b731aaa6588920b90743f20121a4d
   EXKeepAwake: bf48d7f740a5cd2befed6cf9a49911d385c6c47d
+  EXNotifications: a7d582fa800d77f4a75bd22d52e84e2fbcee26df
   Expo: 534e51e607aba8229293297da5585f4b26f50fa1
-  ExpoModulesCore: 32c0ccb47f477d330ee93db72505380adf0de09a
+  ExpoModulesCore: c9438f6add0fb7b04b7c64eb97a833d2752a7834
   EXSplashScreen: 7872675b95bb07c25f922b3d3dfae70c76fb5a00
   FBLazyVector: c71c5917ec0ad2de41d5d06a5855f6d5eda06971
   FBReactNativeSpec: e3f739200d2e9ffdaf9046cc56478f697d9fcb48

@@ -269,6 +269,8 @@ const ChangeMenuItem = (props : { plateType: PlateType, modalOpen:ModalInfo ,set
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
 
+        
+        
         paddingHorizontal: 35,
         paddingTop: 25 ,
 
@@ -276,6 +278,7 @@ const ChangeMenuItem = (props : { plateType: PlateType, modalOpen:ModalInfo ,set
     }}>
         <TouchableOpacity style = {{
             marginTop: 20,
+          
             flexDirection: "row",
             alignSelf:"flex-start"
         }}
@@ -307,6 +310,7 @@ const ChangeMenuItem = (props : { plateType: PlateType, modalOpen:ModalInfo ,set
         }} data = {dishes} renderItem = {renderDish} />
         <View style = {{
             width: "100%",
+            // backgroundColor: "orange",
             flexDirection: "row-reverse",
             alignItems: "center",
             opacity: loading ? 0.8 : 1.0
@@ -314,7 +318,7 @@ const ChangeMenuItem = (props : { plateType: PlateType, modalOpen:ModalInfo ,set
             {
                 isAltering ? <>   
                     <View style = {{
-
+                        opacity: selectedMatches || selectedDish == null ? 0.5 : 1.0
                     }}>                    
                     <TouchableOpacity style = {{
                         backgroundColor: ds.colors.accent2,
@@ -350,6 +354,7 @@ const ChangeMenuItem = (props : { plateType: PlateType, modalOpen:ModalInfo ,set
                             onPress = {async ()=>{
                                 if(!loading && currentDish.length > 1){
                                     const tempMealState = removeDishByPortion(mealState,portion, dishId);
+                                    setSelectedDish(openedDish) 
                                     setLoading(true);
                                     await setMealDishes(tempMealState.dishA,tempMealState.dishB,tempMealState.dishC, plateType)
                                     setModalOpen(null)// close modal
@@ -365,6 +370,7 @@ const ChangeMenuItem = (props : { plateType: PlateType, modalOpen:ModalInfo ,set
                             </Text>
                         </TouchableOpacity>
                     }
+                    
                 </>:
                 <>
                 { 
@@ -399,6 +405,21 @@ const ChangeMenuItem = (props : { plateType: PlateType, modalOpen:ModalInfo ,set
                 }
                 </>
             }
+            <TouchableOpacity style = {{  
+                        marginLeft: "auto",
+                        marginRight: 40,
+                    }}
+                onPress = {async ()=>{
+                    setModalOpen(null)// close modal
+                }}
+            >
+                <Text style = {{
+                    color: ds.colors.grayscale2,
+                }}
+                >
+                    Back
+                </Text>
+            </TouchableOpacity>
         </View>
     </View>
 }

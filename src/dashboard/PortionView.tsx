@@ -41,16 +41,19 @@ import { FOOD_CATEGORY, MEAL, PlateType, plateTypes } from './typeUtil';
 import { colorOfCategory } from './NutritionFacts';
 import { useDesignScheme } from '../design/designScheme';
 import { SvgXml } from 'react-native-svg';
+import { SHADOW_STYLE } from '../utils/Loading';
 
-const weplate_icon_svg = `<svg width="52" height="38" viewBox="0 0 52 38" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M25.8995 3.5H49.046V34.4859H25.8995M25.8995 3.5H2.75293V18.9929M25.8995 3.5V18.9929M25.8995 34.4859H2.75293V18.9929M25.8995 34.4859V18.9929M25.8995 18.9929H2.75293" stroke="white" stroke-width="5.45448" stroke-linecap="round" stroke-linejoin="round"/>
+const weplate_icon_svg = `<svg width="18" height="13" viewBox="0 0 18 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M9.42676 1.47314H16.6494V11.142H9.42676M9.42676 1.47314H2.2041V6.30756M9.42676 1.47314V6.30756M9.42676 11.142H2.2041V6.30756M9.42676 11.142V6.30756M9.42676 6.30756H2.2041" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
 `
-const normalplate_icon_svg = `<svg width="53" height="52" viewBox="0 0 53 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M26.5001 3.5V25.9929M26.5001 47.5V25.9929M26.5001 25.9929H3.35352" stroke="white" stroke-width="5.45448" stroke-linecap="round" stroke-linejoin="round"/>
-<circle cx="26.5" cy="25.9929" r="22.9732" stroke="white" stroke-width="5.45"/>
+const normalplate_icon_svg =  `<svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M8.94069 2.3125V9.30753M8.94069 16.3963V9.30753M8.94069 9.30753H1.8125" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="8.94092" cy="9.30762" r="7.22021" stroke="white" stroke-width="2.5"/>
 </svg>
 `
+
+
 
 if (!global.btoa) {
   global.btoa = encode;
@@ -355,7 +358,7 @@ const PortionView = (props : {style, animationState?: PortionViewAnimationState}
   const onPlateTypeChange = ()=>{
     const modelComponent = {
       [PlateType.Normal] : componentsNormal,
-      [PlateType.Weplate]: componentsWeplate,
+      [PlateType.WePlate]: componentsWeplate,
     }
     components.current = modelComponent[plateType.current].current
     onTopCategoryChange()
@@ -496,11 +499,11 @@ const PortionView = (props : {style, animationState?: PortionViewAnimationState}
 
     const models = {
       [PlateType.Normal]: modelNormal,
-      [PlateType.Weplate]: modelWeplate,
+      [PlateType.WePlate]: modelWeplate,
     } as {[key in PlateType]: Group}
     const modelComponent = {
       [PlateType.Normal] : componentsNormal,
-      [PlateType.Weplate]: componentsWeplate,
+      [PlateType.WePlate]: componentsWeplate,
     }
 
     components.current = modelComponent[plateType.current].current
@@ -679,16 +682,16 @@ const PortionView = (props : {style, animationState?: PortionViewAnimationState}
       // components.current["BottomLeft"].material.opacity = bottomLeftSizeTarg.current == 0 ? 0 : lerp(0.93,1,centralizeValue.current)
       // components.current["BottomLeftDisc"].material.opacity = bottomLeftSizeTarg.current == 0 ? 0 : lerp(0.93,1,centralizeValue.current)
 
-      const WALL_HEIGHT = {[PlateType.Weplate]: 1.2,[PlateType.Normal]: 0.8}[plateType.current]
+      const WALL_HEIGHT = {[PlateType.WePlate]: 1.2,[PlateType.Normal]: 0.8}[plateType.current]
       const sectionSquareScale = {
-        Right:  {[PlateType.Weplate]:[ 1.0 ,1.0 ],[PlateType.Normal]: [ 1.0 , 1.0 ]} ,
-        TopLeft: {[PlateType.Weplate]:[ 0.8 ,1.0 ],[PlateType.Normal]: [ 0.8 , 0.9 ]},
-        BottomLeft:  {[PlateType.Weplate]:[ 0.8 ,1.0 ],[PlateType.Normal]: [ 0.8 , 0.9 ]} ,
+        Right:  {[PlateType.WePlate]:[ 1.0 ,1.0 ],[PlateType.Normal]: [ 1.0 , 1.0 ]} ,
+        TopLeft: {[PlateType.WePlate]:[ 0.8 ,1.0 ],[PlateType.Normal]: [ 0.75 , 0.85 ]},
+        BottomLeft:  {[PlateType.WePlate]:[ 0.8 ,1.0 ],[PlateType.Normal]: [ 0.75 , 0.85 ]} ,
       } as {[key:string]:{[key in PlateType]:[number,number]}}
       const sectionSquareOffset = {
-        Right: {[PlateType.Weplate]: {x: 0.6,y: -0.2, z: 0}, [PlateType.Normal]: {x: 0.37,y: -0.0, z: 0}},
-        TopLeft: {[PlateType.Weplate]: {x: -0.6, y: -0.2, z: -0.4}, [PlateType.Normal]: {x: -0.35, y: -0.0, z: -0.40}},
-        BottomLeft: {[PlateType.Weplate]: {x:-0.6, y: -0.2, z: 0.4}, [PlateType.Normal]: {x:-0.35, y: -0.0, z: 0.4}},  
+        Right: {[PlateType.WePlate]: {x: 0.6 +0.05,y: -0.2, z: 0}, [PlateType.Normal]: {x: 0.37,y: -0.0, z: 0}},
+        TopLeft: {[PlateType.WePlate]: {x: -0.6 +0.05, y: -0.2, z: -0.4}, [PlateType.Normal]: {x: -0.33, y: -0.0, z: -0.40}},
+        BottomLeft: {[PlateType.WePlate]: {x:-0.6 + 0.05, y: -0.2, z: 0.4}, [PlateType.Normal]: {x:-0.33, y: -0.0, z: 0.4}},  
       } as {[key:string]:{[key in PlateType]:{x:number,y:number,z:number}}} 
 
       for(const section of sectionNames){
@@ -832,12 +835,13 @@ const PortionView = (props : {style, animationState?: PortionViewAnimationState}
     </TouchableOpacity> */}
     <TouchableOpacity style = {{
             position:"absolute",
-            right: 0,
-            width: 60,
-            height: 60,
-            backgroundColor: ds.colors.grayscale4,
-            borderRadius: 5,
+            right: 20,
+            width: 30,
+            height: 30,
+            borderRadius: 15,
+            backgroundColor: ds.colors.grayscale3_4,
             opacity: 0.8,
+            ...{SHADOW_STYLE},
 
             justifyContent: 'center',
             alignItems: "center",
@@ -866,7 +870,7 @@ const PortionView = (props : {style, animationState?: PortionViewAnimationState}
 
               }
           }}>
-            <SvgXml xml= { {[PlateType.Normal]:weplate_icon_svg, [PlateType.Weplate]:normalplate_icon_svg}[plateType.current]}/>
+            <SvgXml xml= { {[PlateType.Normal]:weplate_icon_svg, [PlateType.WePlate]:normalplate_icon_svg}[plateType.current]}/>
     </TouchableOpacity>
   </View>
   return baseView

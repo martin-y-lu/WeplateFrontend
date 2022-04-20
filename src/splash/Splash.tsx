@@ -163,7 +163,8 @@ function Splash({navigation}){
                 color: "white",
                 fontSize: 25,
             }}>
-                Test build (not for release)
+                Test build (not for release) <br/>
+                Not for sale.
             </Text>}
     {
         (updateRequired == "maintenance") &&  <Animated.View style = {{
@@ -177,7 +178,7 @@ function Splash({navigation}){
                 color: "white",
                 fontSize: 20,
             }}>
-                Weplate is down for maintenance
+                WePlate is down for maintenance
             </Text>
         </Animated.View> 
     }

@@ -188,7 +188,7 @@ const DiningMenu = ({navigation,route})=> {
     const currentStation = route?.params?.station ?? STATION.A
 
     const {timeInfo} = useDashboardState()
-    const {mealState,loading,noMeal,setMealDishes, isPast, isPresent, isFuture} = useMealFeatures({timeInfo,onLoad: ()=>{},doFetchMeal: false, doFetchNutritionReq: true})
+    const {mealState,loading,noMeal,setMealDishes } = useMealFeatures({timeInfo,onLoad: ()=>{},doFetchMeal: false, doFetchNutritionReq: true})
     const [foods,setFoods] = useState([] as Dish[])
     useEffect(()=>{
         // console.log(currentStation)
@@ -222,14 +222,14 @@ const DiningMenu = ({navigation,route})=> {
     
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: ds.colors.grayscale5,paddingHorizontal: 35 }}>
             
-            {loading ? 
-                <LoadingIcon/> 
-            :noMeal? 
+            {noMeal? 
                 <Text style = {{
                     fontSize:20, color : "#606060"
                 }}>
                     {noMeal.message}    
                 </Text> 
+            :loading ? 
+                <LoadingIcon/> 
             :
             <>
                 <View style = {{

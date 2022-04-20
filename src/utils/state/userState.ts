@@ -9,7 +9,7 @@ const defaultPersist = {
     password: null as string,
     alternativePasswords: [] as string[],
     verified: false,
-    plateType: PlateType.Weplate,
+    plateType: PlateType.WePlate,
 }
 type defaultPersistType = typeof defaultPersist
 const persistentAtom = atom({
@@ -25,6 +25,7 @@ export function usePersistentAtom(){
         if(resstring){
             const res = JSON.parse(resstring)
             const newPers = {
+                ...defaultPersist,
                 ...res,
                 loaded: true,
             }
@@ -35,6 +36,7 @@ export function usePersistentAtom(){
             return newPers;
         }else{
             const newPers = {
+                ...defaultPersist,
                 ...pers,
                 loaded: true,
             }
