@@ -38,6 +38,7 @@ import { VerifyAccount } from "./src/verify-account/VerifyAccount";
 import { useDesignScheme } from "./src/design/designScheme";
 import IndividualItem from "./src/individual-item/IndividualItem";
 import { ChangePassword } from "./src/change-password/ChangePassword";
+import { useNotifications } from "./src/utils/notifications/useNotifications";
 
 const Stack = createNativeStackNavigator()
 const Drawer = createDrawerNavigator();
@@ -117,6 +118,8 @@ const SidebarNavigable = ()=>{
     </Drawer.Navigator>
 }
 const BaseApp = ()=>{
+    const notificationInfo = useNotifications()
+
     return <NavigationContainer>
         <Stack.Navigator screenOptions={{
             headerShown: false

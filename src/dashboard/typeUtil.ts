@@ -65,8 +65,7 @@ export interface PortionInfo{
 
 export interface Dish{
     id: APIKey,
-
-    graphic?: string,
+    graphic?: {uri: string, source:  "user" | "WePlate"}
     name: string,
     station: STATION,
     category: FOOD_CATEGORY,
@@ -188,6 +187,7 @@ export function convertAPIItemToDish(item:APIItem): Dish{
         ingredients: item.ingredients,
         portionAmount: (discrete ? {count: Math.min(Math.abs( Math.round(item.portion_volume)), maxPieces), maxPieces, discrete:true }: {volume: item.portion_volume, discrete: false}),
         portion_weight: item.portion_weight,
+        graphic: item.graphic ? {uri: item.graphic, source: "WePlate"} : null
         // portion:{
         //     fillFraction:0.6,
         // }

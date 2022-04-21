@@ -11,10 +11,10 @@ import { authAtom } from '../utils/session/useFetchWrapper';
 import { formatNumber } from '../utils/math';
 import { LoadingIcon } from '../utils/Loading';
 import { useLogin } from '../utils/session/session';
-import { useDashboardState, useMealFeatures } from '../dashboard/Dashboard';
+import { useDashboardState } from '../dashboard/Dashboard';
 import { useDesignScheme } from '../design/designScheme';
 import { colorOfCategory } from '../dashboard/NutritionFacts';
-
+import { useMealFeatures } from '../dashboard/useMealFeatures';
 export const BASE_PORTION_FILL_FRACTION = 0.7
 
 export const leaf_xml = `<svg width="60" height="39" viewBox="0 0 60 39" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -71,7 +71,7 @@ const FoodItem = ({dish,timeInfo, navigation} :{dish: Dish,timeInfo: TimeInfo,na
     }}>
         <View style = {{height: "100%", justifyContent: "center", alignItems:"center", backgroundColor: ds.colors.grayscale4, aspectRatio: 1.2, borderRadius: 5, marginRight: 15, overflow:"hidden"}}>
             {graphic ? 
-                <Image style = {{ flex:1,aspectRatio:1}} source = {{uri: graphic}}/>
+                <Image style = {{ flex:1,aspectRatio:1.2}} source = {{uri: graphic.uri}}/>
                 :(
                     type == FOOD_CATEGORY.Vegetable ?
 
@@ -119,7 +119,7 @@ const FoodItem = ({dish,timeInfo, navigation} :{dish: Dish,timeInfo: TimeInfo,na
         {/* {open && <View style = {{flexDirection:"column"}}>
             {dish?.graphic && 
                 <View style = {{width: "100%",padding:20}}>
-                    <Image style = {{ flex:1,aspectRatio:1,borderRadius:20}} source = {{uri: dish.graphic}}/>
+                    <Image style = {{ flex:1,aspectRatio:1,borderRadius:20}} source = {{uri: dish.graphic.uri}}/>
                 </View>
             }
             <View style = {{flexDirection:"row", padding: 20, paddingLeft: 30 }}>
@@ -188,7 +188,7 @@ const DiningMenu = ({navigation,route})=> {
     const currentStation = route?.params?.station ?? STATION.A
 
     const {timeInfo} = useDashboardState()
-    const {mealState,loading,noMeal,setMealDishes } = useMealFeatures({timeInfo,onLoad: ()=>{},doFetchMeal: false, doFetchNutritionReq: true})
+    const {mealState,loading,noMeal,setMealDishes } = useMealFeatures({timeInfo,onLoad: ()=>{},doFetchMeal: false})
     const [foods,setFoods] = useState([] as Dish[])
     useEffect(()=>{
         // console.log(currentStation)

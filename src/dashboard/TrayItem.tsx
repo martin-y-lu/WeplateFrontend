@@ -107,7 +107,7 @@ const TrayItem = ( props : {index: number,plateType: PlateType, isTop ?: boolean
                                 marginVertical: 15, 
                                 overflow:"hidden"}}>
                 {graphic ? 
-                    <Image style = {{ flex:1,aspectRatio:1.2}} source = {{uri: graphic}}/>
+                    <Image style = {{ flex:1,aspectRatio:1.2}} source = {{uri: graphic.uri}}/>
                     :(
                         type == FOOD_CATEGORY.Vegetable ?
 

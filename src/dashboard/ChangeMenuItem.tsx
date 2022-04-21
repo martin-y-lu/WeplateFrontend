@@ -144,7 +144,7 @@ const ChangeMenuItem = (props : { plateType: PlateType, modalOpen:ModalInfo ,set
                                     overflow:"hidden"}}>
 
                     { itemSelected && loading ? <LoadingIcon/> :  graphic ? 
-                        <Image style = {{ flex:1,aspectRatio:1.2}} source = {{uri: graphic}}/>
+                        <Image style = {{ flex:1,aspectRatio:1.2}} source = {{uri: graphic.uri}}/>
                         :(
                             type == FOOD_CATEGORY.Vegetable ?
 

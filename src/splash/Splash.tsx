@@ -163,7 +163,7 @@ function Splash({navigation}){
                 color: "white",
                 fontSize: 25,
             }}>
-                Test build (not for release) <br/>
+                Test build (not for release)
                 Not for sale.
             </Text>}
     {
