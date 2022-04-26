@@ -53,6 +53,7 @@ export const NutritionInfoEntry = ({name, value, unit})=>{
                 </View>
 }
 function IndividualItem(props){
+    const userActions = useUserActions()
     const {width,height} = Dimensions.get("window")
     const inset = useSafeAreaInsets()
     const {navigation,route} = props
@@ -112,14 +113,15 @@ function IndividualItem(props){
                         allowsEditing: true,
                         aspect: [4, 3],
                         quality: 1,
-                      });
-                  
-                      console.log(result);
-                  
-                      if (result.cancelled === false) {
+                        });
+                    
+                        console.log(result);
+                    
+                        if (result.cancelled === false) { 
                         // setUserImage(result.uri);
-                        setDishUserGraphic(itemId, result.uri)
-                      }
+                            setDishUserGraphic(itemId, result.uri)
+                            const resp = await userActions.postItemImage(result,dish)
+                        }
                 }}
             >
                 <Text style = {{color: ds.colors.grayscale3_4, fontSize: 18}}>

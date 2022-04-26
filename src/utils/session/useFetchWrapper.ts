@@ -21,16 +21,18 @@ function useFetchWrapper() {
     };
 
     function request(method) {
-        return (url: string, body ?:any, _auth ?: any) => {
+        return (url: string, body ?:any, props ?: {auth?, bodyType ?: "json" | "form"}) => {
+            const {auth,bodyType} = props
+            const _bodyType = bodyType ?? "json"
             const requestOptions = {
                 method,
-                headers: authHeader(url,_auth),
+                headers: authHeader(url,auth),
                 body: null
             };
             if (body) {
                 // requestOptions.headers['Content-Type'] = "multipart/form-data;";
                 // requestOptions.body = body;
-                requestOptions.headers['Content-Type'] = "application/json";
+                requestOptions.headers['Content-Type'] = { json: "application/json", form: 'multipart/form-data'}[_bodyType];
                 requestOptions.body = JSON.stringify(body);
             }
             return fetch(url, requestOptions).then(handleResponse);

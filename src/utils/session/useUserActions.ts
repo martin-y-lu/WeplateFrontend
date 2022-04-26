@@ -1,4 +1,4 @@
-import { NutritionalRequirements, Portion } from './../../dashboard/typeUtil';
+import { Dish, NutritionalRequirements, Portion } from './../../dashboard/typeUtil';
 
 import { atom, useSetRecoilState, useRecoilState } from 'recoil';
 import { TimeInfo } from '../../dashboard/state';
@@ -11,6 +11,8 @@ import Constants from "expo-constants"
 
 import Login from '../../login/Login';
 import { TEST } from '../../../App';
+import * as ImagePicker from 'expo-image-picker';
+import TrayItem from '../../dashboard/TrayItem';
 
 export const usersAtom = atom({
     key: "usersAtom",
@@ -78,6 +80,8 @@ function useUserActions () {
         checkVersion,
         verifyEmail,
         isVerified,
+        postPushToken,
+        postItemImage,
         resetPassword,
     }
    
@@ -111,7 +115,7 @@ function useUserActions () {
             
             setAuth(_auth)
 
-            const userInfo : APIUserSettings = await fetchWrapper.get(`${baseUrl}/api/settings/`,null,_auth)
+            const userInfo : APIUserSettings = await fetchWrapper.get(`${baseUrl}/api/settings/`,null,{auth:_auth})
             console.log({userInfo})
             if(userInfo?.is_verified == null){
                 console.log("unverified!")
@@ -296,6 +300,48 @@ function useUserActions () {
            return false
        } 
     }
+
+    async function postPushToken(token:string){
+        try{
+            const endpoint = `${baseUrl}/api/notifications/push_token`
+            const ok = await fetchWrapper.post(baseUrl,{token})
+        }catch(e){
+
+        }
+    }
+
+    async function postItemImage(pickerResult: ImagePicker.ImagePickerResult, dish: Dish){
+        if(pickerResult.cancelled == false){
+            const formData = new FormData();
+
+            let localUri = pickerResult.uri;
+            let filename = localUri.split('/').pop();
+          
+            // Infer the type of the image
+            let match = /\.(\w+)$/.exec(filename);
+            let type = match ? `image/${match[1]}` : `image`;
+
+            formData.append('photo', { uri: localUri, name: filename, type } as any);
+            formData.append('data', JSON.stringify({
+                dish_id: dish.id,
+                image:{
+                    height: pickerResult.height,
+                    width: pickerResult.width,
+                    exif: pickerResult.exif
+                }
+            }));
+            
+            try{
+                const endpoint = `${baseUrl}/api/items/graphic`
+                const resp = await fetchWrapper.post(endpoint,formData,{bodyType:"form"})
+                return resp
+            }catch(e){
+
+            }
+
+        }
+    }
+
     async function resetPassword(email:string,newPassword:string){
         const endpoint = `${baseUrl}/api/reset_password/`
         console.log({endpoint})
@@ -317,6 +363,7 @@ function useUserActions () {
         setAuth(null);
         // history.push('/login');
     }
+
 
     function getAll() {
         return fetchWrapper.get(baseUrl).then(setUsers);

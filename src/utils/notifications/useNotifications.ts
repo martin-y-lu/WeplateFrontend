@@ -4,6 +4,7 @@ import * as Device from 'expo-device'
 import { useState, useEffect, useRef} from 'react';
 import {Platform} from 'react-native'
 import { Subscription } from 'expo-modules-core';
+import { useUserActions } from '../session/useUserActions';
 
 Notifications.setNotificationHandler({
     handleNotification: async () => ({
@@ -14,6 +15,8 @@ Notifications.setNotificationHandler({
   });
 
 export function useNotifications(){
+    const userActions = useUserActions()
+
     const [expoPushToken, setExpoPushToken] = useState('');
     const [notification, setNotification] = useState(null as Notifications.Notification);
     const notificationListener = useRef(null as Subscription);
@@ -22,7 +25,8 @@ export function useNotifications(){
     useEffect(() => {
         registerForPushNotificationsAsync().then(token =>{
             setExpoPushToken(token)
-            console.log({pushToken: token})
+            // console.log({pushToken: token})
+            userActions.postPushToken(token)
         });
 
         notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
