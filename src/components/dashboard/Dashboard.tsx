@@ -168,7 +168,7 @@ const Dashboard = (props)=>{
             start()
         }
     }
-    const {mealState,loading,noMeal,setMealDishes, isPast, isPresent, isFuture} = useMealFeatures({timeInfo,onLoad,doFetchMeal: true,doFetchNutritionReq: true})
+    const {mealState,loading,noMeal,setMealDishes, isPast, isPresent, isFuture} = useMealFeatures({timeInfo,onLoad,doFetchMeal: true})
 
     useEffect(()=>{
         const onStop = ()=>{

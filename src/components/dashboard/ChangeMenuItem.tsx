@@ -21,14 +21,14 @@ export const SHADOW_STYLE = {
 
 
 import { SvgXml } from "react-native-svg"
-import { BASE_PORTION_FILL_FRACTION, leaf_xml, bread_xml, meat_xml } from '../../dining-menu/DiningMenu';
+import { BASE_PORTION_FILL_FRACTION, leaf_xml, bread_xml, meat_xml } from '../dining-menu/DiningMenu';
 import { formatNumber } from "../../utils/math";
 import { useState } from "react";
 import {useEffect} from 'react';
 import { LoadingIcon } from "../../utils/Loading";
 import { useDesignScheme } from '../../design/designScheme';
 import { getFoodCategoryDescription, PlateType, replaceDishByPortion, removeDishByPortion } from './typeUtil';
-import { NutritionInfoEntry } from "../../individual-item/IndividualItem";
+import { NutritionInfoEntry } from "../individual-item/IndividualItem";
 import { APIKey } from '../../utils/session/apiTypes';
 import { ModalInfo } from './Dashboard';
 
@@ -86,7 +86,6 @@ const ChangeMenuItem = (props : { plateType: PlateType, modalOpen:ModalInfo ,set
         const color = colorOfCategory(dish.category)
         const graphic = dish?.graphic
         const type = dish.category
-        const icon = iconOfCategory(item.category)
         // BASE_PORTION_FILL_FRACTION * fullVolumeByPortion(portion,plateType)/item?.portion?.[plateType]?.volume ?? 1.0
         
         const open = openDishes?.[dish.id]
@@ -143,7 +142,7 @@ const ChangeMenuItem = (props : { plateType: PlateType, modalOpen:ModalInfo ,set
                                     marginVertical: 15, 
                                     overflow:"hidden"}}>
 
-                    { itemSelected && loading ? <LoadingIcon/> :  graphic ? 
+                    { itemSelected && loading ? <LoadingIcon/> :  graphic?.uri ? 
                         <Image style = {{ flex:1,aspectRatio:1.2}} source = {{uri: graphic.uri}}/>
                         :(
                             type == FOOD_CATEGORY.Vegetable ?
@@ -171,7 +170,7 @@ const ChangeMenuItem = (props : { plateType: PlateType, modalOpen:ModalInfo ,set
                         fontSize: dishName.length > 35? 12: dishName.length>20? 16:  20,
                         color: color,
                     }}>
-                        {dishName}
+                        {dishName} {JSON.stringify(graphic)}
                     </Text>
                     <View style = {{
                         flexDirection: 'row'

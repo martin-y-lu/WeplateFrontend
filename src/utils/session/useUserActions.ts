@@ -1,18 +1,17 @@
-import { Dish, NutritionalRequirements, Portion } from './../../dashboard/typeUtil';
-
+import { Dish, NutritionalRequirements, Portion } from '../../components/dashboard/typeUtil'
 import { atom, useSetRecoilState, useRecoilState } from 'recoil';
-import { TimeInfo } from '../../dashboard/state';
-import { mealToAPIForm, MealState, fullVolumeByPortion } from '../../dashboard/typeUtil';
+import { TimeInfo } from '../../components/dashboard/state';
+import { mealToAPIForm, MealState, fullVolumeByPortion } from '../../components/dashboard/typeUtil';
 import { authAtom, useFetchWrapper } from './useFetchWrapper';
 import { APIMealSuggest, APIPortionSuggestEntry, APIPortionSuggest, APIMealEvent, APIMealByTimePayload, APIAnalyticsMealChoiceEntry, APIUserSettings, APIKey, APIRegisterSettings, APIVersionResponse } from './apiTypes';
 import { usePersistentAtom } from '../state/userState';
 import {useEffect} from 'react';
 import Constants from "expo-constants"
 
-import Login from '../../login/Login';
+import Login from '../../components/login/Login';
 import { TEST } from '../../../App';
 import * as ImagePicker from 'expo-image-picker';
-import TrayItem from '../../dashboard/TrayItem';
+import TrayItem from '../../components/dashboard/TrayItem';
 
 export const usersAtom = atom({
     key: "usersAtom",

@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useEffect } from 'react'
 import {atom, SetterOrUpdater, useRecoilState, } from 'recoil'
-import { PlateType } from '../../dashboard/typeUtil';
+import { PlateType } from '../../components/dashboard/typeUtil'
 const defaultPersist = {
     loaded: false,
     doOnboarding: true,

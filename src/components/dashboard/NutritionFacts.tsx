@@ -53,7 +53,7 @@ export function colorOfCategory(category: FOOD_CATEGORY, index = 0){
     }
     return color 
 }
-import {leaf_xml,bread_xml,meat_xml, BASE_PORTION_FILL_FRACTION} from '../../dining-menu/DiningMenu'
+import {leaf_xml,bread_xml,meat_xml, BASE_PORTION_FILL_FRACTION} from '../dining-menu/DiningMenu'
 import React, { useRef, useState } from "react"
 import { formatNumber } from '../../utils/math';
 import { SvgXml } from 'react-native-svg';

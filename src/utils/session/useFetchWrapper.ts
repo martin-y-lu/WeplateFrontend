@@ -22,8 +22,8 @@ function useFetchWrapper() {
 
     function request(method) {
         return (url: string, body ?:any, props ?: {auth?, bodyType ?: "json" | "form"}) => {
-            const {auth,bodyType} = props
-            const _bodyType = bodyType ?? "json"
+            const auth = props?.auth 
+            const _bodyType = props?.bodyType ?? "json"
             const requestOptions = {
                 method,
                 headers: authHeader(url,auth),

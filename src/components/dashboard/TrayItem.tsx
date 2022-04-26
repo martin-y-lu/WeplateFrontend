@@ -5,7 +5,7 @@ import { Swipeable } from "react-native-gesture-handler"
 import { SvgXml } from "react-native-svg"
 import { useRef } from "react"
 import { useUserActions } from "../../utils/session/useUserActions"
-import { BASE_PORTION_FILL_FRACTION, leaf_xml, bread_xml, meat_xml } from '../../dining-menu/DiningMenu';
+import { BASE_PORTION_FILL_FRACTION, leaf_xml, bread_xml, meat_xml } from '../dining-menu/DiningMenu';
 import { useDesignScheme } from '../../design/designScheme';
 import { APIKey } from '../../utils/session/apiTypes';
 import { ModalInfo } from './Dashboard';

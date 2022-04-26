@@ -1,4 +1,4 @@
-import { FOOD_CATEGORY } from '../../dashboard/typeUtil';
+import { FOOD_CATEGORY } from '../../components/dashboard/typeUtil';
 
 export type APIMealByTimePayload = Array<APIMealByTimeEvent>
 export type APIKey = number | string

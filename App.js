@@ -17,27 +17,27 @@ setCustomText({style:{
 }})
 // App pages
 
-import Dashboard from "./src/dashboard/Dashboard";
-import DashboardHeader from "./src/dashboard/DashboardHeader";
-import Login from "./src/login/Login";
-import Survey from "./src/survey/Survey";
-import Settings from "./src/settings/Settings"
-import DiningMenu from "./src/dining-menu/DiningMenu";
-import AboutUs from "./src/about-us/AboutUs";
-import Feedback from "./src/feedback/Feedback";
+import Dashboard from "./src/components/dashboard/Dashboard";
+import DashboardHeader from "./src/components/dashboard/DashboardHeader";
+import Login from "./src/components/login/Login";
+import Survey from "./src/components/survey/Survey";
+import Settings from "./src/components/settings/Settings"
+import DiningMenu from "./src/components/dining-menu/DiningMenu";
+import AboutUs from "./src/components/about-us/AboutUs";
+import Feedback from "./src/components/feedback/Feedback";
 import { RecoilRoot } from "recoil";
 import BaseHeader from "./src/utils/BaseHeader";
 import { CustomDrawerContent } from "./src/utils/DrawerContent";
-import { Welcome1, Welcome10, Welcome11, Welcome2, Welcome3, Welcome4, Welcome5, Welcome6, Welcome7, Welcome8, Welcome9 } from "./src/welcome/Welcome";
-import DiningMenuHeader from "./src/dining-menu/DiningMenuHeader";
-import EditInfo from "./src/settings/EditInfo";
-import Splash from "./src/splash/Splash";
-import FeedbackThankYou from "./src/feedback/FeedbackThankYou";
-import FeedbackForms from "./src/feedback/FeedbackForms";
-import { VerifyAccount } from "./src/verify-account/VerifyAccount";
+import { Welcome1, Welcome10, Welcome11, Welcome2, Welcome3, Welcome4, Welcome5, Welcome6, Welcome7, Welcome8, Welcome9 } from "./src/components/welcome/Welcome";
+import DiningMenuHeader from "./src/components/dining-menu/DiningMenuHeader";
+import EditInfo from "./src/components/settings/EditInfo";
+import Splash from "./src/components/splash/Splash";
+import FeedbackThankYou from "./src/components/feedback/FeedbackThankYou";
+import FeedbackForms from "./src/components/feedback/FeedbackForms";
+import { VerifyAccount } from "./src/components/verify-account/VerifyAccount";
 import { useDesignScheme } from "./src/design/designScheme";
-import IndividualItem from "./src/individual-item/IndividualItem";
-import { ChangePassword } from "./src/change-password/ChangePassword";
+import IndividualItem from "./src/components/individual-item/IndividualItem";
+import { ChangePassword } from "./src/components/change-password/ChangePassword";
 import { useNotifications } from "./src/utils/notifications/useNotifications";
 
 const Stack = createNativeStackNavigator()
