@@ -112,10 +112,10 @@ export const BaseFeedback = (params: {showText:boolean,textTitle?:string,textDef
     <View style={{  justifyContent: 'center' }}>
             {/* <ImageBackground source={bg2} resizeMode="stretch" style={styles.image}> */}
 
-        <View style={{alignItems: 'left', margin: 30}}>
+        <View style={{alignItems: 'flex-start', margin: 30}}>
             {children}
             { showText && 
-                <View style={{alignItems: 'left', width: '100%'}}>
+                <View style={{alignItems: 'flex-start', width: '100%'}}>
                     <Text style={feedbackStyles.questionText}>{textTitle}</Text>
                     <TextInput
                         style={feedbackStyles.input}

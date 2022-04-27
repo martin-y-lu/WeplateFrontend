@@ -25,6 +25,7 @@ import { LoadingIcon } from '../../utils/Loading';
 import { useLogin } from '../../utils/session/session';
 import { useDesignScheme } from '../../design/designScheme';
 import { TEST } from '../../../App';
+import { ErrorBoundary } from '../../utils/error/ErrorBoundary';
 
 
 const drag_icon_svg = `<svg width="59" height="55" viewBox="0 0 59 55" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -468,7 +469,7 @@ const Dashboard = (props)=>{
                         <WalkableView>
                             {
                                 mealState?.dishA?.map((dish, index)=>
-                                    <TrayItem key = {dish.id} index = {index} plateType= {plateType} disabled = {disableButtons} number = {1} dish = {dish} portion = {Portion.A} setModalOpen = {setModalOpen}/>
+                                    <TrayItem key = {dish.id} index = {index} plateType= {plateType} disabled = {disableButtons} number = {1} dish = {dish} portion = {Portion.A} setModalOpen = {setModalOpen} navigation = {navigation} timeInfo = {timeInfo}/>
                                 )
                             }
                         </WalkableView>
@@ -479,7 +480,7 @@ const Dashboard = (props)=>{
                     <CategoryHeader portion = {Portion.B} disabled = {mealState?.dishB?.length >=2} category= {mealState?.dishB?.[0]?.category} setModalOpen = {setModalOpen}/>
                     {
                         mealState?.dishB?.map((dish,index) =>
-                            <TrayItem key = {dish.id} index = {index} plateType= {plateType} disabled = {disableButtons} number = {2}  dish = {dish} portion = {Portion.B} setModalOpen = {setModalOpen} />
+                            <TrayItem key = {dish.id} index = {index} plateType= {plateType} disabled = {disableButtons} number = {2}  dish = {dish} portion = {Portion.B} setModalOpen = {setModalOpen} navigation = {navigation} timeInfo = {timeInfo}/>
                         )
                     }
                     {/* <Text style = {headerStyle}>
@@ -488,7 +489,7 @@ const Dashboard = (props)=>{
                     <CategoryHeader portion = {Portion.C} disabled = {mealState?.dishC?.length >=2} category= {mealState?.dishC?.[0]?.category} setModalOpen = {setModalOpen}/> 
                     {
                         mealState?.dishC?.map((dish, index)=>
-                            <TrayItem key = {dish.id} index = {index} plateType= {plateType} disabled = {disableButtons} number = {3}  dish = {dish} portion = {Portion.C} setModalOpen = {setModalOpen}/>
+                            <TrayItem key = {dish.id} index = {index} plateType= {plateType} disabled = {disableButtons} number = {3}  dish = {dish} portion = {Portion.C} setModalOpen = {setModalOpen} navigation = {navigation} timeInfo = {timeInfo}/>
                         )
                     }
                     <CopilotStep text = {`At every meal, WePlate generates foods which are tailored for your needs and preferences.
@@ -524,7 +525,8 @@ const Dashboard = (props)=>{
         </> 
     }
 
-    return <View style={{ 
+    return <ErrorBoundary>
+        <View style={{ 
              alignItems: 'center' ,
              justifyContent:"space-evenly",
              backgroundColor: 'white',
@@ -561,6 +563,7 @@ const Dashboard = (props)=>{
         </CopilotStep>
         <NutritionFacts plateType= {plateType} disabled = {!!noMeal || loading} mealState = {mealState}/>
     </View>
+    </ErrorBoundary>
 }
 
 const stepNumberComponent = (props)=> <></>

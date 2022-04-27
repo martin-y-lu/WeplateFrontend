@@ -40,8 +40,10 @@ import IndividualItem from "./src/components/individual-item/IndividualItem";
 import { ChangePassword } from "./src/components/change-password/ChangePassword";
 import { useNotifications } from "./src/utils/notifications/useNotifications";
 
+
 const Stack = createNativeStackNavigator()
 const Drawer = createDrawerNavigator();
+
 
 // Help for nested navigations: 
 // https://reactnavigation.org/docs/nesting-navigators/#navigator-specific-methods-are-available-in-the-navigators-nested-inside

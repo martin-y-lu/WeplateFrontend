@@ -7,6 +7,8 @@ PODS:
     - ExpoModulesCore
   - EXConstants (13.0.2):
     - ExpoModulesCore
+  - EXDevice (4.1.1):
+    - ExpoModulesCore
   - EXFileSystem (13.1.2):
     - ExpoModulesCore
   - EXFont (10.0.5):
@@ -20,14 +22,17 @@ PODS:
   - EXImageLoader (3.0.0):
     - ExpoModulesCore
     - React-Core
+  - EXImagePicker (12.0.2):
+    - ExpoModulesCore
   - EXKeepAwake (10.0.2):
     - ExpoModulesCore
   - EXNotifications (0.14.1):
     - ExpoModulesCore
   - Expo (44.0.6):
     - ExpoModulesCore
-  - ExpoModulesCore (0.4.10):
+  - ExpoModulesCore (0.6.5):
     - React-Core
+    - ReactCommon/turbomodule/core
   - EXSplashScreen (0.14.1):
     - ExpoModulesCore
     - React-Core
@@ -303,7 +308,7 @@ PODS:
     - React-cxxreact (= 0.64.3)
     - React-jsi (= 0.64.3)
     - React-perflogger (= 0.64.3)
-  - RNCAsyncStorage (1.16.1):
+  - RNCAsyncStorage (1.17.3):
     - React-Core
   - RNCMaskedView (0.2.6):
     - React-Core
@@ -346,6 +351,11 @@ PODS:
     - React-RCTImage
   - RNSVG (12.1.1):
     - React
+  - segment-analytics-react-native (2.1.11):
+    - React-Core
+    - sovran-react-native
+  - sovran-react-native (0.2.6):
+    - React-Core
   - UMAppLoader (3.0.0)
   - UMCore (7.1.2)
   - UMReactNativeAdapter (6.3.9):
@@ -361,11 +371,13 @@ DEPENDENCIES:
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
   - EXApplication (from `../node_modules/expo-application/ios`)
   - EXConstants (from `../node_modules/expo-constants/ios`)
+  - EXDevice (from `../node_modules/expo-device/ios`)
   - EXFileSystem (from `../node_modules/expo-file-system/ios`)
   - EXFont (from `../node_modules/expo-font/ios`)
   - EXGL (from `../node_modules/expo-gl/ios`)
   - EXGL_CPP (from `../node_modules/expo-gl-cpp/cpp`)
   - EXImageLoader (from `../node_modules/expo-image-loader/ios`)
+  - EXImagePicker (from `../node_modules/expo-image-picker/ios`)
   - EXKeepAwake (from `../node_modules/expo-keep-awake/ios`)
   - EXNotifications (from `../node_modules/expo-notifications/ios`)
   - Expo (from `../node_modules/expo/ios`)
@@ -410,6 +422,8 @@ DEPENDENCIES:
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNSVG (from `../node_modules/react-native-svg`)
+  - "segment-analytics-react-native (from `../node_modules/@segment/analytics-react-native`)"
+  - "sovran-react-native (from `../node_modules/@segment/sovran-react-native`)"
   - UMAppLoader (from `../node_modules/unimodules-app-loader/ios`)
   - "UMCore (from `../node_modules/@unimodules/core/ios`)"
   - "UMReactNativeAdapter (from `../node_modules/@unimodules/react-native-adapter/ios`)"
@@ -429,6 +443,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-application/ios"
   EXConstants:
     :path: "../node_modules/expo-constants/ios"
+  EXDevice:
+    :path: "../node_modules/expo-device/ios"
   EXFileSystem:
     :path: "../node_modules/expo-file-system/ios"
   EXFont:
@@ -439,6 +455,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-gl-cpp/cpp"
   EXImageLoader:
     :path: "../node_modules/expo-image-loader/ios"
+  EXImagePicker:
+    :path: "../node_modules/expo-image-picker/ios"
   EXKeepAwake:
     :path: "../node_modules/expo-keep-awake/ios"
   EXNotifications:
@@ -523,6 +541,10 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-screens"
   RNSVG:
     :path: "../node_modules/react-native-svg"
+  segment-analytics-react-native:
+    :path: "../node_modules/@segment/analytics-react-native"
+  sovran-react-native:
+    :path: "../node_modules/@segment/sovran-react-native"
   UMAppLoader:
     :path: "../node_modules/unimodules-app-loader/ios"
   UMCore:
@@ -540,15 +562,17 @@ SPEC CHECKSUMS:
   DoubleConversion: cf9b38bf0b2d048436d9a82ad2abe1404f11e7de
   EXApplication: 54fe5bd6268d697771645e8f1aef8b806a65247a
   EXConstants: 88bf79622fbd9b476c96d8ec57fe97ca44fe8e3c
+  EXDevice: aa5e1edbf350481a948c3258b750dd11e6e4579e
   EXFileSystem: e8013deaa114cab168a6f53be956b9334c3d02cf
   EXFont: 2597c10ac85a69d348d44d7873eccf5a7576ef5e
   EXGL: a67b6bca3aff3ed5a6dc3f627ad3898acb981af7
   EXGL_CPP: 76964bd58c8ab1932b8d86b532d66c9b32133f02
   EXImageLoader: 939451be6f7b731aaa6588920b90743f20121a4d
+  EXImagePicker: bf4d62532cc2bf217edbe4abbb0014e73e079eac
   EXKeepAwake: bf48d7f740a5cd2befed6cf9a49911d385c6c47d
   EXNotifications: a7d582fa800d77f4a75bd22d52e84e2fbcee26df
   Expo: 534e51e607aba8229293297da5585f4b26f50fa1
-  ExpoModulesCore: c9438f6add0fb7b04b7c64eb97a833d2752a7834
+  ExpoModulesCore: 32c0ccb47f477d330ee93db72505380adf0de09a
   EXSplashScreen: 7872675b95bb07c25f922b3d3dfae70c76fb5a00
   FBLazyVector: c71c5917ec0ad2de41d5d06a5855f6d5eda06971
   FBReactNativeSpec: e3f739200d2e9ffdaf9046cc56478f697d9fcb48
@@ -579,7 +603,7 @@ SPEC CHECKSUMS:
   React-RCTVibration: c7f845861e79eae13dc1e8217a3cf47a3945b504
   React-runtimeexecutor: 493d9abb8b23c3f84e19ae221eeba92cadcb70dc
   ReactCommon: 8fea6422328e2fc093e25c9fac67adbcf0f04fb4
-  RNCAsyncStorage: b49b4e38a1548d03b74b30e558a1d18465b94be7
+  RNCAsyncStorage: 005c0e2f09575360f142d0d1f1f15e4ec575b1af
   RNCMaskedView: c298b644a10c0c142055b3ae24d83879ecb13ccd
   RNCPicker: cb57c823d5ce8d2d0b5dfb45ad97b737260dc59e
   RNDateTimePicker: 1dd15d7ed1ab7d999056bc77879a42920d139c12
@@ -587,6 +611,8 @@ SPEC CHECKSUMS:
   RNReanimated: 7f143675d94978c3555345d5bfa8ed6ae800c5d3
   RNScreens: d6da2b9e29cf523832c2542f47bf1287318b1868
   RNSVG: 551acb6562324b1d52a4e0758f7ca0ec234e278f
+  segment-analytics-react-native: b251b9e7277a8cbf0a8379d9bca155f0aa1d5d4a
+  sovran-react-native: ef02f663b489ac5e63ea7b80cd8426bf82992263
   UMAppLoader: 671576daa3fd3017d4879a5f23fc0dd3b36422a8
   UMCore: ce3a4faa010239063b8343895b29a6d97b01069d
   UMReactNativeAdapter: d03cefd0e4e4179ab8c490408589f1c8a6c8b785

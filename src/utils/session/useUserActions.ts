@@ -27,19 +27,32 @@ export const ingredientsAtom = atom({
     }[]
 })
 
-function Err(val){
+type ErrType<Value> = {
+    ok: false, 
+    err: true,
+    val: Value
+}
+
+function Err<V>(val:V){
     return {
         err: true,
         ok: false,
         val
-    }
+    } as ErrType<V>
 }
-function Ok(val){
+
+type OkType<Value> = {
+    ok: true, 
+    err: false, 
+    val: Value
+}
+
+function Ok<V>(val:V){
     return {
         ok: true,
         err: false,
         val
-    }
+    } as OkType<V>
 }
 
 export { useUserActions };
@@ -132,7 +145,7 @@ function useUserActions () {
             // const { from } = history.location.state || { from: { pathname: '/' } };
             // history.push(from);
 
-            return Ok(_auth);
+            return Ok({auth:_auth, userInfo: fixedUserInfo});
         }catch(e){
             return Err("General Error" as LoginError)
         }

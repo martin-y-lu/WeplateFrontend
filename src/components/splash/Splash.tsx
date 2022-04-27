@@ -98,10 +98,10 @@ function Splash({navigation}){
         await leaveSplashAnimation()
         if(fetchedState.password !== null && fetchedState.email !== null){
             const res = await userActions.login(fetchedState.email,fetchedState.password)
-            if(!fetchedState?.verified){
-                navigation.navigate("VerifyAccount")
-            }else if(res.err){
+            if(res.err){
                 navigation.navigate("Login")
+            }else if( (!fetchedState?.verified) && res.ok && (!res.val.userInfo.is_verified )){
+                navigation.navigate("VerifyAccount")
             }else{
                 navigation.navigate("SidebarNavigable",{screen:"Dashboard"})
             }
@@ -129,7 +129,7 @@ function Splash({navigation}){
             width: "100%",
             alignItems:"center",
         }}>
-        <View style={{alignItems: 'left', margin: 15,paddingLeft:20,}}>
+        <View style={{alignItems: 'flex-start', margin: 15,paddingLeft:20,}}>
             <View>
                 <Animated.View style = {{
                     position: "absolute",

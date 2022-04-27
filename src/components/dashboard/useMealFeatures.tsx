@@ -137,14 +137,14 @@ export function useMealFeatures({timeInfo,onLoad, doFetchMeal}){
                 }
                 if(doFetchMeal){
                     const [suggestion,prevChoices,nutritional] = await Promise.all([userActions.suggestionByMealId(mealID,volumesByPlateType(plateType)),userActions.getAnalyticsMealChoices(mealID),userActions.getNutritionalRequirements()])
-                    console.log({nutritional})
+                    // console.log({nutritional})
                     newState.nutritionRequirements = nutritional
                     // console.log({suggestion})
                     // console.log({mealEvent,suggestion})
                     // console.log({mealEvent})
                     // debug purposes
                     
-                    console.log("Dishes: ",dishes.length)
+                    // console.log("Dishes: ",dishes.length)
                     function getDishByIdFromList(list:Dish[],id:APIKey){
                         const dish = list.filter(dish=> dish.id === id)
                         if(dish.length === 1){
@@ -180,7 +180,7 @@ export function useMealFeatures({timeInfo,onLoad, doFetchMeal}){
                         // console.log({entryCategory: entry.category})
                         return makeRecommendationList(entry.items as Array<number>,FoodCategoryFromAPIFoodCategory(entry.category))
                     }
-                    console.log("Suggestion:",suggestion)    
+                    // console.log("Suggestion:",suggestion)    
                     // if(suggestion == null){
                     //     if(mealEvent.id == mealState.mealID){
                     //         setNoMeal({message: "WePlate couldn't find any suggestions 😐"})
@@ -191,7 +191,7 @@ export function useMealFeatures({timeInfo,onLoad, doFetchMeal}){
                     const recommendationA = makeRecommendation(suggestion?.small1)
                     const recommendationB = makeRecommendation(suggestion?.small2)
                     const recommendationC = makeRecommendation(suggestion?.large)
-                    console.log({recommendationA,recommendationB,recommendationC})
+                    // console.log({recommendationA,recommendationB,recommendationC})
                     if (recommendationA.length == 0 || recommendationB.length == 0 || recommendationC.length == 0 ){
                         if(mealEvent.id == mealState.mealID){
                             setNoMeal({message: "WePlate couldn't find any suggestions 😐"})
@@ -228,10 +228,10 @@ export function useMealFeatures({timeInfo,onLoad, doFetchMeal}){
                     }
                     
                     
-                    console.log("DISHA :",dishA)
-                    console.log("DISHB :",dishB)
-                    console.log("DISHC :",dishC)
-                    console.log(dishA?.portion,dishB?.portion,dishC?.portion)
+                    // console.log("DISHA :",dishA)
+                    // console.log("DISHB :",dishB)
+                    // console.log("DISHC :",dishC)
+                    // console.log(dishA?.portion,dishB?.portion,dishC?.portion)
                     if(dishA?.portion === undefined){
                         dishA.portion = {}
                     } 
@@ -293,7 +293,7 @@ export function useMealFeatures({timeInfo,onLoad, doFetchMeal}){
                 ...loadingPortions,
                 [plateType]: true
             })
-            console.log({dAp,dBp,dCp})
+            // console.log({dAp,dBp,dCp})
             const portions:APIPortionSuggest = await userActions.portionSuggestionByItemID(dishA.map(dish=> dish.id),dishB.map(dish=> dish.id),dishC.map(dish=> dish.id),volumesByPlateType(plateType));
 
             function getPortionsById(portions:APIPortionSuggest){
@@ -319,7 +319,7 @@ export function useMealFeatures({timeInfo,onLoad, doFetchMeal}){
                     return dish
                 })
             }
-            console.log(portions,{plateType})
+            // console.log(portions,{plateType})
             let newState = {} as any
             if(!dAp || override){
                 newState.dishA = updatePortionInfo( dishA)
@@ -337,7 +337,7 @@ export function useMealFeatures({timeInfo,onLoad, doFetchMeal}){
                 // newState.dishC = { ... dishC, portion: {...dishC.portion, [plateType]: newPortions}};
             }
             if(stateChanged){
-                console.log({newState})
+                // console.log({newState})
                 setLoadingPortions({
                     ...loadingPortions,
                     [plateType]: false
@@ -388,6 +388,9 @@ export function useMealFeatures({timeInfo,onLoad, doFetchMeal}){
         }
         setMealState({
             ... mealState,
+            recommendationA: mealState.recommendationA.map(updateDish),
+            recommendationB: mealState.recommendationB.map(updateDish),
+            recommendationC: mealState.recommendationC.map(updateDish),
             dishA: mealState.dishA.map(updateDish),
             dishB: mealState.dishB.map(updateDish),
             dishC: mealState.dishC.map(updateDish),

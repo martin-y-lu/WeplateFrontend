@@ -26,7 +26,7 @@ export const selected_icon_svg = `<svg width="19" height="19" viewBox="0 0 19 19
 export function BaseWelcome(props){
    return <View style={{ flex: 1, alignItems: 'center', backgroundColor: '#ff7474', justifyContent: 'center' }}>
     {props?.body}
-   <View style={{alignItems: 'left', margin: 15,paddingLeft:20,}}>
+   <View style={{alignItems: 'flex-start', margin: 15,paddingLeft:20,}}>
         {props.children}
 
    </View>
@@ -37,8 +37,8 @@ export function BaseWelcome(props){
         top: 150, 
         left: -80,
      }}>
-        <Image  source={require("../../assets/faded-backdrop.png")} style={styles.backdrop} /> 
-        <Image source={require('../../assets/faded-backdrop2.png')} style={styles.backdropBottom} />
+        {/* <Image  source={require("../../assets/faded-backdrop.png")} style={styles.backdrop} /> 
+        <Image source={require('../../assets/faded-backdrop2.png')} style={styles.backdropBottom} /> */}
      </View>
 
 </View> 
@@ -126,7 +126,7 @@ function DropButton(props){
                         margin : 10,
                         transform: [
                             {
-                                rotate: open ? Math.PI/2 : 0
+                                rotate: formatTransformRotation(open ? Math.PI/2 : 0)
                             }
                         ]
                         }}>    
@@ -148,6 +148,7 @@ import { useRecoilState, useRecoilValue } from "recoil"
 import { ingredientsAtom, usersAtom, useUserActions } from "../../utils/session/useUserActions"
 import { APIHealthGoal, getAPIHealthGoalName, healthGoals, activityLevels, APIActivityLevel, getAPIActivityLevelName, getAPIActivityLevelDescription, APIEveryMeal, everyMeals, getAPIEveryMealName, dietaryRestrictions, APIDietaryRestriction, getAPIDietaryRestrictionName, baseAllergens, APIBaseAllergen, getAPIBaseAllergenName } from '../../utils/session/apiTypes';
 import { usePersistentAtom } from '../../utils/state/userState';
+import { formatTransformRotation } from '../../utils/math';
 function PickButton(props){
     const width = Dimensions.get("window").width   -100
     const check = props.check??false;

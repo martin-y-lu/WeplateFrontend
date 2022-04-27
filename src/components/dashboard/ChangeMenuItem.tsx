@@ -86,6 +86,7 @@ const ChangeMenuItem = (props : { plateType: PlateType, modalOpen:ModalInfo ,set
         const color = colorOfCategory(dish.category)
         const graphic = dish?.graphic
         const type = dish.category
+        const icon = iconOfCategory(item.category)
         // BASE_PORTION_FILL_FRACTION * fullVolumeByPortion(portion,plateType)/item?.portion?.[plateType]?.volume ?? 1.0
         
         const open = openDishes?.[dish.id]
@@ -142,7 +143,7 @@ const ChangeMenuItem = (props : { plateType: PlateType, modalOpen:ModalInfo ,set
                                     marginVertical: 15, 
                                     overflow:"hidden"}}>
 
-                    { itemSelected && loading ? <LoadingIcon/> :  graphic?.uri ? 
+                    { itemSelected && loading ? <LoadingIcon/> :  graphic ? 
                         <Image style = {{ flex:1,aspectRatio:1.2}} source = {{uri: graphic.uri}}/>
                         :(
                             type == FOOD_CATEGORY.Vegetable ?
@@ -170,7 +171,7 @@ const ChangeMenuItem = (props : { plateType: PlateType, modalOpen:ModalInfo ,set
                         fontSize: dishName.length > 35? 12: dishName.length>20? 16:  20,
                         color: color,
                     }}>
-                        {dishName} {JSON.stringify(graphic)}
+                        {dishName}
                     </Text>
                     <View style = {{
                         flexDirection: 'row'
