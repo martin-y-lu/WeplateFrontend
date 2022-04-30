@@ -27,10 +27,12 @@ import { useState } from "react";
 import {useEffect} from 'react';
 import { LoadingIcon } from "../../utils/Loading";
 import { useDesignScheme } from '../../design/designScheme';
-import { getFoodCategoryDescription, PlateType, replaceDishByPortion, removeDishByPortion } from './typeUtil';
+import { getFoodCategoryDescription, PlateType, replaceDishByPortion, removeDishByPortion, minimizeDishForAnalytics } from './typeUtil';
 import { NutritionInfoEntry } from "../individual-item/IndividualItem";
 import { APIKey } from '../../utils/session/apiTypes';
 import { ModalInfo } from './Dashboard';
+import React from "react";
+import { track, trackWithProperties } from 'expo-analytics-segment';
 
 const downArrowSvg = `
 <svg width="23" height="9" viewBox="0 0 23 9" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -47,34 +49,34 @@ const ChangeMenuItem = (props : { plateType: PlateType, modalOpen:ModalInfo ,set
     const {plateType,modalOpen, setModalOpen, mealState,setMealDishes} = props
     const [selectedDish,setSelectedDish] = useState(null as Dish);
     const [loading,setLoading] = useState(false);
-    const {portion, opened: openedDish, action} = modalOpen
+    const {portion, opened: previousDish, action} = modalOpen
     const isAltering = action === "alter"
 
-    const dishId = openedDish?.id
+    const dishId = previousDish?.id
     // const portion = modalOpen
     const dishes = getRecommendationsByPortion(mealState,portion)
-    const currentDish = getDishesByPortion(mealState,portion)
+    const currentDishes = getDishesByPortion(mealState,portion)
 
     const ds = useDesignScheme()
     const [openDishes, setOpenDishes] = useState({});
     function renderDish({item , index}:{item:Dish, index : number}){
         // const color = selectedDish != null ?  null : 
         // ? colorOfCategory(item.category): null
-        const itemMatches = currentDish.map(dish => dish.id).includes(item.id)
+        const itemMatches = currentDishes.map(dish => dish.id).includes(item.id)
         const itemSelected = selectedDish?.id == item.id ;
         // const loading = selectedDish == item.id ;
         const dish = item
         const dishName = dish.name
         const station = dish.station
         const stationName = getNameOfStation(station)
-        const openedNutritionScale = openedDish?.portion?.[plateType]?.nutrientFraction
+        const openedNutritionScale = previousDish?.portion?.[plateType]?.nutrientFraction
         const volumeScale = 
             isAltering ? (
                 dish.portionAmount.discrete === true ? 1 :
                 dish.portionAmount.discrete === false &&
-                    openedDish.portionAmount.discrete === true ? 1: 
-                    openedDish.portionAmount.discrete === false &&
-                        openedDish.portionAmount.volume/dish.portionAmount.volume
+                    previousDish.portionAmount.discrete === true ? 1: 
+                    previousDish.portionAmount.discrete === false &&
+                        previousDish.portionAmount.volume/dish.portionAmount.volume
             ) : 0
         // const volumeScale = openedDish?.portion?.[plateType]?.volume
         // const volumeScale = dish?.portion?.[plateType]?.volume/ openedDish?.portion?.[plateType]?.volume
@@ -257,7 +259,7 @@ const ChangeMenuItem = (props : { plateType: PlateType, modalOpen:ModalInfo ,set
         </View>
     }
 
-    const selectedMatches = currentDish.map(dish => dish.id).includes(selectedDish?.id)
+    const selectedMatches = currentDishes.map(dish => dish.id).includes(selectedDish?.id)
     return <View style = {{
         flex:1,
         flexGrow:1,
@@ -334,6 +336,11 @@ const ChangeMenuItem = (props : { plateType: PlateType, modalOpen:ModalInfo ,set
                                 setLoading(true);
                                 await setMealDishes(tempMealState.dishA,tempMealState.dishB,tempMealState.dishC, plateType)
                                 setModalOpen(null)// close modal
+                                trackWithProperties("Altered recommended item",{
+                                    previousItem: minimizeDishForAnalytics(previousDish),
+                                    newItem: minimizeDishForAnalytics(selectedDish),
+                                    category: portion
+                                })
                             }
                         }}
                     >
@@ -346,18 +353,22 @@ const ChangeMenuItem = (props : { plateType: PlateType, modalOpen:ModalInfo ,set
                         </Text>
                     </TouchableOpacity>
                     </View>
-                    { currentDish.length > 1 && 
+                    { currentDishes.length > 1 && 
                         <TouchableOpacity style = {{  
                             marginRight: 20
                         }}
-                            disabled = { ! (!loading && currentDish.length > 1) }
+                            disabled = { ! (!loading && currentDishes.length > 1) }
                             onPress = {async ()=>{
-                                if(!loading && currentDish.length > 1){
+                                if(!loading && currentDishes.length > 1){
                                     const tempMealState = removeDishByPortion(mealState,portion, dishId);
-                                    setSelectedDish(openedDish) 
+                                    setSelectedDish(previousDish) 
                                     setLoading(true);
                                     await setMealDishes(tempMealState.dishA,tempMealState.dishB,tempMealState.dishC, plateType)
                                     setModalOpen(null)// close modal
+                                    trackWithProperties("Removing item",{
+                                        newItem: minimizeDishForAnalytics(previousDish),
+                                        category: portion,
+                                    })
                                 }
                             }}
                         >
@@ -375,7 +386,7 @@ const ChangeMenuItem = (props : { plateType: PlateType, modalOpen:ModalInfo ,set
                 <>
                 { 
                     <View style = {{
-                        opacity: selectedMatches || currentDish.length >= 2 ? 0.5: 1.0
+                        opacity: selectedMatches || currentDishes.length >= 2 ? 0.5: 1.0
                     }}>                    
                     <TouchableOpacity style = {{
                         backgroundColor: ds.colors.accent2,
@@ -383,13 +394,17 @@ const ChangeMenuItem = (props : { plateType: PlateType, modalOpen:ModalInfo ,set
                         paddingHorizontal:20,
                         paddingVertical: 10,
                     }}
-                        disabled = {!(selectedDish != null && ! loading && !selectedMatches && ! (currentDish.length >= 2)) }
+                        disabled = {!(selectedDish != null && ! loading && !selectedMatches && ! (currentDishes.length >= 2)) }
                         onPress = {async ()=>{
-                            if(selectedDish != null && ! loading && !selectedMatches && ! (currentDish.length >= 2)){
+                            if(selectedDish != null && ! loading && !selectedMatches && ! (currentDishes.length >= 2)){
                                 const tempMealState = addDishByPortion(mealState,portion,selectedDish);
                                 setLoading(true);
                                 await setMealDishes(tempMealState.dishA,tempMealState.dishB,tempMealState.dishC, plateType)
                                 setModalOpen(null)// close modal
+                                trackWithProperties("Add recommended item",{
+                                    newItem: minimizeDishForAnalytics(selectedDish),
+                                    category: portion,
+                                })
                             }
                         }}
                     >

@@ -1,6 +1,6 @@
-import { View,Text, StyleSheet,TouchableOpacity, Dimensions,Animated, Modal, FlatList, Image } from "react-native"
+import React, { View,Text, StyleSheet,TouchableOpacity, Dimensions,Animated, Modal, FlatList, Image } from "react-native"
 import { colorOfCategory, iconOfCategory, NutritionFacts } from "./NutritionFacts"
-import { Dish, Portion, getNameOfStation, FOOD_CATEGORY, PlateType } from './typeUtil';
+import { Dish, Portion, getNameOfStation, FOOD_CATEGORY, PlateType, minimizeDishForAnalytics } from './typeUtil';
 import { Swipeable } from "react-native-gesture-handler"
 import { SvgXml } from "react-native-svg"
 import { useRef } from "react"
@@ -10,6 +10,7 @@ import { useDesignScheme } from '../../design/designScheme';
 import { APIKey } from '../../utils/session/apiTypes';
 import { ModalInfo } from './Dashboard';
 import { TimeInfo } from "./state";
+import { trackWithProperties } from "expo-analytics-segment";
 
 const thumbs_down_xml = `<svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
 <rect x="21.5312" y="1.4375" width="5.5625" height="12.125" rx="1" fill="white"/>
@@ -98,6 +99,8 @@ const TrayItem = ( props : {index: number, navigation, timeInfo: TimeInfo,plateT
                 // backgroundColor: "orange"
             }}
                 onPress = {()=>{
+                    // Tap image to go to individual item page
+
                     navigation.navigate("IndividualItem", {timeInfo,itemId: dish.id})
                 }}
             >
@@ -135,6 +138,9 @@ const TrayItem = ( props : {index: number, navigation, timeInfo: TimeInfo,plateT
                 flexShrink: 1,
                 paddingRight: 20,
             }} onPress = {()=>{
+                // Tap item name to go to change menu item
+                trackWithProperties("Altering recommended item",{ item: minimizeDishForAnalytics(dish)})
+
                 props.setModalOpen({
                     portion: props.portion,
                     opened: dish,

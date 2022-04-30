@@ -72,4 +72,13 @@ static void InitializeFlipper(UIApplication *application) {
   return [super application:application continueUserActivity:userActivity restorationHandler:restorationHandler] || result;
 }
 
+//Analytics
+- (BOOL)application:(UIApplication *)application
+            openURL: (NSURL *)url
+            options:(nonnull NSDictionary<UIApplicationOpenURLOptionsKey, id> *)options {
+
+  [AnalyticsReactNative trackDeepLink:url withOptions:options];  
+  return YES;
+}
+
 @end

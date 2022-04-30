@@ -155,7 +155,14 @@ export function convertAPIStationToStation(stat:APIStation){
         //     return STATION.I;
     }
 }
-
+export function minimizeDishForAnalytics(dish: Dish){
+    return {
+        id: dish.id,
+        name: dish.name,
+        portion: dish.portion,
+        portionAmount: dish.portionAmount,
+    }
+}
 export function convertAPIItemToDish(item:APIItem): Dish{
     const discrete = item.portion_volume<0
     const maxPieces = item?.max_pieces ?? 15

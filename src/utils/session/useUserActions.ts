@@ -12,6 +12,7 @@ import Login from '../../components/login/Login';
 import { TEST } from '../../../App';
 import * as ImagePicker from 'expo-image-picker';
 import TrayItem from '../../components/dashboard/TrayItem';
+import * as Segment from 'expo-analytics-segment';
 
 export const usersAtom = atom({
     key: "usersAtom",
@@ -121,9 +122,9 @@ function useUserActions () {
         // if(auth?.token !== null) return
         try{
             const _auth = await fetchWrapper.post(`${baseUrl}/api/token_auth/`, data)
-        
+            
+            console.log({_auth})
             if(!("token" in _auth)) throw new Error("Invalid auth" + password +" "+email)
-            // console.log({_auth})
             
             setAuth(_auth)
 
@@ -141,12 +142,14 @@ function useUserActions () {
             }
             setUsers(fixedUserInfo)
             console.log({userInfo})
+            Segment.identifyWithTraits(email,fixedUserInfo)
             // get return url from location state or default to home page
             // const { from } = history.location.state || { from: { pathname: '/' } };
             // history.push(from);
 
             return Ok({auth:_auth, userInfo: fixedUserInfo});
         }catch(e){
+            console.error(e)
             return Err("General Error" as LoginError)
         }
     }
@@ -282,6 +285,7 @@ function useUserActions () {
             return defaultResp;
         }
         const endpoint = `${baseUrl}/api/version/?version=${encodeURIComponent(version)}/`
+        console.log({endpoint})
         try{
             const resp = await fetchWrapper.get(endpoint)
             if(!resp){

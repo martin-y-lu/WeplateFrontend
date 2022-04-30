@@ -4,7 +4,8 @@ import { SvgXml } from 'react-native-svg';
 import { useRecoilValue, useRecoilState } from 'recoil';
 import { setTextRange } from 'typescript';
 import { feedbackAtom, FeedbackTypes } from './state';
-
+import React from 'react';
+import { useSegmentScreen } from '../../utils/analytics/useSegmentScreen';
 const radio_button_icon = `<svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
 <rect x="1.5" y="1.5" width="14" height="14" rx="2.5" stroke="white" stroke-width="3"/>
 </svg>
@@ -28,6 +29,9 @@ export const FeedbackRadioButton = ({name, checked, onPress}:{name: string, chec
 const feedbackTypes = [FeedbackTypes.COOKING_FOOD_PREP,FeedbackTypes.DINING_HALL_MANAGEMENT,FeedbackTypes.REQUEST_APP_FEATURES,FeedbackTypes.OTHER]
 
 const Feedback = ({navigation})=>{
+
+    useSegmentScreen(navigation,"Feedback")
+    
     const [feedback,setFeedback] = useRecoilState(feedbackAtom)
     const [selFeedbackTypes, setSelFeedbackTypes] = useState({});
     const [text, setText] = useState("");

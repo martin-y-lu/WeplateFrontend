@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react"
+import React, { useMemo, useState } from "react"
 import { View, Text, Button, StyleSheet, Image, TouchableOpacity, TextInput, ScrollView, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView, Platform, ImageBackground, Touchable, Dimensions } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 import { useRecoilValue, useRecoilState } from 'recoil';
@@ -16,6 +16,8 @@ import { formatNumber } from '../../utils/math';
 import * as ImagePicker from "expo-image-picker"
 import tinyColor from 'tinycolor2'
 import { useMealFeatures } from '../dashboard/useMealFeatures';
+import { useSegmentScreen } from "../../utils/analytics/useSegmentScreen";
+import * as Segment from "expo-analytics-segment"
 
 const cameraSvg = `<svg width="27" height="22" viewBox="0 0 27 22" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M3.25 3.38611H8.75C8.96875 2.82361 9.5625 1.69861 10.1875 1.69861H17.3438C17.8687 1.69861 18.3958 2.82361 18.5938 3.38611H24.375C25.025 3.38611 25.8125 3.82361 25.8125 4.82361V18.7611C25.8125 19.8236 25.3125 20.2611 24.1875 20.2611H3.25C2.375 20.2611 1.625 19.7611 1.625 18.7611V4.82361C1.625 3.88611 2.05 3.38611 3.25 3.38611Z" stroke="#A4A4A4" stroke-width="2"/>
@@ -72,6 +74,7 @@ function IndividualItem(props){
     const ds = useDesignScheme()
     const dish = item;
 
+    useSegmentScreen(navigation,"IndividualItem",{ item:{foodName, id: itemId},station,timeInfo})
     // const [userImage,setUserImage] = useState(null as string)
     return <View style = {{backgroundColor: ds.colors.grayscale5}}>
         <View style = {{
@@ -119,8 +122,12 @@ function IndividualItem(props){
                     
                         if (result.cancelled === false) { 
                         // setUserImage(result.uri);
-                            setDishUserGraphic(itemId, result.uri)
                             const resp = await userActions.postItemImage(result,dish)
+                            setDishUserGraphic(itemId, result.uri)
+                            Segment.trackWithProperties("Submitted item image",{
+                                item:{foodName, id: itemId},station,timeInfo,
+                                // some unique code/ url from resp also
+                            })
                         }
                 }}
             >

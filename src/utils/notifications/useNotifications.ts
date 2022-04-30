@@ -5,6 +5,7 @@ import { useState, useEffect, useRef} from 'react';
 import {Platform} from 'react-native'
 import { Subscription } from 'expo-modules-core';
 import { useUserActions } from '../session/useUserActions';
+import { usePersistentAtom } from '../state/userState';
 
 Notifications.setNotificationHandler({
     handleNotification: async () => ({
@@ -16,7 +17,6 @@ Notifications.setNotificationHandler({
 
 export function useNotifications(){
     const userActions = useUserActions()
-
     const [expoPushToken, setExpoPushToken] = useState('');
     const [notification, setNotification] = useState(null as Notifications.Notification);
     const notificationListener = useRef(null as Subscription);

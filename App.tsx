@@ -39,7 +39,8 @@ import { useDesignScheme } from "./src/design/designScheme";
 import IndividualItem from "./src/components/individual-item/IndividualItem";
 import { ChangePassword } from "./src/components/change-password/ChangePassword";
 import { useNotifications } from "./src/utils/notifications/useNotifications";
-
+// import { congifureClient } from './src/utils/analytics/analyticsConfig';
+type Concat<S1 extends string, S2 extends string> = `${S1}${S2}`;
 
 const Stack = createNativeStackNavigator()
 const Drawer = createDrawerNavigator();
@@ -216,12 +217,27 @@ const BaseApp = ()=>{
 
 //Setting up recoil based state management
 //Setting up react query
+// const segmentClient = createClient({
+//     writeKey: "ihpkbXAuEyB5OSJaXfj5DtD5GYmWZeWp",
+//     trackAppLifecycleEvents: true,
+//     //additional config options
+// });
+import * as Segment from 'expo-analytics-segment';
+import Constants from 'expo-constants';
+
+const writeKey ="ihpkbXAuEyB5OSJaXfj5DtD5GYmWZeWp"
+//  Constants.manifest.extra.SegmentWriteKey
+Segment.initialize({
+    androidWriteKey: writeKey,
+    iosWriteKey: writeKey,
+  });
 
 const queryClient = new QueryClient()
 const App = ()=>{
+    // <AnalyticsProvider client = {segmentClient}>
     return <RecoilRoot>
         <QueryClientProvider client={ queryClient}>
-            <BaseApp/> 
+                <BaseApp/> 
         </QueryClientProvider>
     </RecoilRoot> 
 }

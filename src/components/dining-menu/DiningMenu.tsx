@@ -15,6 +15,8 @@ import { useDashboardState } from '../dashboard/Dashboard';
 import { useDesignScheme } from '../../design/designScheme';
 import { colorOfCategory } from '../dashboard/NutritionFacts';
 import { useMealFeatures } from '../dashboard/useMealFeatures';
+import React from 'react';
+import { useSegmentScreen } from '../../utils/analytics/useSegmentScreen';
 export const BASE_PORTION_FILL_FRACTION = 0.7
 
 export const leaf_xml = `<svg width="60" height="39" viewBox="0 0 60 39" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -182,6 +184,8 @@ const STATIONS = Object.keys(STATION)
 const DiningMenu = ({navigation,route})=> {
     const auth = useRecoilValue(authAtom)
     useLogin(navigation)
+
+    useSegmentScreen(navigation,"Dining Menu")
     const userActions = useUserActions()
 
     // const [currentStation,setCurrentStation] = useState(STATION.A);

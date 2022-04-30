@@ -313,7 +313,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = org.name.reactnative3d;
+				PRODUCT_BUNDLE_IDENTIFIER = com.weplate.weplate;
 				PRODUCT_NAME = reactnative3d;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -336,7 +336,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = org.name.reactnative3d;
+				PRODUCT_BUNDLE_IDENTIFIER = com.weplate.weplate;
 				PRODUCT_NAME = reactnative3d;
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";

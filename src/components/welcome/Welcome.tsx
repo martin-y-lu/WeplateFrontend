@@ -65,6 +65,7 @@ export const WelcomeButton = (props)=>{
     </TouchableOpacity>
 }
 export const Welcome1 = ({navigation})=>{
+    useSegmentScreen(navigation,"Welcome1")
     return <BaseWelcome>
         <Text style={styles.title}>Welcome!</Text>
         <Text style={styles.text}>We have a short questionnare for you to fill out in order to fully customize your diet based on your needs.</Text>
@@ -149,6 +150,7 @@ import { ingredientsAtom, usersAtom, useUserActions } from "../../utils/session/
 import { APIHealthGoal, getAPIHealthGoalName, healthGoals, activityLevels, APIActivityLevel, getAPIActivityLevelName, getAPIActivityLevelDescription, APIEveryMeal, everyMeals, getAPIEveryMealName, dietaryRestrictions, APIDietaryRestriction, getAPIDietaryRestrictionName, baseAllergens, APIBaseAllergen, getAPIBaseAllergenName } from '../../utils/session/apiTypes';
 import { usePersistentAtom } from '../../utils/state/userState';
 import { formatTransformRotation } from '../../utils/math';
+import { useSegmentScreen } from "../../utils/analytics/useSegmentScreen"
 function PickButton(props){
     const width = Dimensions.get("window").width   -100
     const check = props.check??false;
@@ -337,6 +339,7 @@ function RadioButton(props){
     </TouchableOpacity>
 }
 export const Welcome3 = ({navigation})=>{
+    useSegmentScreen(navigation,"Welcome3")
     const [user,_setUser] = useRecoilState(usersAtom)
     const [goal,setGoal] = useState(null as APIHealthGoal)
    return <BaseWelcome>
@@ -361,6 +364,7 @@ export const Welcome3 = ({navigation})=>{
    </BaseWelcome>
 }
 export const Welcome4 = ({navigation})=>{
+    useSegmentScreen(navigation,"Welcome4")
     const [user,_setUser] = useRecoilState(usersAtom)
     const [level,setLevel] = useState(null as APIActivityLevel)
    return <BaseWelcome>
@@ -386,6 +390,7 @@ export const Welcome4 = ({navigation})=>{
    </BaseWelcome>
 }
 export const Welcome5 = ({navigation})=>{
+    useSegmentScreen(navigation,"Welcome5")
     const [user,_setUser] = useRecoilState(usersAtom)
     const [meals,setMeals] = useState([] as APIEveryMeal[])
     
@@ -417,6 +422,7 @@ export const Welcome5 = ({navigation})=>{
     </BaseWelcome>
 }
 export const Welcome6 = ({navigation})=>{
+    useSegmentScreen(navigation,"Welcome6")
     const [user,_setUser] = useRecoilState(usersAtom)
     const [mealLength,setMealLength] = useState(40 as number)
    return <BaseWelcome>
@@ -442,6 +448,7 @@ export const Welcome6 = ({navigation})=>{
     </BaseWelcome>
 }
 export const Welcome7 = ({navigation})=>{
+    useSegmentScreen(navigation,"Welcome7")
     const [user,_setUser] = useRecoilState(usersAtom)
     const [restrictions,setRestrictions] = useState([] as APIDietaryRestriction[])
     
@@ -473,6 +480,7 @@ export const Welcome7 = ({navigation})=>{
     </BaseWelcome>
 }
 export const Welcome8 = ({navigation})=>{
+    useSegmentScreen(navigation,"Welcome8")
     const userActions = useUserActions()
     const ingredients = useRecoilValue(ingredientsAtom)
     useEffect(()=>{
@@ -520,6 +528,7 @@ export const Welcome8 = ({navigation})=>{
     </BaseWelcome>
 }
 export const Welcome9 = ({navigation})=>{
+    useSegmentScreen(navigation,"Welcome9")
     const [user,_setUser] = useRecoilState(usersAtom)
     const [gradYear,setGradYear] = useState(2025)
    return <BaseWelcome>
@@ -545,6 +554,7 @@ export const Welcome9 = ({navigation})=>{
     </BaseWelcome> 
 }
 export const Welcome10 = ({navigation})=>{
+    useSegmentScreen(navigation,"Welcome10")
     const userActions = useUserActions()
     const [user,_setUser] = useRecoilState(usersAtom)
     const [persistentState,setPersistentState,fetchPersistentState] = usePersistentAtom() as any
@@ -613,6 +623,7 @@ export const Welcome10 = ({navigation})=>{
     </BaseWelcome>
 }
 export const Welcome11 = ({navigation})=>{
+    useSegmentScreen(navigation,"Welcome11")
     const userActions = useUserActions()
     const [user,_setUser] = useRecoilState(usersAtom)
     const [persistentState,setPersistentState,fetchPersistentState] = usePersistentAtom() as any

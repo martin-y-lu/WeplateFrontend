@@ -1,3 +1,4 @@
+import React from 'react';
 import { useCallback, useEffect, useState, useMemo, useRef } from 'react';
 import { View, Text, TouchableOpacity, Modal, ScrollView, Animated } from "react-native";
 import { useRecoilState, useRecoilValue } from "recoil"
@@ -26,6 +27,7 @@ import { useLogin } from '../../utils/session/session';
 import { useDesignScheme } from '../../design/designScheme';
 import { TEST } from '../../../App';
 import { ErrorBoundary } from '../../utils/error/ErrorBoundary';
+import {useSegmentScreen} from '../../utils/analytics/useSegmentScreen'
 
 
 const drag_icon_svg = `<svg width="59" height="55" viewBox="0 0 59 55" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -133,6 +135,9 @@ const CategoryHeader = (props: { portion: Portion,  category: FOOD_CATEGORY, set
                             opened: null,
                             action: "add"
                         })
+                        trackWithProperties("Remove item",{
+                            category: portion,
+                        })
                     }
                 }}
             >
@@ -145,13 +150,21 @@ const CategoryHeader = (props: { portion: Portion,  category: FOOD_CATEGORY, set
     </View> 
 }
 
+import * as Segment from 'expo-analytics-segment';
+import { NavigationProp, ParamListBase } from '@react-navigation/native';
+import { track, trackWithProperties } from 'expo-analytics-segment';
 
 export type ModalInfo = {portion: Portion, opened: Dish, action: "alter"} | {portion : Portion, opened: null, action: "add"}
 const Dashboard = (props)=>{
-    const {route,navigation,copilotEvents} = props
+    const {navigation} : {navigation: NavigationProp<ParamListBase>} = props
+    const {route,copilotEvents} = props
     const [persistentState,setPersistentState,fetchPersistentState,dangerouslySetPersistentState] = usePersistentAtom()
     const {plateType} = persistentState
     useLogin(navigation)
+
+    // Analytic event
+    useSegmentScreen(navigation,"Dashboard")
+   
 
     const {start} = props // Copilot: Start onboarding
     const {timeInfo} = useDashboardState()

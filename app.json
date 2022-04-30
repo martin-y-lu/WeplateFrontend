@@ -10,6 +10,10 @@
     ],
     "ios": {
       "bundleIdentifier": "com.weplate.weplate"
+    },
+    "extra": {
+      "TEST": true,
+      "SegmentWriteKey": "ihpkbXAuEyB5OSJaXfj5DtD5GYmWZeWp" 
     }
   },
   "name": "WePlate",

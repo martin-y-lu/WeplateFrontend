@@ -42,6 +42,7 @@ const NewSettingsEntry = ({name,value,edit,target})=>{
   </TouchableOpacity>
 }
 const Settings = ({navigation})=>{
+    useSegmentScreen(navigation,"Settings")
     const userActions = useUserActions()
 
     const name = useRecoilValue(Rname)

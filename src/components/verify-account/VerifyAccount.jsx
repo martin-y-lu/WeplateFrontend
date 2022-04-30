@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, Text } from "react-native";
 import { useRecoilState } from "recoil";
 import { usersAtom, useUserActions } from "../../utils/session/useUserActions";
 import { usePersistentAtom } from "../../utils/state/userState";
 import { BaseWelcome, WelcomeButton } from "../welcome/Welcome";
 export const VerifyAccount = ({navigation})=>{
+    useSegmentScreen(navigation,"VerifyAccount")
     const userActions = useUserActions()
     const [user,_setUser] = useRecoilState(usersAtom)
     const [persistentState,setPersistentState,fetchPersistentState] = usePersistentAtom()
