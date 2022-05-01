@@ -61,6 +61,7 @@ const LB_PER_KG = 2.2046
 const CM_PER_INCH =2.54
 export const UNVERFIED_USER_ERROR_MESSAGE = "User is not verified."
 export type LoginError = "User is not verified." | "General error"
+export type ImageResult = {uri: string, height: number, width: number, exif?: any}
 function useUserActions () {
     const baseUrl = "https://weplate-backend.nn.r.appspot.com";
     // const baseUrl = "https://mosesxu.ca/weplate";
@@ -68,7 +69,7 @@ function useUserActions () {
     const [auth,setAuth] = useRecoilState(authAtom);
     const [users, setUsers] = useRecoilState(usersAtom);
     const [ingredients,setIngredients] = useRecoilState(ingredientsAtom)
-    const [persistentState,setPersistentState,fetchPersistentState] = usePersistentAtom() as any
+    const [persistentState,setPersistentState,fetchPersistentState] = usePersistentAtom()
     useEffect( ()=>{
         fetchPersistentState()
     },[])
@@ -316,18 +317,21 @@ function useUserActions () {
            return false
        } 
     }
-
     async function postPushToken(token:string){
-        try{
-            const endpoint = `${baseUrl}/api/notifications/push_token`
-            const ok = await fetchWrapper.post(baseUrl,{token})
-        }catch(e){
+        if(users?.expo_push_token != token){
+            try{
+                await postUserSettings({
+                    ... users,
+                    expo_push_token: token
+                })
+            }catch(e){
 
+            }
         }
     }
-
-    async function postItemImage(pickerResult: ImagePicker.ImagePickerResult, dish: Dish){
-        if(pickerResult.cancelled == false){
+    
+    async function postItemImage(pickerResult: ImageResult, dish: Dish){
+        // if(){
             const formData = new FormData();
 
             let localUri = pickerResult.uri;
@@ -337,25 +341,26 @@ function useUserActions () {
             let match = /\.(\w+)$/.exec(filename);
             let type = match ? `image/${match[1]}` : `image`;
 
-            formData.append('photo', { uri: localUri, name: filename, type } as any);
+            formData.append('image', { uri: localUri, name: filename, type } as any);
+            formData.append('item',dish.id as string)
             formData.append('data', JSON.stringify({
                 dish_id: dish.id,
                 image:{
                     height: pickerResult.height,
                     width: pickerResult.width,
-                    exif: pickerResult.exif
+                    exif: pickerResult?.exif
                 }
             }));
             
             try{
-                const endpoint = `${baseUrl}/api/items/graphic`
+                const endpoint = `${baseUrl}/api/suggest/item_image/`
                 const resp = await fetchWrapper.post(endpoint,formData,{bodyType:"form"})
                 return resp
             }catch(e){
 
             }
 
-        }
+        // }
     }
 
     async function resetPassword(email:string,newPassword:string){

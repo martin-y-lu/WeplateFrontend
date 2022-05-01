@@ -19,7 +19,7 @@ const persistentAtom = atom({
 
 export function usePersistentAtom(){
     const [pers,setPers] = useRecoilState(persistentAtom)
-    async function fetchPersistentAtom(){
+    async function fetchPersistentAtom() :Promise<defaultPersistType>{
         const resstring = await AsyncStorage.getItem("persist")
         // console.log({resstring})
         if(resstring){
@@ -57,7 +57,7 @@ export function usePersistentAtom(){
         await AsyncStorage.setItem("persist",JSON.stringify(newPers))
     }
     const dangerouslySetPersistentAtom = setPers
-    const ret : [ defaultPersistType , (newValue:defaultPersistType) => Promise<void>, SetterOrUpdater<defaultPersistType> , any] = [pers,setPersistentAtom,fetchPersistentAtom,dangerouslySetPersistentAtom] 
+    const ret : [ defaultPersistType , (newValue:defaultPersistType) => Promise<void>, () => Promise<defaultPersistType> , any] = [pers,setPersistentAtom,fetchPersistentAtom,dangerouslySetPersistentAtom] 
     
     return ret
 

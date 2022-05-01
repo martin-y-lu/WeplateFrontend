@@ -1,10 +1,10 @@
-import React, { useMemo, useState } from "react"
-import { View, Text, Button, StyleSheet, Image, TouchableOpacity, TextInput, ScrollView, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView, Platform, ImageBackground, Touchable, Dimensions } from 'react-native';
+import React, { useEffect, useMemo, useRef, useState } from "react"
+import { View, Text, Button, StyleSheet, Image, TouchableOpacity, TextInput, ScrollView, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView, Platform, ImageBackground, Touchable, Dimensions, Modal } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 import { useRecoilValue, useRecoilState } from 'recoil';
 import { setTextRange } from 'typescript';
 import { authAtom } from '../../utils/session/useFetchWrapper';
-import { useUserActions } from '../../utils/session/useUserActions';
+import { useUserActions, ImageResult } from '../../utils/session/useUserActions';
 import { MealState, getNameOfStation } from '../dashboard/typeUtil';
 import { getTimeInfoOfNow, TimeInfo } from '../dashboard/state';
 import { useLogin } from "../../utils/session/session";
@@ -17,6 +17,7 @@ import * as ImagePicker from "expo-image-picker"
 import tinyColor from 'tinycolor2'
 import { useMealFeatures } from '../dashboard/useMealFeatures';
 import { useSegmentScreen } from "../../utils/analytics/useSegmentScreen";
+import { Camera } from 'expo-camera';
 import * as Segment from "expo-analytics-segment"
 
 const cameraSvg = `<svg width="27" height="22" viewBox="0 0 27 22" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -54,6 +55,38 @@ export const NutritionInfoEntry = ({name, value, unit})=>{
                     </View>
                 </View>
 }
+
+const camera_button_icon= `<svg width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+<circle cx="25.375" cy="25.375" r="23.625" stroke="#D9D9D9" stroke-width="2"/>
+<g filter="url(#filter0_i_2007_334)">
+<circle cx="25.375" cy="25.5391" r="19.2305" fill="white"/>
+</g>
+<circle cx="25.375" cy="25.5391" r="18.7305" stroke="white"/>
+<defs>
+<filter id="filter0_i_2007_334" x="6.14453" y="6.30859" width="38.4609" height="42.4609" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset dy="4"/>
+<feGaussianBlur stdDeviation="2.5"/>
+<feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
+<feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.12 0"/>
+<feBlend mode="normal" in2="shape" result="effect1_innerShadow_2007_334"/>
+</filter>
+</defs>
+</svg>
+`
+const media_library_icon = `<svg width="38" height="34" viewBox="0 0 38 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="12.5078" y="0.0625" width="25.375" height="33.125" rx="4" fill="white"/>
+<line x1="8.00781" y1="4.625" x2="8.00781" y2="28.625" stroke="white" stroke-width="3" stroke-linecap="round"/>
+<line x1="1.75781" y1="7.4375" x2="1.75781" y2="25.1875" stroke="white" stroke-width="3" stroke-linecap="round"/>
+</svg>
+`
+
+const x_icon =  `<svg width="18" height="19" viewBox="0 0 18 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M2 2.25L9.21875 9.46875M16.4375 16.6875L9.21875 9.46875M9.21875 9.46875L16.4375 2.25L2 16.6875" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+`
 function IndividualItem(props){
     const userActions = useUserActions()
     const {width,height} = Dimensions.get("window")
@@ -75,6 +108,43 @@ function IndividualItem(props){
     const dish = item;
 
     useSegmentScreen(navigation,"IndividualItem",{ item:{foodName, id: itemId},station,timeInfo})
+
+    const [hasCameraPermission, setHasCameraPermission] = useState(null);
+    const [showingCameraModal,setShowingCameraModal] = useState(false)
+    const cameraRef = useRef(null as Camera);
+
+    useEffect(() => {
+        if(showingCameraModal){
+            (async () => {
+                const { status } = await Camera.requestCameraPermissionsAsync();
+                setHasCameraPermission(status === 'granted');
+            })();
+        }
+    }, [showingCameraModal]);
+    async function submitImage(result:ImageResult ){
+        const resp = await userActions.postItemImage(result,dish)
+        setDishUserGraphic(itemId, result.uri)
+        Segment.trackWithProperties("Submitted item image",{
+            item:{foodName, id: itemId},station,timeInfo,
+            // some unique code/ url from resp also
+        })
+    }
+    async function useImagePicker(){
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [IMAGE_ASPECT_RATIO, 1],
+            quality: 0.8,
+        });
+    
+        console.log(result);
+    
+        if (result.cancelled === false) { 
+        // setUserImage(result.uri);
+            submitImage(result)
+        }
+        return result
+    }
     // const [userImage,setUserImage] = useState(null as string)
     return <View style = {{backgroundColor: ds.colors.grayscale5}}>
         <View style = {{
@@ -88,6 +158,7 @@ function IndividualItem(props){
                 }} source = {graphic ? {uri:graphic.uri}: bgPicture} />
         </View>
         {
+            // if there is no graphic or the graphic originates from the user, show the header
             ((!graphic) || graphic?.source == "user") && <View style = {{
                 position: "absolute",
                 top: 0,
@@ -100,7 +171,9 @@ function IndividualItem(props){
                 paddingLeft: 60, 
                 justifyContent: "center",
             }}>
-                {  graphic?.source == "user"?
+                { 
+                //If the source is the user, display the thanks message
+                graphic?.source == "user"?
                 <View style = {{height: "100%", justifyContent: "space-between"}}>
                     <Text style = {{color: ds.colors.grayscale3_4, fontSize: 18}}>
                         Your photo is pending review,
@@ -109,41 +182,28 @@ function IndividualItem(props){
                         Thank you for making WePlate better for everyone!
                     </Text>
                 </View>
-                :<TouchableOpacity style = {{height: "100%", justifyContent: "space-between"}}
-                onPress = {async ()=>{
-                    let result = await ImagePicker.launchImageLibraryAsync({
-                        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-                        allowsEditing: true,
-                        aspect: [4, 3],
-                        quality: 1,
-                        });
-                    
-                        console.log(result);
-                    
-                        if (result.cancelled === false) { 
-                        // setUserImage(result.uri);
-                            const resp = await userActions.postItemImage(result,dish)
-                            setDishUserGraphic(itemId, result.uri)
-                            Segment.trackWithProperties("Submitted item image",{
-                                item:{foodName, id: itemId},station,timeInfo,
-                                // some unique code/ url from resp also
-                            })
-                        }
-                }}
-            >
-                <Text style = {{color: ds.colors.grayscale3_4, fontSize: 18}}>
-                    This item does not have an image yet,
-                </Text>
-                <View style = {{flexDirection: "row", width: "100%"}}>
-                    <Text style = {{color: ds.colors.grayscale3_4, fontSize: 18}}>
-                        Take a picture to help us out 
-                    </Text>
-                    <View style = {{ flex: 1, justifyContent : "center", alignItems: 'center'}}>
 
-                        <SvgXml xml = {cameraSvg}/>
-                    </View>
-                </View>
-            </TouchableOpacity>
+                // otherwise show the request for images
+                :
+                    <TouchableOpacity style = {{height: "100%", justifyContent: "space-between"}}
+                        onPress = {async ()=>{
+                            // await useImagePicker()
+                            setShowingCameraModal(true)
+                        }}
+                    >
+                        <Text style = {{color: ds.colors.grayscale3_4, fontSize: 18}}>
+                            This item does not have an image yet,
+                        </Text>
+                        <View style = {{flexDirection: "row", width: "100%"}}>
+                            <Text style = {{color: ds.colors.grayscale3_4, fontSize: 18}}>
+                                Take a picture to help us out 
+                            </Text>
+                            <View style = {{ flex: 1, justifyContent : "center", alignItems: 'center'}}>
+
+                                <SvgXml xml = {cameraSvg}/>
+                            </View>
+                        </View>
+                    </TouchableOpacity>
                 }
             </View>
         }
@@ -183,6 +243,94 @@ function IndividualItem(props){
                 </View>
             </View>
         </View>
+        <Modal transparent visible = {(!! showingCameraModal ) && hasCameraPermission} style = {{ alignItems: "center", justifyContent: "center"}}>
+            <TouchableOpacity style = {{
+                position: "absolute",
+                width:"100%",
+                height: "100%",
+                backgroundColor: "rgba(0,0,0,0.3)",
+                alignItems: 'stretch',
+                // justifyContent: 'center'
+            }}
+            onPress = {()=>{
+                setShowingCameraModal(false)
+            }}
+            />
+            <View style = {{ width: "100%", alignItems: "center", flexDirection: "row"}}>
+                <View style = {{
+                    // width: "100%",
+                    flex: 1,
+                    margin: 30,
+                    aspectRatio: 1,
+                    backgroundColor: "black",
+                    borderRadius: 20,
+                    overflow: "hidden",
+                    alignItems: "center",
+                }}>
+
+                    <Camera style = {{
+                        width: "100%",
+                        aspectRatio: IMAGE_ASPECT_RATIO,
+                        borderRadius:  20,
+                        overflow: "hidden"
+                    }}
+                    ratio = {"3:2"}
+                    type = {Camera.Constants.Type.back}
+                    ref = {cameraRef}
+                    >
+
+                    </Camera>
+                    <View style = {{
+                        flex: 1,
+                        flexDirection: "row",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        alignContent: "space-between",
+                        width: "100%",
+                    }}>
+                        <TouchableOpacity style = {{
+                            height: "100%",
+                            aspectRatio: 1,
+                            position: "absolute",
+                            left: 0,
+                            // backgroundColor: "orange",
+                            alignItems: "center",
+                            justifyContent: "center",
+                        }} onPress = {async ()=>{
+                            const res = await useImagePicker()
+                            if(res.cancelled == false){
+                                setShowingCameraModal(false)
+                            }
+                        }}>
+                            <SvgXml xml = {media_library_icon}/>
+                        </TouchableOpacity>
+                        <TouchableOpacity style = {{
+                            height: "100%",
+                            aspectRatio: 1,
+                            position: "absolute",
+                            right: 0,
+                            // backgroundColor: "orange",
+                            alignItems: "center",
+                            justifyContent: "center",
+                        }} onPress = {()=>{
+                           setShowingCameraModal(false) 
+                        }}>
+                            <SvgXml xml = {x_icon}/>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress = {async ()=>{
+                            // take picture,
+                            if(cameraRef?.current !== null){
+                                const photo = await cameraRef.current.takePictureAsync()
+                                setShowingCameraModal(false)
+                                await submitImage(photo)
+                            }
+                        }}>
+                            <SvgXml xml={camera_button_icon}/>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </View>
+        </Modal>
         <TouchableOpacity style = {{
             position: 'absolute',
             top: inset.top+10,
