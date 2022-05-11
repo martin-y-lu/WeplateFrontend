@@ -103,7 +103,8 @@ function Splash({navigation}){
             }else if( (!fetchedState?.verified) && res.ok && (!res.val.userInfo.is_verified )){
                 navigation.navigate("VerifyAccount")
             }else{
-                navigation.navigate("SidebarNavigable",{screen:"Dashboard"})
+                const startingScreen = "Settings"
+                navigation.navigate("SidebarNavigable",{screen:startingScreen})
             }
 
         }else{

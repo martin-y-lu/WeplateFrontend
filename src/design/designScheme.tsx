@@ -17,7 +17,7 @@ export const defaultDesignScheme = {
         grayscale5: "#FFFFFF" as Color,
     },
     fontFamilies: {
-        main: "Avenir",
+        // main: "Avenir",
         black: "Avenir-Black",
         heavy: "Avenir-Heavy",
         medium: "Avenir-Medium",

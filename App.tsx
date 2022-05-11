@@ -51,7 +51,7 @@ const Drawer = createDrawerNavigator();
 const SHOW_NAV_HEADER = true
 const SidebarNavigable = ()=>{
     const ds = useDesignScheme()
-
+    useFonts()
     return  <Drawer.Navigator
         drawerContent={ (props)=> <CustomDrawerContent {...props}/>}
         screenOptions={{
@@ -224,6 +224,9 @@ const BaseApp = ()=>{
 // });
 import * as Segment from 'expo-analytics-segment';
 import Constants from 'expo-constants';
+import { useEffect } from "react";
+import { Platform } from "react-native";
+import { useFonts } from "./src/design/loadFonts";
 
 const writeKey ="ihpkbXAuEyB5OSJaXfj5DtD5GYmWZeWp"
 //  Constants.manifest.extra.SegmentWriteKey

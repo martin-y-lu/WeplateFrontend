@@ -5,6 +5,7 @@ import { PanGestureHandler } from 'react-native-gesture-handler'
 import { closest, interp } from "../../utils/math"
 import { SHADOW_STYLE } from './Dashboard'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { interpolateRotationRadians } from '../../utils/Loading'
 
 export const ARROW_ICON_SVG = `<svg width="31" height="11" viewBox="0 0 31 11" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M30 9L16.8042 2.62964C15.9802 2.23184 15.0198 2.23184 14.1958 2.62964L1 9" stroke="#A4A4A4" stroke-width="4"/>
@@ -140,17 +141,17 @@ const NutritionFactsContainer = (props) =>{
                         }
                     }}>
                         <Animated.View style = {{
-                            transform : [{rotate: hideLevel.interpolate({inputRange:[0,1],outputRange:[0,Math.PI],extrapolate:"clamp"})}]
+                            transform : [{rotate: interpolateRotationRadians(hideLevel.interpolate({inputRange:[0,1],outputRange:[0,Math.PI],extrapolate:"clamp"}))}]
                         }}>
                             <SvgXml xml = {ARROW_ICON_SVG}/>
                         </Animated.View>
-                        <Text style = {{
+                        <Animated.Text style = {{
                             marginTop:4,
                             color: "#A4A4A4",
                             fontSize: 20,
                         }}>
                             Nutrition Facts
-                        </Text>
+                        </Animated.Text>
                     </TouchableOpacity>
                 </View>
             </PanGestureHandler>

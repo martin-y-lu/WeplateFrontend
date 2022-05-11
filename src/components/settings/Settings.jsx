@@ -8,6 +8,7 @@ import { capitalizeFirstLetter, getAPIActivityLevelName, getAPIBaseAllergenName,
 import { useState } from "react"
 import { useUserActions } from "../../utils/session/useUserActions"
 import { formatNumber, formatTransformRotation } from "../../utils/math"
+import { useSegmentScreen } from "../../utils/analytics/useSegmentScreen"
 const arrow_icon = `<svg width="8" height="15" viewBox="0 0 8 15" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M1 14L5.63251 9.69838C6.91071 8.51148 6.91071 6.48852 5.63251 5.30162L1 1" stroke="#A4A4A4" stroke-width="2"/>
 </svg>
