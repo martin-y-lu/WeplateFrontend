@@ -143,7 +143,7 @@ function DropButton(props){
 import { Dimensions } from "react-native";
 import NumberPlease from "react-native-number-please"
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { stringToDate, dateToString } from '../dashboard/state';
+import { stringToDate, dateToString } from '../state';
 import { valueXY } from '../dashboard/tooltip/components/types';
 import { useRecoilState, useRecoilValue } from "recoil"
 import { ingredientsAtom, usersAtom, useUserActions } from "../../utils/session/useUserActions"

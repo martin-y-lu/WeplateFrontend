@@ -7,7 +7,7 @@ import { useRecoilValue, useRecoilState } from 'recoil';
 
 import { authAtom } from '../../utils/session/useFetchWrapper';
 import { useUserActions } from '../../utils/session/useUserActions';
-import { getTimeInfoOfNow} from '../../components/dashboard/state';
+import { getTimeInfoOfNow} from '../state';
 import { useLogin } from "../../utils/session/session";
 import { LoadingIcon } from "../../utils/Loading";
 import { useMealFeatures } from "../dashboard/useMealFeatures";

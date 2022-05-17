@@ -1,6 +1,6 @@
 import { Dish, NutritionalRequirements, Portion } from '../../components/dashboard/typeUtil'
 import { atom, useSetRecoilState, useRecoilState } from 'recoil';
-import { TimeInfo } from '../../components/dashboard/state';
+import { TimeInfo } from '../../components/state';
 import { mealToAPIForm, MealState, fullVolumeByPortion } from '../../components/dashboard/typeUtil';
 import { authAtom, useFetchWrapper } from './useFetchWrapper';
 import { APIMealSuggest, APIPortionSuggestEntry, APIPortionSuggest, APIMealEvent, APIMealByTimePayload, APIAnalyticsMealChoiceEntry, APIUserSettings, APIKey, APIRegisterSettings, APIVersionResponse } from './apiTypes';
@@ -13,6 +13,7 @@ import { TEST } from '../../../App';
 import * as ImagePicker from 'expo-image-picker';
 import TrayItem from '../../components/dashboard/TrayItem';
 import * as Segment from 'expo-analytics-segment';
+import * as Device from 'expo-device';
 
 export const usersAtom = atom({
     key: "usersAtom",
@@ -318,15 +319,48 @@ function useUserActions () {
        } 
     }
     async function postPushToken(token:string){
-        if(users?.expo_push_token != token){
-            try{
-                await postUserSettings({
-                    ... users,
-                    expo_push_token: token
-                })
-            }catch(e){
+        if(persistentState?.expoPush?.token != token){
+            const endpoint_post = `${baseUrl}/api/notification/expo_push_token/`
+            const existing_tokens = (await fetchWrapper.get(endpoint_post) )?? []
+            // as [{
+            //     id: APIKey,
+            //     token: string,
+            //     device: string,
+            //     timestamp: string
+            // }]
+            console.log({existing_tokens})
 
+            if(existing_tokens.map(el=> el.token).includes(token)) return
+
+            const body = {
+                token,
+                device: Device.deviceName
             }
+            const resp = await fetchWrapper.post(endpoint_post,body) 
+            // as {
+            //     id: APIKey,
+            //     token: string,
+            //     device: string
+            // }
+            console.log({
+                token_post: resp,
+                body
+            })
+            await setPersistentState(
+                {... persistentState,
+                    expoPush: {
+                        id: resp.id,
+                        token,
+                    }
+                }
+            ) 
+        }
+    }
+    async function deletePushToken(){
+        const id = persistentState?.expoPush?.id
+        if(id){
+            const endpoint = `${baseUrl}/api/notification/expo_push_token/${encodeURIComponent(id)}/`
+            const resp = await fetchWrapper.delete(endpoint)
         }
     }
     
@@ -375,11 +409,13 @@ function useUserActions () {
 
     async function logout() {
         // remove user from local storage, set auth state to null and redirect to login page
+        await deletePushToken()
         await setPersistentState({
             ...persistentState,
             email: null,
             password: null,
             doOnboarding: true,
+            expoPush: null,
         })
         setAuth(null);
         // history.push('/login');

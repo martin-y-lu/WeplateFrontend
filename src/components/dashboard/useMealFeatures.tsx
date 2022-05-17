@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState, useMemo, useRef } from 'react';
 import { useRecoilState, useRecoilValue } from "recoil"
 import { useUserActions } from '../../utils/session/useUserActions';
-import { TimeInfo, dashboardStateAtom, dateToString, stringToDate, getTimeInfoOfNow, useMealStateUtils, mealStateSelector } from './state';
+import { TimeInfo, dashboardStateAtom, dateToString, stringToDate, getTimeInfoOfNow, useMealStateUtils, mealStateSelector } from '../state';
 import { MealState, convertAPIItemToDish, Portion, getPortionInfoFromAPIPortionInfo, Dish, FOOD_CATEGORY, FoodCategoryFromAPIFoodCategory, getMealsIndex, getDishesByPortion, getFoodCategoryDescription, PlateType, fullVolumeByPortion, volumesByPlateType } from './typeUtil';
 import { authAtom } from "../../utils/session/useFetchWrapper"
 import ChangeMenuItem from "./ChangeMenuItem"

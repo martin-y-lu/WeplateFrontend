@@ -6,7 +6,7 @@ import {Rname,RdietGoals,RactivityLevel,RdietaryRestrictions,RfoodAllergies,Rbir
 import {editInfoState} from './state2'
 import { TouchableOpacity } from "react-native-gesture-handler"
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { dateToString, stringToDate } from "../dashboard/state";
+import { dateToString, stringToDate } from "../state";
 import { ingredientsAtom, usersAtom, useUserActions } from "../../utils/session/useUserActions";
 import NumberPlease from "react-native-number-please";
 import { baseAllergens, dietaryRestrictions, getAPIBaseAllergenName, APIDietaryRestriction, getAPIDietaryRestrictionName, APIBaseAllergen } from '../../utils/session/apiTypes';

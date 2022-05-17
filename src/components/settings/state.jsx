@@ -1,5 +1,5 @@
 import {atom, selector} from 'recoil'
-import { invalidateMealStates, mealStateKeysAtom, mealStatesAtom } from '../dashboard/state'
+import { invalidateMealStates, mealStateKeysAtom, mealStatesAtom } from '../state'
 import { ingredientsAtom, usersAtom } from '../../utils/session/useUserActions'
 
 export const Rname = selector({

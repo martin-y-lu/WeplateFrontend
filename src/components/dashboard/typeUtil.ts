@@ -1,5 +1,5 @@
 import { APIFoodCategory, APIPortionSuggestEntry, APIItem, APITimestamp, APIStation, APIKey } from '../../utils/session/apiTypes';
-import { TimeInfo } from './state';
+import { TimeInfo } from '../state';
 export enum FOOD_CATEGORY{Carbohydrates = "Carbohydrates",Protein = "Protein", Vegetable = "Vegetable"}
 export const foodCategories = [FOOD_CATEGORY.Carbohydrates,FOOD_CATEGORY.Protein,FOOD_CATEGORY.Vegetable]
 export enum MEAL{Breakfast = "Breakfast", Lunch = "Lunch",Dinner = "Dinner"}

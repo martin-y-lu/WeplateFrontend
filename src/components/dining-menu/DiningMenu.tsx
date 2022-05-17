@@ -4,7 +4,7 @@ import { useRecoilState, useRecoilValue } from "recoil";
 import { STATION, getNameOfStation, convertAPIItemToDish, FOOD_CATEGORY, Dish } from '../dashboard/typeUtil';
 import { diningMenuState } from './state';
 import {useEffect, useState} from 'react';
-import { dashboardStateAtom, dateToString, TimeInfo } from '../dashboard/state';
+import { dashboardStateAtom, dateToString, TimeInfo } from '../state';
 import { APIMealByTimeEvent, APIMealByTimePayload } from '../../utils/session/apiTypes';
 import { useUserActions } from '../../utils/session/useUserActions';
 import { authAtom } from '../../utils/session/useFetchWrapper';

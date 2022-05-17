@@ -73,7 +73,7 @@ function useFetchWrapper() {
         
                 return data;
             }catch(e){
-                // console.error(text)
+                console.error(text)
             }
         });
     }    

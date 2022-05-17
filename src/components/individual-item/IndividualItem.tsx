@@ -6,7 +6,7 @@ import { setTextRange } from 'typescript';
 import { authAtom } from '../../utils/session/useFetchWrapper';
 import { useUserActions, ImageResult } from '../../utils/session/useUserActions';
 import { MealState, getNameOfStation } from '../dashboard/typeUtil';
-import { getTimeInfoOfNow, TimeInfo } from '../dashboard/state';
+import { getTimeInfoOfNow, TimeInfo } from '../state';
 import { useLogin } from "../../utils/session/session";
 import { LoadingIcon } from "../../utils/Loading";
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';

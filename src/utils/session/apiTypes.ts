@@ -150,7 +150,6 @@ export function getAPIEveryMealName(meal: APIEveryMeal){
 
 export interface APIUserSettings{
     id: APIKey,
-    expo_push_token : string,
     is_verified: boolean,
     ban: APIUserItemPref[],
     favor: APIUserItemPref[],

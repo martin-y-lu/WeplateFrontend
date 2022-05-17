@@ -6,6 +6,8 @@ import {Platform} from 'react-native'
 import { Subscription } from 'expo-modules-core';
 import { useUserActions } from '../session/useUserActions';
 import { usePersistentAtom } from '../state/userState';
+import { authAtom } from '../session/useFetchWrapper';
+import { useRecoilValue } from 'recoil';
 
 Notifications.setNotificationHandler({
     handleNotification: async () => ({
@@ -14,8 +16,8 @@ Notifications.setNotificationHandler({
       shouldSetBadge: false,
     }),
   });
-
 export function useNotifications(){
+    const auth = useRecoilValue(authAtom)
     const userActions = useUserActions()
     const [expoPushToken, setExpoPushToken] = useState('');
     const [notification, setNotification] = useState(null as Notifications.Notification);
@@ -23,25 +25,27 @@ export function useNotifications(){
     const responseListener = useRef(null as Subscription);
 
     useEffect(() => {
-        registerForPushNotificationsAsync().then(token =>{
-            setExpoPushToken(token)
-            // console.log({pushToken: token})
-            userActions.postPushToken(token)
-        });
+        if(auth){
+          registerForPushNotificationsAsync().then(token =>{
+              setExpoPushToken(token)
+              // console.log({pushToken: token})
+              userActions.postPushToken(token)
+          });
 
-        notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
-            setNotification(notification);
-        });
+          notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+              setNotification(notification);
+          });
 
-        responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-            console.log(response);
-        });
+          responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+              console.log(response);
+          });
 
-        return () => {
-            Notifications.removeNotificationSubscription(notificationListener.current);
-            Notifications.removeNotificationSubscription(responseListener.current);
-        };
-    }, []);
+          return () => {
+              Notifications.removeNotificationSubscription(notificationListener.current);
+              Notifications.removeNotificationSubscription(responseListener.current);
+          };
+        }
+    }, [auth]);
 
     return {
         expoPushToken,

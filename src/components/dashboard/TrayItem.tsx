@@ -9,7 +9,7 @@ import { BASE_PORTION_FILL_FRACTION, leaf_xml, bread_xml, meat_xml } from '../di
 import { useDesignScheme } from '../../design/designScheme';
 import { APIKey } from '../../utils/session/apiTypes';
 import { ModalInfo } from './Dashboard';
-import { TimeInfo } from "./state";
+import { TimeInfo } from "../state";
 import { trackWithProperties } from "expo-analytics-segment";
 
 const thumbs_down_xml = `<svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">

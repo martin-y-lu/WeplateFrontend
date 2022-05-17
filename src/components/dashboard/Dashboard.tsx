@@ -4,7 +4,7 @@ import { View, Text, TouchableOpacity, Modal, ScrollView, Animated } from "react
 import { useRecoilState, useRecoilValue } from "recoil"
 import { NutritionFactsContainerHiddenHeight } from "./NutritionFactsContainer";
 import PortionView, { usePortionViewAnimationState } from './PortionView'
-import { TimeInfo, dashboardStateAtom, dateToString, stringToDate, getTimeInfoOfNow, useMealStateUtils, mealStateSelector } from './state';
+import { TimeInfo, dashboardStateAtom, dateToString, stringToDate, getTimeInfoOfNow, useMealStateUtils, mealStateSelector } from '../state';
 import { MealState, convertAPIItemToDish, Portion, getPortionInfoFromAPIPortionInfo, Dish, FOOD_CATEGORY, FoodCategoryFromAPIFoodCategory, getMealsIndex, getDishesByPortion, getFoodCategoryDescription, PlateType, fullVolumeByPortion, volumesByPlateType } from './typeUtil';
 import { copilot,walkthroughable,CopilotStep } from "react-native-copilot"
 import TrayItem from "./TrayItem"
